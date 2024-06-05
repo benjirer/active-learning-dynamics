@@ -1,0 +1,90 @@
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 4.0
+    y: 1.0
+    angle: 1.0
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 3.5
+    y: -1.0
+    angle: 0.5
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 1.0
+    y: -2.0
+    angle: 2.0
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 0.5
+    y: -1.5
+    angle: 1.5
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: -0.5
+    y: -2.0
+    angle: 2.5
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 2.5
+    y: 1.0
+    angle: 0.2
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 4.5
+    y: 0.5
+    angle: 1.0
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: -0.9
+    y: 0.0
+    angle: 2.8
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 3.0
+    y: -1.5
+    angle: 1.5
+- !Task2D
+  start: !Pose2D
+    x: 2.0
+    y: -0.5
+    angle: 0.0
+  goal: !Pose2D
+    x: 1.5
+    y: 0.5
+    angle: 0.5

@@ -6,19 +6,20 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import numpy as np
-from alrd.environment.robomaster.env import (
-    BaseRobomasterEnv,
-    PositionControlEnv,
-    init_robot,
-)
-from alrd.environment.robomaster.maze_env import (
-    MazeEnv,
-    MazeGoalEnv,
-    MazeGoalKinemEnv,
-    MazeGoalPositionEnv,
-    MazeGoalVelocityEnv,
-    create_maze_env,
-)
+
+# from alrd.environment.robomaster.env import (
+#     BaseRobomasterEnv,
+#     PositionControlEnv,
+#     init_robot,
+# )
+# from alrd.environment.robomaster.maze_env import (
+#     MazeEnv,
+#     MazeGoalEnv,
+#     MazeGoalKinemEnv,
+#     MazeGoalPositionEnv,
+#     MazeGoalVelocityEnv,
+#     create_maze_env,
+# )
 from alrd.environment.spot.spot import SpotEnvironmentConfig
 from alrd.environment.spot.spot2d import (
     Spot2DEnv,
@@ -32,7 +33,7 @@ from alrd.environment.spot.spotgym import SpotGym
 from alrd.environment.spot.wrappers import QueryGoalWrapper, QueryStartWrapper
 from alrd.environment.wrappers.transforms import (
     CosSinObsWrapper,
-    GlobalFrameActionWrapper,
+    # GlobalFrameActionWrapper,
     KeepObsWrapper,
     RemoveAngleActionWrapper,
     RepeatActionWrapper,
@@ -40,8 +41,13 @@ from alrd.environment.wrappers.transforms import (
 from alrd.environment.spot.random_pos import RandomPosInit
 from jax import vmap
 
-from mbse.utils.replay_buffer import EpisodicReplayBuffer, Transition, ReplayBuffer, BaseBuffer
-from mbse.models.dynamics_model import DynamicsModel
+from opax.utils.replay_buffer import (
+    ReplayBuffer,
+    Transition,
+    ReplayBuffer,
+    ReplayBuffer,
+)
+from opax.models.dynamics_model import DynamicsModel
 
 __all__ = [
     "BaseRobomasterEnv",
@@ -71,56 +77,57 @@ def create_robomaster_env(
     xy_speed=0.5,
     a_speed=120.0,
 ):
-    transforms = []
-    coordinates = None
-    if square:
-        coordinates = np.array(
-            [
-                [-4, -4],
-                [-4, 4],
-                [4, 4],
-                [4, -4],
-            ]
-        )
-    env_kwargs = dict(
-        goal=GOAL,
-        coordinates=coordinates,
-        margin=margin,
-        freq=freq,
-        slide_wall=slide_wall,
-        transforms=transforms,
-    )
-    if not poscontrol:
-        if estimate_from_acc:
-            env = MazeGoalKinemEnv.create_env(**env_kwargs)
-        else:
-            env = MazeGoalVelocityEnv.create_env(**env_kwargs)
-    else:
-        env = MazeGoalPositionEnv.create_env(
-            **env_kwargs, xy_speed=xy_speed, a_speed=a_speed
-        )
-    time.sleep(1)
-    if global_frame:
-        env = GlobalFrameActionWrapper(env)
-    assert not noangle or not cossin
-    all_idx = set(range(6))
-    vel_idx = [3, 4, 5]
-    if cossin:
-        all_idx.add(6)
-        vel_idx = [4, 5, 6]
-        env = CosSinObsWrapper(env)
-    keep_idx = set(all_idx)
-    if noangle:
-        keep_idx.remove(2)  # remove angle
-        keep_idx.remove(5)  # remove angular vel
-        env = RemoveAngleActionWrapper(env)
-    if novelocity:
-        keep_idx.difference_update(vel_idx)
-    if len(all_idx) != len(keep_idx):
-        env = KeepObsWrapper(env, list(keep_idx))
-    if repeat_action is not None:
-        env = RepeatActionWrapper(env, repeat_action)
-    return env
+    # transforms = []
+    # coordinates = None
+    # if square:
+    #     coordinates = np.array(
+    #         [
+    #             [-4, -4],
+    #             [-4, 4],
+    #             [4, 4],
+    #             [4, -4],
+    #         ]
+    #     )
+    # env_kwargs = dict(
+    #     goal=GOAL,
+    #     coordinates=coordinates,
+    #     margin=margin,
+    #     freq=freq,
+    #     slide_wall=slide_wall,
+    #     transforms=transforms,
+    # )
+    # if not poscontrol:
+    #     if estimate_from_acc:
+    #         env = MazeGoalKinemEnv.create_env(**env_kwargs)
+    #     else:
+    #         env = MazeGoalVelocityEnv.create_env(**env_kwargs)
+    # else:
+    #     env = MazeGoalPositionEnv.create_env(
+    #         **env_kwargs, xy_speed=xy_speed, a_speed=a_speed
+    #     )
+    # time.sleep(1)
+    # if global_frame:
+    #     env = GlobalFrameActionWrapper(env)
+    # assert not noangle or not cossin
+    # all_idx = set(range(6))
+    # vel_idx = [3, 4, 5]
+    # if cossin:
+    #     all_idx.add(6)
+    #     vel_idx = [4, 5, 6]
+    #     env = CosSinObsWrapper(env)
+    # keep_idx = set(all_idx)
+    # if noangle:
+    #     keep_idx.remove(2)  # remove angle
+    #     keep_idx.remove(5)  # remove angular vel
+    #     env = RemoveAngleActionWrapper(env)
+    # if novelocity:
+    #     keep_idx.difference_update(vel_idx)
+    # if len(all_idx) != len(keep_idx):
+    #     env = KeepObsWrapper(env, list(keep_idx))
+    # if repeat_action is not None:
+    #     env = RepeatActionWrapper(env, repeat_action)
+    # return env
+    raise NotImplementedError
 
 
 def create_spot_env(
@@ -135,7 +142,7 @@ def create_spot_env(
     dynamics_model: DynamicsModel | None = None,
     seed: int | None = None,
     random_init_pose: Tuple[float, float, float, float] | None = None,
-    done_on_goal_tol: Tuple[float, float, float] | None = None
+    done_on_goal_tol: Tuple[float, float, float] | None = None,
 ):
     """
     Creates and initializes spot environment.
@@ -179,7 +186,7 @@ def create_spot_env(
                 dynamics_model,
                 config,
                 action_cost=action_cost,
-                velocity_cost=velocity_cost
+                velocity_cost=velocity_cost,
             )
     if query_goal:
         env = QueryStartWrapper(env)
@@ -196,7 +203,7 @@ def load_dataset(
     velocity_cost: float = 0.0,
     normalize: bool = True,
     action_normalize: bool = False,
-    learn_deltas: bool = True
+    learn_deltas: bool = True,
 ):
     """
     Parameters
@@ -209,7 +216,7 @@ def load_dataset(
     data = pickle.load(open(buffer_path, "rb"))
     obs_shape = (7,)
     action_shape = (3,)
-    assert isinstance(data, BaseBuffer)
+    assert isinstance(data, ReplayBuffer)
     buffer = ReplayBuffer(
         obs_shape=obs_shape,
         action_shape=action_shape,
@@ -230,17 +237,16 @@ def load_dataset(
     buffer.add(tran)
     return buffer
 
+
 def load_episodic_dataset(
     buffer_path: str,
-    usepast: Optional[int] = None,
-    usepastact: bool = False,
     goal=None,
     action_cost: float = 0.0,
     velocity_cost: float = 0.0,
     normalize: bool = True,
     action_normalize: bool = False,
     learn_deltas: bool = True,
-    episode_len: Optional[int] = None
+    episode_len: Optional[int] = None,
 ):
     """
     Parameters
@@ -257,21 +263,18 @@ def load_episodic_dataset(
     action_shape = (3,)
     # hide_in_obs = [0,1,2,3]
     hide_in_obs = None
-    assert isinstance(data, BaseBuffer)
+    assert isinstance(data, ReplayBuffer)
     if episode_len is None:
-        assert isinstance(data, EpisodicReplayBuffer)
+        assert isinstance(data, ReplayBuffer)
         num_episodes = data.num_episodes
     else:
         num_episodes = data.size // episode_len
-    buffer = EpisodicReplayBuffer(
+    buffer = ReplayBuffer(
         obs_shape=obs_shape,
         action_shape=action_shape,
         normalize=normalize,
         action_normalize=action_normalize,
         learn_deltas=learn_deltas,
-        use_history=usepast,
-        use_action_history=usepastact,
-        hide_in_obs=hide_in_obs,
     )
     if goal is not None:
         reward_model = Spot2DReward.create(
@@ -283,11 +286,11 @@ def load_episodic_dataset(
             tran = data.get_episode(i)
         else:
             tran = Transition(
-                obs         = data.obs[i * episode_len : (i + 1) * episode_len],
-                action      = data.action[i * episode_len : (i + 1) * episode_len],
-                next_obs    = data.next_obs[i * episode_len : (i + 1) * episode_len],
-                reward      = data.reward[i * episode_len : (i + 1) * episode_len],
-                done        = data.done[i * episode_len : (i + 1) * episode_len],
+                obs=data.obs[i * episode_len : (i + 1) * episode_len],
+                action=data.action[i * episode_len : (i + 1) * episode_len],
+                next_obs=data.next_obs[i * episode_len : (i + 1) * episode_len],
+                reward=data.reward[i * episode_len : (i + 1) * episode_len],
+                done=data.done[i * episode_len : (i + 1) * episode_len],
             )
         if goal is not None:
             tran.obs[:] = change_spot2d_obs_frame(tran.obs, goal[:2], goal[2])
@@ -298,7 +301,7 @@ def load_episodic_dataset(
     return buffer
 
 
-def add_2d_zero_samples(buffer: EpisodicReplayBuffer, num_samples: int, reward_model=None):
+def add_2d_zero_samples(buffer: ReplayBuffer, num_samples: int, reward_model=None):
     """
     Adds zero samples to buffer.
     """
@@ -330,8 +333,9 @@ def add_2d_zero_samples(buffer: EpisodicReplayBuffer, num_samples: int, reward_m
         )
     )
 
-def get_first_n(buffer: BaseBuffer, n: int):
-    """ Get a buffer with same args as buffer but with only first n transitions """
+
+def get_first_n(buffer: ReplayBuffer, n: int):
+    """Get a buffer with same args as buffer but with only first n transitions"""
     tran = buffer.get_full_raw_data()
     new_tran = Transition(
         obs=tran.obs[:n],
@@ -340,16 +344,12 @@ def get_first_n(buffer: BaseBuffer, n: int):
         reward=tran.reward[:n],
         done=tran.done[:n],
     )
-    augment = None
-    if isinstance(buffer, EpisodicReplayBuffer):
-        augment = buffer.augment
-    new_buffer = EpisodicReplayBuffer(
+    new_buffer = ReplayBuffer(
         obs_shape=buffer.obs_shape,
         action_shape=buffer.action_shape,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
         learn_deltas=buffer.learn_deltas,
-        augment=augment
     )
     new_buffer.add(new_tran)
     return new_buffer

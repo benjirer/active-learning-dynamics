@@ -1,7 +1,12 @@
 from __future__ import annotations
 from datetime import datetime
 from scipy.spatial.transform import Rotation
-from mbse.utils.replay_buffer import ReplayBuffer, Transition, get_past_values, BaseBuffer, EpisodicReplayBuffer
+from opax.utils.replay_buffer import (
+    ReplayBuffer,
+    Transition,
+    ReplayBuffer,
+    ReplayBuffer,
+)
 import time
 import numpy as np
 import math
@@ -14,18 +19,21 @@ import yaml
 from pathlib import Path
 from dataclasses import dataclass
 
+
 def get_timestamp_str():
     return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+
 def get_transition_from_buffer(buffer: ReplayBuffer):
     t = Transition(
-        buffer.obs[:buffer.size],
-        buffer.action[:buffer.size],
-        buffer.next_obs[:buffer.size],
-        buffer.reward[:buffer.size],
-        buffer.done[:buffer.size]
+        buffer.obs[: buffer.size],
+        buffer.action[: buffer.size],
+        buffer.next_obs[: buffer.size],
+        buffer.reward[: buffer.size],
+        buffer.done[: buffer.size],
     )
     return t
+
 
 def rotate_2d_vector(vector, angle, degrees=True):
     """
@@ -34,8 +42,12 @@ def rotate_2d_vector(vector, angle, degrees=True):
         angle: scalar
         degrees: whether to interpret the angle in degrees, otherwise it is used in radians
     """
-    result = Rotation.from_euler('z', angle, degrees=degrees).as_matrix()[:2, :2] @ vector[...,None]
-    return result[...,0]
+    result = (
+        Rotation.from_euler("z", angle, degrees=degrees).as_matrix()[:2, :2]
+        @ vector[..., None]
+    )
+    return result[..., 0]
+
 
 def rotate_2d_vector_jax(vector, angle, degrees=True):
     """
@@ -46,27 +58,41 @@ def rotate_2d_vector_jax(vector, angle, degrees=True):
     """
     if degrees:
         angle = angle * np.pi / 180
-    return jnp.array([vector[0] * jnp.cos(angle) - vector[1] * jnp.sin(angle), vector[0] * jnp.sin(angle) + vector[1] * jnp.cos(angle)])
+    return jnp.array(
+        [
+            vector[0] * jnp.cos(angle) - vector[1] * jnp.sin(angle),
+            vector[0] * jnp.sin(angle) + vector[1] * jnp.cos(angle),
+        ]
+    )
+
 
 def rotate_2d_vector_cossin(vector, cos, sin):
-    return jnp.concatenate([(vector[..., 0] * cos - vector[..., 1] * sin)[...,None],
-                            (vector[..., 0] * sin + vector[..., 1] * cos)[...,None]], axis=-1)
+    return jnp.concatenate(
+        [
+            (vector[..., 0] * cos - vector[..., 1] * sin)[..., None],
+            (vector[..., 0] * sin + vector[..., 1] * cos)[..., None],
+        ],
+        axis=-1,
+    )
+
 
 def change_frame_2d(vector, origin, angle, degrees=True):
     """
     Parameters:
         vector: [..., 2] array with vectors (x,y)
         origin: (x0,y0) of the new frame
-        angle: angle of the new frame with respect to the old one 
+        angle: angle of the new frame with respect to the old one
     """
     return rotate_2d_vector(vector - origin, -angle, degrees=degrees)
 
+
 @dataclass
 class Pose2D(yaml.YAMLObject):
-    yaml_tag = u'!Pose2D'
+    yaml_tag = "!Pose2D"
     x: float
     y: float
     angle: float
+
 
 class Frame2D:
     def __init__(self, x, y, angle) -> None:
@@ -78,36 +104,42 @@ class Frame2D:
         self.x = x
         self.y = y
         self.angle = angle
-        self.__inverse = change_frame_2d(np.array([0,0]), (x,y), angle, degrees=False)
-    
+        self.__inverse = change_frame_2d(np.array([0, 0]), (x, y), angle, degrees=False)
+
     def transform(self, vector) -> np.ndarray:
         return change_frame_2d(vector, (self.x, self.y), self.angle, degrees=False)
-    
+
     def transform_direction(self, vector) -> np.ndarray:
         return rotate_2d_vector(vector, -self.angle, degrees=False)
-    
+
     def transform_pose(self, x, y, angle):
-        x, y = change_frame_2d(np.array([x,y]), (self.x, self.y), self.angle, degrees=False)
+        x, y = change_frame_2d(
+            np.array([x, y]), (self.x, self.y), self.angle, degrees=False
+        )
         angle -= self.angle
         angle = math.remainder(angle, math.tau)
         return x, y, angle
-    
+
     def inverse(self, vector) -> np.ndarray:
         return change_frame_2d(vector, self.__inverse, -self.angle, degrees=False)
-    
+
     def inverse_pose(self, x, y, angle):
-        x, y = change_frame_2d(np.array([x,y]), self.__inverse, -self.angle, degrees=False)
+        x, y = change_frame_2d(
+            np.array([x, y]), self.__inverse, -self.angle, degrees=False
+        )
         angle += self.angle
         angle = np.vectorize(math.remainder)(angle, math.tau)
         return x, y, angle
-    
+
     def __str__(self) -> str:
         return f"Frame2D(x={self.x}, y={self.y}, angle={self.angle})"
+
 
 def sleep_ms(miliseconds):
     start = time.time()
     while time.time() - start < miliseconds / 1000:
         time.sleep(0.001)
+
 
 def convert_to_cos_sin(obs: np.ndarray, angle_idx=2):
     """
@@ -116,11 +148,12 @@ def convert_to_cos_sin(obs: np.ndarray, angle_idx=2):
     :return: converted observation
     """
     newobs = np.zeros((*obs.shape[:-1], obs.shape[-1] + 1))
-    newobs[...,:angle_idx] = obs[..., :angle_idx]
-    newobs[...,angle_idx] = np.cos(obs[...,2] * np.pi / 180)
-    newobs[...,angle_idx+1] = np.sin(obs[...,2] * np.pi / 180)
-    newobs[...,angle_idx+2:] = obs[...,angle_idx+1:]
+    newobs[..., :angle_idx] = obs[..., :angle_idx]
+    newobs[..., angle_idx] = np.cos(obs[..., 2] * np.pi / 180)
+    newobs[..., angle_idx + 1] = np.sin(obs[..., 2] * np.pi / 180)
+    newobs[..., angle_idx + 2 :] = obs[..., angle_idx + 1 :]
     return newobs
+
 
 def convert_buffer_to_cos_sin(buffer: ReplayBuffer, angle_idx=2):
     """
@@ -135,7 +168,7 @@ def convert_buffer_to_cos_sin(buffer: ReplayBuffer, angle_idx=2):
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     transition = get_transition_from_buffer(buffer)
     new_transition = Transition(
@@ -143,9 +176,11 @@ def convert_buffer_to_cos_sin(buffer: ReplayBuffer, angle_idx=2):
         transition.action,
         convert_to_cos_sin(transition.next_obs),
         transition.reward,
-        transition.done)
+        transition.done,
+    )
     new_buffer.add(new_transition)
     return new_buffer
+
 
 def convert_buffer_to_global(buffer: ReplayBuffer):
     """
@@ -160,29 +195,44 @@ def convert_buffer_to_global(buffer: ReplayBuffer):
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     transition = get_transition_from_buffer(buffer)
-    rotation = np.array([[transition.obs[:,2], -transition.obs[:,3]], [transition.obs[:,3], transition.obs[:,2]]]).transpose((2,0,1))
+    rotation = np.array(
+        [
+            [transition.obs[:, 2], -transition.obs[:, 3]],
+            [transition.obs[:, 3], transition.obs[:, 2]],
+        ]
+    ).transpose((2, 0, 1))
     new_action = np.array(transition.action)
-    new_action[...,:2] = (rotation @ transition.action[...,:2,None]).squeeze(-1)
+    new_action[..., :2] = (rotation @ transition.action[..., :2, None]).squeeze(-1)
     new_transition = Transition(
         transition.obs,
         new_action,
         transition.next_obs,
         transition.reward,
-        transition.done)
+        transition.done,
+    )
     new_buffer.add(new_transition)
     return new_buffer
+
 
 def moving_average_filter(x, window_size: int):
     x = np.stack((np.zeros((window_size, *x.shape[1:])), x))
     cumsum = np.cumsum(x, dtype=float, axis=0)
     return (cumsum[window_size:] - cumsum[:-window_size]) / window_size
-    
-def moving_average_filter_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int, action_window_size: int = 1, obs_idx: Optional[Sequence[int]]=None):
+
+
+def moving_average_filter_buffer(
+    buffer: ReplayBuffer,
+    window_size: int,
+    episode_len: int,
+    action_window_size: int = 1,
+    obs_idx: Optional[Sequence[int]] = None,
+):
     if obs_idx is None:
         obs_idx = range(t.obs.shape[1])
+
     def apply_filter(data, window_size):
         obs = np.vstack((np.zeros((window_size, *data.shape[1:])), data))
         cumsum = np.cumsum(obs, dtype=float, axis=0)
@@ -195,15 +245,15 @@ def moving_average_filter_buffer(buffer: ReplayBuffer, window_size: int, episode
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     t = get_transition_from_buffer(buffer)
     for i in range(0, buffer.size, episode_len):
         start = i
         end = i + episode_len
         if window_size > 1:
-            obs = np.vstack((t.obs[start:end], t.next_obs[end-1]))
-            obs[:,obs_idx] = apply_filter(obs[:,obs_idx], window_size)
+            obs = np.vstack((t.obs[start:end], t.next_obs[end - 1]))
+            obs[:, obs_idx] = apply_filter(obs[:, obs_idx], window_size)
             new_obs = obs[:-1]
             new_next_obs = obs[1:]
         else:
@@ -213,11 +263,16 @@ def moving_average_filter_buffer(buffer: ReplayBuffer, window_size: int, episode
             new_action = apply_filter(t.action[start:end], action_window_size)
         else:
             new_action = t.action[start:end]
-        new_t = Transition(new_obs, new_action, new_next_obs, t.reward[start:end], t.done[start:end])
+        new_t = Transition(
+            new_obs, new_action, new_next_obs, t.reward[start:end], t.done[start:end]
+        )
         new_buffer.add(new_t)
     return new_buffer
 
-def downsample_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int, downsample_fn):
+
+def downsample_buffer(
+    buffer: ReplayBuffer, window_size: int, episode_len: int, downsample_fn
+):
     # assumes episode_len is a multiple of window_size
     new_buffer = ReplayBuffer(
         obs_shape=buffer.obs_shape,
@@ -225,7 +280,7 @@ def downsample_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int, 
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     t = get_transition_from_buffer(buffer)
     for i in range(0, buffer.size, episode_len):
@@ -237,24 +292,32 @@ def downsample_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int, 
         new_next_obs = obs[1:]
         new_t = Transition(
             new_obs,
-            t.action[start:end-window_size:window_size],
+            t.action[start : end - window_size : window_size],
             new_next_obs,
-            t.reward[start+window_size:end:window_size],
-            t.done[start+window_size:end:window_size])
+            t.reward[start + window_size : end : window_size],
+            t.done[start + window_size : end : window_size],
+        )
         new_buffer.add(new_t)
     return new_buffer
 
-def strided_median_filter_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int):
+
+def strided_median_filter_buffer(
+    buffer: ReplayBuffer, window_size: int, episode_len: int
+):
     # assumes episode_len is a multiple of window_size
     fn = lambda x: np.median(x, axis=-2)
     return downsample_buffer(buffer, window_size, episode_len, fn)
 
+
 def regular_downsample(buffer: ReplayBuffer, window_size: int, episode_len: int):
     # assumes episode_len is a multiple of window_size
-    fn = lambda x: x[...,0,:]
+    fn = lambda x: x[..., 0, :]
     return downsample_buffer(buffer, window_size, episode_len, fn)
 
-def use_past_state(buffer: ReplayBuffer, window_size: int, use_past_act: bool, episode_len: int):
+
+def use_past_state(
+    buffer: ReplayBuffer, window_size: int, use_past_act: bool, episode_len: int
+):
     # assumes episode_len is a multiple of window_size
     new_obs_shape = (buffer.obs_shape[0],)
     new_buffer = ReplayBuffer(
@@ -266,11 +329,12 @@ def use_past_state(buffer: ReplayBuffer, window_size: int, use_past_act: bool, e
         learn_deltas=buffer.learn_deltas,
         use_history=window_size,
         use_action_history=use_past_act,
-        episode_length=episode_len
+        episode_length=episode_len,
     )
     t = get_transition_from_buffer(buffer)
     new_buffer.add(t)
     return new_buffer
+
 
 def multi_step_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int):
     new_obs_shape = (buffer.obs_shape[0] * window_size,)
@@ -286,20 +350,18 @@ def multi_step_buffer(buffer: ReplayBuffer, window_size: int, episode_len: int):
     for i in range(0, buffer.size, episode_len):
         start = i
         end = i + episode_len
-        obs = np.vstack([t.obs[start+1:end], t.next_obs[end-1]]).reshape(-1, t.obs.shape[-1] * window_size)
+        obs = np.vstack([t.obs[start + 1 : end], t.next_obs[end - 1]]).reshape(
+            -1, t.obs.shape[-1] * window_size
+        )
         new_obs = obs[:-1]
         new_next_obs = obs[1:]
-        new_action = t.action[start+window_size:end:window_size]
-        new_reward = t.reward[start+2*window_size-1:end:window_size]
-        new_done = t.done[start+2*window_size-1:end:window_size]
-        new_t = Transition(
-            new_obs,
-            new_action,
-            new_next_obs,
-            new_reward,
-            new_done)
+        new_action = t.action[start + window_size : end : window_size]
+        new_reward = t.reward[start + 2 * window_size - 1 : end : window_size]
+        new_done = t.done[start + 2 * window_size - 1 : end : window_size]
+        new_t = Transition(new_obs, new_action, new_next_obs, new_reward, new_done)
         new_buffer.add(new_t)
     return new_buffer
+
 
 # borrowed from: https://dsp.stackexchange.com/questions/1676/savitzky-golay-smoothing-filter-for-not-equally-spaced-data
 def non_uniform_savgol(x, y, window, polynom):
@@ -331,7 +393,7 @@ def non_uniform_savgol(x, y, window, polynom):
         raise ValueError('"x" and "y" must be of the same size')
 
     if len(x) < window:
-        raise ValueError('The data size must be larger than the window size')
+        raise ValueError("The data size must be larger than the window size")
 
     if type(window) is not int:
         raise TypeError('"window" must be an integer')
@@ -349,9 +411,9 @@ def non_uniform_savgol(x, y, window, polynom):
     polynom += 1
 
     # Initialize variables
-    A = np.empty((window, polynom))     # Matrix
-    tA = np.empty((polynom, window))    # Transposed matrix
-    t = np.empty(window)                # Local x variables
+    A = np.empty((window, polynom))  # Matrix
+    tA = np.empty((polynom, window))  # Transposed matrix
+    t = np.empty(window)  # Local x variables
     y_smoothed = np.full(len(y), np.nan)
 
     # Start smoothing
@@ -412,11 +474,15 @@ def non_uniform_savgol(x, y, window, polynom):
 
     return y_smoothed
 
+
 def uniform_savgol(y, window_size, degree):
     new_y = np.zeros_like(y)
     for i in range(y.shape[-1]):
-        new_y[:, i] = non_uniform_savgol(np.arange(len(y)), y[:, i], window_size, degree)
+        new_y[:, i] = non_uniform_savgol(
+            np.arange(len(y)), y[:, i], window_size, degree
+        )
     return new_y
+
 
 def get_dims(buffer: ReplayBuffer, idx, act_idx):
     new_buffer = ReplayBuffer(
@@ -425,38 +491,49 @@ def get_dims(buffer: ReplayBuffer, idx, act_idx):
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     t = get_transition_from_buffer(buffer)
     new_t = Transition(
-        t.obs[...,idx],
-        t.action[...,act_idx],
-        t.next_obs[...,idx],
-        t.reward,
-        t.done
+        t.obs[..., idx], t.action[..., act_idx], t.next_obs[..., idx], t.reward, t.done
     )
     new_buffer.add(new_t)
     return new_buffer
+
 
 class FlipX:
     """
     Flip data along X axis (front-rear axis)
     WARNING: should only be used for model learning, since the rewards will not correspond to the new observations
     """
+
     def __init__(self, buffer: ReplayBuffer, flip_y) -> None:
         self.buffer = buffer
         self.flip_y = jnp.array([0, flip_y, 0, 0, 0, 0, 0])
-    
+
     def sample(self, rng, batch_size: int = 256):
         samplerng, rng = jax.random.split(rng)
         tran = self.buffer.sample(samplerng, batch_size)
         idx = jax.random.randint(rng, (batch_size, 1), 0, 2)
-        obs = jnp.where(idx, tran.obs, (tran.obs - self.flip_y) * jnp.array([1, -1, 1, -1, 1, -1, -1]) + self.flip_y)
+        obs = jnp.where(
+            idx,
+            tran.obs,
+            (tran.obs - self.flip_y) * jnp.array([1, -1, 1, -1, 1, -1, -1])
+            + self.flip_y,
+        )
         action = jnp.where(idx, tran.action, tran.action * jnp.array([1, -1, -1]))
-        next_obs = jnp.where(idx, tran.next_obs, (tran.next_obs - self.flip_y) * jnp.array([1, -1, 1, -1, 1, -1, -1]) + self.flip_y)
+        next_obs = jnp.where(
+            idx,
+            tran.next_obs,
+            (tran.next_obs - self.flip_y) * jnp.array([1, -1, 1, -1, 1, -1, -1])
+            + self.flip_y,
+        )
         return Transition(obs, action, next_obs, tran.reward, tran.done)
 
-def apply_filter_to_buffer(buffer: ReplayBuffer, filter, filteract, episode_len, filter_kwargs):
+
+def apply_filter_to_buffer(
+    buffer: ReplayBuffer, filter, filteract, episode_len, filter_kwargs
+):
     t = get_transition_from_buffer(buffer)
     new_buffer = ReplayBuffer(
         obs_shape=buffer.obs_shape,
@@ -464,12 +541,12 @@ def apply_filter_to_buffer(buffer: ReplayBuffer, filter, filteract, episode_len,
         max_size=buffer.max_size,
         normalize=buffer.normalize,
         action_normalize=buffer.action_normalize,
-        learn_deltas=buffer.learn_deltas
+        learn_deltas=buffer.learn_deltas,
     )
     for i in range(0, buffer.size, episode_len):
         start = i
         end = i + episode_len
-        obs = np.vstack((t.obs[start:end], t.next_obs[end-1]))
+        obs = np.vstack((t.obs[start:end], t.next_obs[end - 1]))
         obs = filter(obs, **filter_kwargs)
         new_obs = obs[:-1]
         new_next_obs = obs[1:]
@@ -477,49 +554,55 @@ def apply_filter_to_buffer(buffer: ReplayBuffer, filter, filteract, episode_len,
             new_action = filter(t.action[start:end], **filter_kwargs)
         else:
             new_action = t.action[start:end]
-        new_t = Transition(new_obs, new_action, new_next_obs, t.reward[start:end], t.done[start:end])
+        new_t = Transition(
+            new_obs, new_action, new_next_obs, t.reward[start:end], t.done[start:end]
+        )
         new_buffer.add(new_t)
     return new_buffer
 
+
 def load_dataset(
-        buffer_path: str,
-        nopos: bool = False,
-        noangle: bool = False,
-        sin_cos: bool = False,
-        novel: bool = False,
-        usepast: Optional[int] = None,
-        usepastact: bool = False,
-        control_freq: Optional[int] = None,
-        episodelen: Optional[int] = None,
-        downsample: Optional[int] = None,
-        downsample_method: str = 'median',
-        filter: Optional[Callable] = None,
-        filteract: bool = False,
-        filter_kwargs: Optional[dict] = None):
-    buffer = pickle.load(open(buffer_path, 'rb'))
+    buffer_path: str,
+    nopos: bool = False,
+    noangle: bool = False,
+    sin_cos: bool = False,
+    novel: bool = False,
+    usepast: Optional[int] = None,
+    usepastact: bool = False,
+    control_freq: Optional[int] = None,
+    episodelen: Optional[int] = None,
+    downsample: Optional[int] = None,
+    downsample_method: str = "median",
+    filter: Optional[Callable] = None,
+    filteract: bool = False,
+    filter_kwargs: Optional[dict] = None,
+):
+    buffer = pickle.load(open(buffer_path, "rb"))
     if downsample is not None:
-        if downsample_method == 'median':
+        if downsample_method == "median":
             buffer = strided_median_filter_buffer(buffer, downsample, episodelen)
         elif downsample_method == "simple":
             buffer = regular_downsample(buffer, downsample, episodelen)
         episodelen = episodelen // downsample - 1
     if filter is not None:
-        buffer = apply_filter_to_buffer(buffer, filter, filteract, episodelen, filter_kwargs)
-    pos_idx = [0,1]
+        buffer = apply_filter_to_buffer(
+            buffer, filter, filteract, episodelen, filter_kwargs
+        )
+    pos_idx = [0, 1]
     if buffer.obs_shape[-1] == 6:
-        angle_idx = [2,5]
-        vel_idx = [3,4,5]
+        angle_idx = [2, 5]
+        vel_idx = [3, 4, 5]
     elif buffer.obs_shape[-1] == 7:
-        angle_idx = [2,3,6]
-        vel_idx = [4,5,6]
+        angle_idx = [2, 3, 6]
+        vel_idx = [4, 5, 6]
     elif buffer.obs_shape[-1] == 4:
         angle_idx = []
-        vel_idx = [2,3]
+        vel_idx = [2, 3]
     else:
         raise NotImplementedError
     all_count = len(pos_idx) + len(angle_idx) + len(vel_idx)
     keep = set(pos_idx + angle_idx + vel_idx)
-    keep_act = {0,1,2}
+    keep_act = {0, 1, 2}
     if nopos:
         keep -= set(pos_idx)
     if noangle:
@@ -538,25 +621,23 @@ def load_dataset(
         buffer = multi_step_buffer(buffer, control_freq, episodelen)
         assert episodelen % control_freq == 0
         episodelen = episodelen // control_freq - 1
-    if usepast is not None:            
+    if usepast is not None:
         assert episodelen is not None
         buffer = use_past_state(buffer, usepast, usepastact, episodelen)
     else:
-        buffer._use_history = None # TODO should not be needed for buffers with newer version
+        buffer._use_history = (
+            None  # TODO should not be needed for buffers with newer version
+        )
     return buffer
 
+
 def load_episodic_dataset(
-        buffer_path: str,
-        usepast: Optional[int] = None,
-        usepastact: bool = False,
-        hide_state_ind: Sequence[int] | None = None
-        ):
-    buffer = pickle.load(open(buffer_path, 'rb'))
-    assert isinstance(buffer, EpisodicReplayBuffer)
-    if usepast != buffer.use_history or usepastact != buffer.use_action_history:            
-        buffer.set_use_history(usepast, usepastact)
-    buffer.hide_indices(hide_state_ind)
+    buffer_path: str,
+):
+    buffer = pickle.load(open(buffer_path, "rb"))
+    assert isinstance(buffer, ReplayBuffer)
     return buffer
+
 
 class JsonPathEncoder(json.JSONEncoder):
     def default(self, obj):

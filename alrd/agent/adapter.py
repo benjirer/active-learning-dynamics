@@ -1,6 +1,7 @@
-from mbse.agents.actor_critic.sac import SACAgent
+from opax.agents.actor_critic.sac import SACAgent
 from alrd.agent.absagent import Agent
 import jax
+
 
 class AgentAdapter(Agent):
     def __init__(self, agent, rng=None) -> None:
