@@ -9,16 +9,23 @@ from typing import Tuple
 
 import gym
 import numpy as np
-from alrd.environment.spot.command import Command
-from alrd.environment.spot.record import Session, Episode
-from alrd.environment.spot.robot_state import SpotState
-from alrd.environment.spot.spot import SpotGymStateMachine, SpotEnvironmentConfig
+from alrd.spot_gym.model.command import Command
+from alrd.spot_gym.envs.record import Session, Episode
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.model.spot import SpotGymStateMachine, SpotEnvironmentConfig
 from alrd.utils.utils import get_timestamp_str
 
 
 class SpotGym(SpotGymStateMachine, gym.Env, ABC):
-    def __init__(self, config: SpotEnvironmentConfig, cmd_freq: float, monitor_freq: float = 30,
-                 log_dir: str | Path | None = None, session: Session | None = None, log_str: bool = False):
+    def __init__(
+        self,
+        config: SpotEnvironmentConfig,
+        cmd_freq: float,
+        monitor_freq: float = 30,
+        log_dir: str | Path | None = None,
+        session: Session | None = None,
+        log_str: bool = False,
+    ):
         """
         Args:
             cmd_freq: Environment's action frequency. Commands will take at approximately 1/cmd_freq seconds to execute.
@@ -28,21 +35,27 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
             log_str: If True, command and state info is logged as a string to a file.
         If log_dir is not None and session is not None, session data will be dumped after each episode.
         """
-        assert session is None or log_dir is not None, "If session is not None, log_dir must be specified"
-        assert not log_str or log_dir is not None, "If log_str is True, log_dir must be specified"
+        assert (
+            session is None or log_dir is not None
+        ), "If session is not None, log_dir must be specified"
+        assert (
+            not log_str or log_dir is not None
+        ), "If log_str is True, log_dir must be specified"
         super().__init__(config, monitor_freq=monitor_freq)
         self.__cmd_freq = cmd_freq
         self.__should_reset = True
         self.__last_robot_state = None
         self.__current_episode = None
-        self.__default_reset = np.array((config.start_x, config.start_y, config.start_angle))
+        self.__default_reset = np.array(
+            (config.start_x, config.start_y, config.start_angle)
+        )
         self.log_dir = Path(log_dir) if log_dir is not None else None
         self.log_file = None
         self.session = session
         self.log_str = log_str
         if log_dir is not None:
             self.logger.addHandler(logging.FileHandler(self.log_dir / "spot_gym.log"))
-    
+
     @property
     def default_reset(self):
         return self.__default_reset
@@ -58,14 +71,14 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
 
     def print_to_file(self, command: Command, state: SpotState, currentTime):
         if self.log_file is None:
-            filepath = self.log_dir / ('session-'+get_timestamp_str() + ".txt")
+            filepath = self.log_dir / ("session-" + get_timestamp_str() + ".txt")
             self.log_file = open(filepath, "w")
         self.log_file.write("time {{\n \tvalue: {:.5f} \n}}\n".format(currentTime))
-        self.log_file.write(command.to_str()+"\n")
-        self.log_file.write(state.to_str()+"\n")
+        self.log_file.write(command.to_str() + "\n")
+        self.log_file.write(state.to_str() + "\n")
 
     def stop_robot(self) -> bool:
-        """ Stops the robot and ends the current episode """
+        """Stops the robot and ends the current episode"""
         if not self.isopen:
             raise RuntimeError("Robot was shutdown, but stop was called.")
         result = self._issue_stop()
@@ -83,12 +96,20 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
             if self.log_str and self.log_file is not None:
                 self.log_file.close()
                 self.log_file = None
-            if self.session is not None and self.__current_episode is not None and len(self.__current_episode) > 0:
+            if (
+                self.session is not None
+                and self.__current_episode is not None
+                and len(self.__current_episode) > 0
+            ):
                 self.session.add_episode(self.__current_episode)
                 self.__current_episode = None
-                pickle.dump(self.session.asdict(), open(self.log_dir / "record.pkl", "wb"))
+                pickle.dump(
+                    self.session.asdict(), open(self.log_dir / "record.pkl", "wb")
+                )
 
-    def _step(self, cmd: Command) -> Tuple[SpotState | None, float, float | None, bool | None]:
+    def _step(
+        self, cmd: Command
+    ) -> Tuple[SpotState | None, float, float | None, bool | None]:
         """
         Apply the command for as long as the command period specified.
         Returns:
@@ -103,7 +124,7 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
             else:
                 raise RuntimeError("Environment should be reset but step was called.")
         start_cmd = time.time()
-        success, result = self._issue_command(cmd, 1/self.__cmd_freq)
+        success, result = self._issue_command(cmd, 1 / self.__cmd_freq)
         cmd_time = time.time() - start_cmd
         if not success:
             # command was interrupted
@@ -122,7 +143,7 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
     @abstractmethod
     def get_reward(self, action: np.ndarray, next_obs: np.ndarray) -> float:
         raise NotImplementedError
-    
+
     @abstractmethod
     def is_done(self, obs: np.ndarray) -> bool:
         raise NotImplementedError
@@ -161,7 +182,7 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
         Args:
             pose: [x, y, angle] where to reset the robot in global coordinates
         Returns:
-            new_state: starting state, None if 
+            new_state: starting state, None if
         Raises:
             RuntimeError if the robot reset fails
         """
@@ -173,14 +194,18 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
         success = self._issue_stop()
         if not success:
             self.logger.error("Reset stop command failed")
-            raise RuntimeError("Failed to perform environment reset. Robot stop failed.")
+            raise RuntimeError(
+                "Failed to perform environment reset. Robot stop failed."
+            )
         self.logger.debug("Robot stopped")
         # reset position
         success, _ = self._issue_reset(*pose)
         self.logger.info("Resetting robot position...")
         if not success:
             self.logger.error("Failed to reset robot position")
-            raise RuntimeError("Failed to perform environment reset. Pose reset failed.")
+            raise RuntimeError(
+                "Failed to perform environment reset. Pose reset failed."
+            )
         start = time.time()
         new_state = self._read_robot_state()
         read_time = time.time() - start
@@ -190,7 +215,9 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
             self.__current_episode = Episode(new_state)
         return new_state, read_time
 
-    def reset(self, seed: int | None = None, options: dict | None = None) -> Tuple[np.ndarray, dict]:
+    def reset(
+        self, seed: int | None = None, options: dict | None = None
+    ) -> Tuple[np.ndarray, dict]:
         """
         Args:
             seed: set the seed for the environment's random number generator.
@@ -204,10 +231,12 @@ class SpotGym(SpotGymStateMachine, gym.Env, ABC):
         if options is None:
             options = {}
         pose = options.get("pose", self.__default_reset)
-        assert isinstance(pose, np.ndarray) and pose.shape == (3,), "Pose must be an array of size 3: (x, y, angle)"
+        assert isinstance(pose, np.ndarray) and pose.shape == (
+            3,
+        ), "Pose must be an array of size 3: (x, y, angle)"
         result = self._reset(pose)
         state, read_time = result
         info = {"read_time": read_time}
         obs = self.get_obs_from_state(state)
-        self.logger.info('Resetting with initial observation {}'.format(obs))
+        self.logger.info("Resetting with initial observation {}".format(obs))
         return obs, info

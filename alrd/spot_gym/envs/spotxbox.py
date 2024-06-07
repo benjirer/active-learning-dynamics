@@ -7,11 +7,11 @@ import time
 import logging
 import traceback
 from enum import Enum
-from alrd.environment.spot.mobility_command import MobilityCommand
+from alrd.spot_gym.model.mobility_command import MobilityCommand
 
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
-from alrd.environment.spot.spot import SpotGymBase
-from alrd.environment.spot.orientation_command import OrientationCommand
+from alrd.spot_gym.model.spot import SpotGymBase
+from alrd.spot_gym.model.orientation_command import OrientationCommand
 
 import bosdyn.api.basic_command_pb2 as basic_command_pb2
 import bosdyn.client
@@ -38,8 +38,7 @@ HEIGHT_CHANGE = 0.1  # m per command
 
 
 class RobotMode(Enum):
-    """RobotMode enum stores the current movement type of the robot.
-    """
+    """RobotMode enum stores the current movement type of the robot."""
 
     Walk = 1
     Sit = 2
@@ -103,13 +102,15 @@ class SpotXbox(SpotGymBase):
     def initialize_robot(self, hostname):
         super().initialize_robot(hostname)
         self.mobility_params = spot_command_pb2.MobilityParams(
-            locomotion_hint=spot_command_pb2.HINT_AUTO)
+            locomotion_hint=spot_command_pb2.HINT_AUTO
+        )
         filepath = Path("output/spot") / (get_timestamp_str() + ".txt")
         self.log_file = open(filepath, "w")
 
         # Print controls
         print(
-            textwrap.dedent("""\
+            textwrap.dedent(
+                """\
 | Button Combination | Functionality            |
 |--------------------|--------------------------|
 | A                  | Walk                     |
@@ -139,12 +140,16 @@ class SpotXbox(SpotGymBase):
 | LB + RB + B        | E-Stop                   |
 | Start              | Motor power & Control    |
 | Back               | Exit                     |
-        """))
+        """
+            )
+        )
 
         # Describe the necessary steps before one can command the robot.
-        print("Before you can command the robot: \n" + \
-            "\t1. Acquire a software E-Stop (Left Button + Right Button + B). \n" + \
-            "\t2. Obtain a lease and power on the robot's motors (Start button).")
+        print(
+            "Before you can command the robot: \n"
+            + "\t1. Acquire a software E-Stop (Left Button + Right Button + B). \n"
+            + "\t2. Obtain a lease and power on the robot's motors (Start button)."
+        )
 
     def _issue_robot_command(self, command, endtime=None):
         """Issues the robot command.
@@ -157,109 +162,122 @@ class SpotXbox(SpotGymBase):
         super()._issue_robot_command(command, endtime=endtime)
 
     def _jog(self):
-        """Sets robot in Jog mode.
-        """
+        """Sets robot in Jog mode."""
 
         if self.mode is not RobotMode.Jog:
             self.mode = RobotMode.Jog
             self._reset_height()
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_JOG, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_JOG, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _amble(self):
-        """Sets robot in Amble mode.
-        """
+        """Sets robot in Amble mode."""
 
         if self.mode is not RobotMode.Amble:
             self.mode = RobotMode.Amble
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_AMBLE, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_AMBLE, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _crawl(self):
-        """Sets robot in Crawl mode.
-        """
+        """Sets robot in Crawl mode."""
 
         if self.mode is not RobotMode.Crawl:
             self.mode = RobotMode.Crawl
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_CRAWL, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_CRAWL, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _hop(self):
-        """Sets robot in Hop mode.
-        """
+        """Sets robot in Hop mode."""
 
         if self.mode is not RobotMode.Hop:
             self.mode = RobotMode.Hop
             self._reset_height()
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_HOP, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_HOP, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _stairs(self):
-        """Sets robot in Stairs mode.
-        """
+        """Sets robot in Stairs mode."""
 
         if self.mode is not RobotMode.Stairs:
             self.mode = RobotMode.Stairs
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_AUTO, stair_hint=1)
+                locomotion_hint=spot_command_pb2.HINT_AUTO, stair_hint=1
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _walk(self):
-        """Sets robot in Walk mode.
-        """
+        """Sets robot in Walk mode."""
 
         if self.mode is not RobotMode.Walk:
             self.mode = RobotMode.Walk
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_TROT, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_SPEED_SELECT_TROT, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _stand(self):
-        """Sets robot in Stand mode.
-        """
+        """Sets robot in Stand mode."""
 
         if self.mode is not RobotMode.Stand:
             self.mode = RobotMode.Stand
             self.mobility_params = spot_command_pb2.MobilityParams(
-                locomotion_hint=spot_command_pb2.HINT_AUTO, stair_hint=0)
+                locomotion_hint=spot_command_pb2.HINT_AUTO, stair_hint=0
+            )
 
-            #cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
-            #self._issue_robot_command(cmd)
-            stand = OrientationCommand(roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height)
+            # cmd = RobotCommandBuilder.synchro_stand_command(params=self.mobility_params)
+            # self._issue_robot_command(cmd)
+            stand = OrientationCommand(
+                roll=0.0, pitch=0.0, yaw=0.0, height=self.body_height
+            )
             self._issue_robot_command(stand)
 
     def _sit(self):
-        """Sets robot in Sit mode.
-        """
+        """Sets robot in Sit mode."""
 
-        #if self.mode is not RobotMode.Sit:
+        # if self.mode is not RobotMode.Sit:
         #    self.mode = RobotMode.Sit
         #    self.mobility_params = spot_command_pb2.MobilityParams(
         #        locomotion_hint=spot_command_pb2.HINT_AUTO, stair_hint=0)
@@ -273,8 +291,8 @@ class SpotXbox(SpotGymBase):
         it is on its back.
         """
 
-        #cmd = RobotCommandBuilder.selfright_command()
-        #self._issue_robot_command(cmd)
+        # cmd = RobotCommandBuilder.selfright_command()
+        # self._issue_robot_command(cmd)
         pass
 
     def _battery_change_pose(self):
@@ -282,9 +300,9 @@ class SpotXbox(SpotGymBase):
         standing then roll to its [right]/left side for easier battery changing.
         """
 
-        #cmd = RobotCommandBuilder.battery_change_pose_command(
+        # cmd = RobotCommandBuilder.battery_change_pose_command(
         #    dir_hint=basic_command_pb2.BatteryChangePoseCommand.Request.HINT_RIGHT)
-        #self._issue_robot_command(cmd)
+        # self._issue_robot_command(cmd)
         pass
 
     def _move(self, left_x, left_y, right_x):
@@ -307,14 +325,23 @@ class SpotXbox(SpotGymBase):
 
         # Recreate mobility_params with the latest information
         self.mobility_params = RobotCommandBuilder.mobility_params(
-            body_height=self.body_height, locomotion_hint=self.mobility_params.locomotion_hint,
-            stair_hint=self.mobility_params.stair_hint)
+            body_height=self.body_height,
+            locomotion_hint=self.mobility_params.locomotion_hint,
+            stair_hint=self.mobility_params.stair_hint,
+        )
 
-        #cmd = RobotCommandBuilder.synchro_velocity_command(v_x=v_x, v_y=v_y, v_rot=v_rot,
+        # cmd = RobotCommandBuilder.synchro_velocity_command(v_x=v_x, v_y=v_y, v_rot=v_rot,
         #                                                   params=self.mobility_params)
-        #self._issue_robot_command(cmd, endtime=time.time() + VELOCITY_CMD_DURATION)
-        cmd = MobilityCommand(vx=v_x, vy=v_y, w=v_rot, height=self.body_height, pitch=self.stand_pitch,
-                              locomotion_hint=self.mobility_params.locomotion_hint, stair_hint=self.mobility_params.stair_hint)
+        # self._issue_robot_command(cmd, endtime=time.time() + VELOCITY_CMD_DURATION)
+        cmd = MobilityCommand(
+            vx=v_x,
+            vy=v_y,
+            w=v_rot,
+            height=self.body_height,
+            pitch=self.stand_pitch,
+            locomotion_hint=self.mobility_params.locomotion_hint,
+            stair_hint=self.mobility_params.stair_hint,
+        )
         self._issue_robot_command(cmd, endtime=time.time() + VELOCITY_CMD_DURATION)
 
     def _orientation_cmd_helper(self, yaw=0.0, roll=0.0, pitch=0.0, height=0.0):
@@ -331,8 +358,8 @@ class SpotXbox(SpotGymBase):
         if not self.motors_powered:
             return
 
-        #orientation = EulerZXY(yaw, roll, pitch)
-        #cmd = RobotCommandBuilder.synchro_stand_command(body_height=height,
+        # orientation = EulerZXY(yaw, roll, pitch)
+        # cmd = RobotCommandBuilder.synchro_stand_command(body_height=height,
         #                                                footprint_R_body=orientation)
         cmd = OrientationCommand(roll=roll, pitch=pitch, yaw=yaw, height=height)
         self._issue_robot_command(cmd, endtime=time.time() + VELOCITY_CMD_DURATION)
@@ -355,9 +382,9 @@ class SpotXbox(SpotGymBase):
         1 (the normalized values the xbox controller classes return.).
         If x is outside [-1, 1], saturate the output correctly to y1 or y2.
         """
-        if (x <= -1):
+        if x <= -1:
             return y1
-        elif (x >= 1):
+        elif x >= 1:
             return y2
 
         # Range of x is [-1, 1], so dx is 2.
@@ -377,30 +404,40 @@ class SpotXbox(SpotGymBase):
         if left_x != 0.0:
             # Update roll
             self.stand_roll_change = True
-            self.stand_roll = self._interp_joy_saturated(left_x, -ROLL_OFFSET_MAX, ROLL_OFFSET_MAX)
+            self.stand_roll = self._interp_joy_saturated(
+                left_x, -ROLL_OFFSET_MAX, ROLL_OFFSET_MAX
+            )
 
         if left_y != 0.0:
             # Update height
             self.stand_height_change = True  # record this change so we reset correctly
-            self.body_height = self._interp_joy_saturated(left_y, -HEIGHT_MAX, HEIGHT_MAX)
+            self.body_height = self._interp_joy_saturated(
+                left_y, -HEIGHT_MAX, HEIGHT_MAX
+            )
 
         if right_x != 0.0:
             # Update yaw
             self.stand_yaw_change = True
-            self.stand_yaw = self._interp_joy_saturated(right_x, YAW_OFFSET_MAX, -YAW_OFFSET_MAX)
+            self.stand_yaw = self._interp_joy_saturated(
+                right_x, YAW_OFFSET_MAX, -YAW_OFFSET_MAX
+            )
 
         if right_y != 0.0:
             # Update pitch
             self.stand_pitch_change = True
-            self.stand_pitch = self._interp_joy_saturated(right_y, -PITCH_OFFSET_MAX,
-                                                          PITCH_OFFSET_MAX)
+            self.stand_pitch = self._interp_joy_saturated(
+                right_y, -PITCH_OFFSET_MAX, PITCH_OFFSET_MAX
+            )
 
-        self._orientation_cmd_helper(yaw=self.stand_yaw, roll=self.stand_roll,
-                                     pitch=self.stand_pitch, height=self.body_height)
+        self._orientation_cmd_helper(
+            yaw=self.stand_yaw,
+            roll=self.stand_roll,
+            pitch=self.stand_pitch,
+            height=self.body_height,
+        )
 
     def _reset_height(self):
-        """Resets robot body height to normal stand height.
-        """
+        """Resets robot body height to normal stand height."""
 
         self.body_height = 0.0
         self._orientation_cmd_helper(height=self.body_height)
@@ -434,8 +471,7 @@ class SpotXbox(SpotGymBase):
         self.stand_roll_change = False
 
     def _print_status(self):
-        """Prints the current status of the robot: E-Stop, Control, Powered-on, Current Mode.
-        """
+        """Prints the current status of the robot: E-Stop, Control, Powered-on, Current Mode."""
 
         # Move cursor back to the start of the line
         print(chr(13), end="")
@@ -502,7 +538,7 @@ class SpotXbox(SpotGymBase):
                 right_x = joy.right_x()
                 right_y = joy.right_y()
 
-                #handle resets for Stand mode
+                # handle resets for Stand mode
                 if self.mode == RobotMode.Stand:
                     if self.stand_height_change and left_y == 0.0:
                         self._reset_height()
@@ -555,17 +591,24 @@ class SpotXbox(SpotGymBase):
                         self._sit()
 
                 if self.mode == RobotMode.Stand:
-                    if left_x != 0.0 or left_y != 0.0 or right_x != 0.0 or right_y != 0.0:
+                    if (
+                        left_x != 0.0
+                        or left_y != 0.0
+                        or right_x != 0.0
+                        or right_y != 0.0
+                    ):
                         self._update_orientation(left_x, left_y, right_x, right_y)
                 else:
                     if left_x != 0.0 or left_y != 0.0 or right_x != 0.0:
                         self._move(left_x, left_y, right_x)
                     else:
-                        if self.mode == RobotMode.Walk or\
-                        self.mode == RobotMode.Amble or\
-                        self.mode == RobotMode.Crawl or\
-                        self.mode == RobotMode.Jog or\
-                        self.mode == RobotMode.Hop:
+                        if (
+                            self.mode == RobotMode.Walk
+                            or self.mode == RobotMode.Amble
+                            or self.mode == RobotMode.Crawl
+                            or self.mode == RobotMode.Jog
+                            or self.mode == RobotMode.Hop
+                        ):
                             self._move(0.0, 0.0, 0.0)
 
                 if joy.start():
@@ -582,7 +625,7 @@ class SpotXbox(SpotGymBase):
                 delta = 1 / frequency - (end_time - start_time)
                 if delta > 0.0:
                     time.sleep(delta)
-                currentTime = currentTime + 1/frequency
+                currentTime = currentTime + 1 / frequency
 
             joy.close()
         finally:
@@ -599,6 +642,7 @@ class SpotXbox(SpotGymBase):
         if self.log_file is not None:
             self.log_file.close()
 
+
 def main(argv):
     """Parses command line args.
 
@@ -607,15 +651,23 @@ def main(argv):
     """
 
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter, description=('''
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=(
+            """
         Use this script to control the Spot robot from an Xbox controller. Press the Back
         controller button to safely power off the robot. Note that the example needs the E-Stop
         to be released. The estop_gui script from the estop SDK example can be used to release
         the E-Stop. Press ctrl-c at any time to safely power off the robot.
-        '''))
-    parser.add_argument("--max-frequency", default=10, type=int,
-                        help="Max frequency in Hz to send commands to robot")
-    parser.add_argument("--logging", action='store_true', help="Turn on logging output")
+        """
+        ),
+    )
+    parser.add_argument(
+        "--max-frequency",
+        default=10,
+        type=int,
+        help="Max frequency in Hz to send commands to robot",
+    )
+    parser.add_argument("--logging", action="store_true", help="Turn on logging output")
 
     bosdyn.client.util.add_base_arguments(parser)
     options = parser.parse_args(argv)
@@ -636,6 +688,8 @@ def main(argv):
         traceback.print_exc()
         controller._shutdown()
 
+
 if __name__ == "__main__":
     import sys
+
     main(sys.argv[1:])

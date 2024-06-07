@@ -1,5 +1,5 @@
 from opax.models.dynamics_model import DynamicsModel
-from alrd.environment.spot.simulate2d import Spot2DBaseSim
+from alrd.spot_gym.envs.simulate2d import Spot2DBaseSim
 import numpy as np
 
 

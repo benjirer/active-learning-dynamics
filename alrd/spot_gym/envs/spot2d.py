@@ -8,19 +8,19 @@ from jax import jit
 import jax
 import jax.numpy as jnp
 import numpy as np
-from alrd.environment.spot.command import Command, CommandEnum
-from alrd.environment.spot.mobility_command import MobilityCommand
-from alrd.environment.spot.record import Session
-from alrd.environment.spot.robot_state import SpotState
-from alrd.environment.spot.spotgym import SpotGym
-from alrd.environment.spot.spot import SpotEnvironmentConfig
-from alrd.environment.spot.utils import MAX_ANGULAR_SPEED, MAX_SPEED
+from alrd.spot_gym.model.command import Command, CommandEnum
+from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.envs.record import Session
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.model.spot import SpotEnvironmentConfig
+from alrd.spot_gym.utils.utils import MAX_ANGULAR_SPEED, MAX_SPEED
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent
 from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
-from alrd.environment.spot.utils import MAX_ANGULAR_SPEED, MAX_SPEED
+from alrd.spot_gym.utils.utils import MAX_ANGULAR_SPEED, MAX_SPEED
 
 from opax.models.reward_model import RewardModel
 from jdm_control.rewards import get_tolerance_fn

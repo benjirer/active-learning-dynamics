@@ -1,6 +1,6 @@
 import time
 from threading import Event, Thread, Lock
-from alrd.environment.robomaster.subscriber import TopicServer
+from alrd.spot_gym.robomaster.subscriber import TopicServer
 from opax.agents.model_based.model_based_agent import ModelBasedAgent
 from opax.optimizers.sac_based_optimizer import SACOptimizer
 from alrd.agent.absagent import Agent

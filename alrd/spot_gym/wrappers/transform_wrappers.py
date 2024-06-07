@@ -3,12 +3,9 @@ import gym
 from gym import spaces
 import logging
 import time
-
-# from alrd.environment.robomaster.env import BaseRobomasterEnv
+import numpy as np
 from alrd.utils.utils import rotate_2d_vector
-from alrd.environment.robomaster.subscriber import ChassisSub
 from gym.core import Env
-from alrd.environment.robomaster.names import *
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +21,6 @@ class CosSinObsWrapper(gym.ObservationWrapper):
     def observation(self, observation):
         x, y, angle, x_vel, y_vel, a_vel = observation
         return np.array([x, y, np.cos(angle), np.sin(angle), x_vel, y_vel, a_vel])
-
-
-# class GlobalFrameActionWrapper(gym.ActionWrapper):
-#     def __init__(self, env: BaseRobomasterEnv):
-#         super().__init__(env)
-
-#     def action(self, action):
-#         action[:2] = rotate_2d_vector(action[:2], -self.env._last_obs[2])
-#         return action
 
 
 class RemoveAngleActionWrapper(gym.ActionWrapper):
@@ -56,26 +44,6 @@ class KeepObsWrapper(gym.ObservationWrapper):
 
     def observation(self, observation):
         return observation[self.keep]
-
-
-class RemoveAngleWrapper(gym.ObservationWrapper, gym.ActionWrapper):
-    def __init__(self, env: Env):
-        super().__init__(env)
-        self.action_space = spaces.Box(
-            np.array([MIN_X_VEL, MIN_Y_VEL]), np.array([MAX_X_VEL, MAX_Y_VEL])
-        )
-        self.observation_space = spaces.Box(
-            np.array([MIN_X, MIN_Y, MIN_X_VEL, MIN_Y_VEL]),
-            np.array([MAX_X, MAX_Y, MAX_X_VEL, MAX_Y_VEL]),
-        )
-
-    def observation(self, observation):
-        x, y, angle, x_vel, y_vel, a_vel = observation
-        return np.array([x, y, x_vel, y_vel])
-
-    def step(self, action):
-        x_vel, y_vel = action
-        return super().step(np.array([x_vel, y_vel, 0.0]))
 
 
 class RepeatActionWrapper(gym.Wrapper):

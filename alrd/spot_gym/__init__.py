@@ -7,38 +7,21 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-# from alrd.environment.robomaster.env import (
-#     BaseRobomasterEnv,
-#     PositionControlEnv,
-#     init_robot,
-# )
-# from alrd.environment.robomaster.maze_env import (
-#     MazeEnv,
-#     MazeGoalEnv,
-#     MazeGoalKinemEnv,
-#     MazeGoalPositionEnv,
-#     MazeGoalVelocityEnv,
-#     create_maze_env,
-# )
-from alrd.environment.spot.spot import SpotEnvironmentConfig
-from alrd.environment.spot.spot2d import (
+from alrd.spot_gym.model.spot import SpotEnvironmentConfig
+from alrd.spot_gym.envs.spot2d import (
     Spot2DEnv,
     Spot2DEnvDone,
     Spot2DReward,
     change_spot2d_obs_frame,
 )
-from alrd.environment.spot.simulate2d import Spot2DEnvSim
-from alrd.environment.spot.sim_model import Spot2DModelSim
-from alrd.environment.spot.spotgym import SpotGym
-from alrd.environment.spot.wrappers import QueryGoalWrapper, QueryStartWrapper
-from alrd.environment.wrappers.transforms import (
-    CosSinObsWrapper,
-    # GlobalFrameActionWrapper,
-    KeepObsWrapper,
-    RemoveAngleActionWrapper,
-    RepeatActionWrapper,
+from alrd.spot_gym.envs.simulate2d import Spot2DEnvSim
+from alrd.spot_gym.envs.sim_model import Spot2DModelSim
+from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.wrappers.operational_wrappers import (
+    QueryGoalWrapper,
+    QueryStartWrapper,
 )
-from alrd.environment.spot.random_pos import RandomPosInit
+from alrd.spot_gym.envs.random_pos import RandomPosInit
 from jax import vmap
 
 from opax.utils.replay_buffer import (
@@ -50,84 +33,9 @@ from opax.utils.replay_buffer import (
 from opax.models.dynamics_model import DynamicsModel
 
 __all__ = [
-    "BaseRobomasterEnv",
-    "RobomasterEnv",
-    "create_maze_env",
-    "MazeEnv",
-    "init_robot",
-    "MazeGoalEnv",
-    "PositionControlEnv",
     "SpotGym",
 ]
 GOAL = (2.5, 1.8)
-
-
-def create_robomaster_env(
-    poscontrol=False,
-    estimate_from_acc=True,
-    margin=0.3,
-    freq=50,
-    slide_wall=True,
-    global_frame=False,
-    cossin=False,
-    noangle=False,
-    novelocity=False,
-    repeat_action=None,
-    square=False,
-    xy_speed=0.5,
-    a_speed=120.0,
-):
-    # transforms = []
-    # coordinates = None
-    # if square:
-    #     coordinates = np.array(
-    #         [
-    #             [-4, -4],
-    #             [-4, 4],
-    #             [4, 4],
-    #             [4, -4],
-    #         ]
-    #     )
-    # env_kwargs = dict(
-    #     goal=GOAL,
-    #     coordinates=coordinates,
-    #     margin=margin,
-    #     freq=freq,
-    #     slide_wall=slide_wall,
-    #     transforms=transforms,
-    # )
-    # if not poscontrol:
-    #     if estimate_from_acc:
-    #         env = MazeGoalKinemEnv.create_env(**env_kwargs)
-    #     else:
-    #         env = MazeGoalVelocityEnv.create_env(**env_kwargs)
-    # else:
-    #     env = MazeGoalPositionEnv.create_env(
-    #         **env_kwargs, xy_speed=xy_speed, a_speed=a_speed
-    #     )
-    # time.sleep(1)
-    # if global_frame:
-    #     env = GlobalFrameActionWrapper(env)
-    # assert not noangle or not cossin
-    # all_idx = set(range(6))
-    # vel_idx = [3, 4, 5]
-    # if cossin:
-    #     all_idx.add(6)
-    #     vel_idx = [4, 5, 6]
-    #     env = CosSinObsWrapper(env)
-    # keep_idx = set(all_idx)
-    # if noangle:
-    #     keep_idx.remove(2)  # remove angle
-    #     keep_idx.remove(5)  # remove angular vel
-    #     env = RemoveAngleActionWrapper(env)
-    # if novelocity:
-    #     keep_idx.difference_update(vel_idx)
-    # if len(all_idx) != len(keep_idx):
-    #     env = KeepObsWrapper(env, list(keep_idx))
-    # if repeat_action is not None:
-    #     env = RepeatActionWrapper(env, repeat_action)
-    # return env
-    raise NotImplementedError
 
 
 def create_spot_env(

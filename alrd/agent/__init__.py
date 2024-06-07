@@ -12,7 +12,7 @@ from alrd.agent.trajaxopt import TraJaxOptAgent
 from alrd.agent.adapter import AgentAdapter
 from alrd.agent.model_based import ModelBasedAgentAdapter
 from alrd.agent.sac import SACAgent
-from alrd.environment.spot.utils import MAX_ANGULAR_SPEED, MAX_SPEED
+from alrd.spot_gym.utils.utils import MAX_ANGULAR_SPEED, MAX_SPEED
 from opax.agents.model_based.model_based_agent import ModelBasedAgent
 from opax.optimizers.sac_based_optimizer import SACOptimizer
 from enum import Enum
