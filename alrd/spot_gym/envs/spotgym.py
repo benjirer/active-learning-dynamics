@@ -12,11 +12,11 @@ import numpy as np
 from alrd.spot_gym.model.command import Command
 from alrd.spot_gym.envs.record import Session, Episode
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.model.spot import SpotGymStateMachine, SpotEnvironmentConfig
+from alrd.spot_gym.model.spot import SpotBaseStateMachine, SpotEnvironmentConfig
 from alrd.utils.utils import get_timestamp_str
 
 
-class SpotGym(SpotGymStateMachine, gym.Env, ABC):
+class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
     def __init__(
         self,
         config: SpotEnvironmentConfig,

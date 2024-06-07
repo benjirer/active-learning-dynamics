@@ -7,6 +7,8 @@ from alrd.utils.utils import Frame2D
 import math
 from alrd.spot_gym.utils.utils import MAX_SPEED, MAX_ANGULAR_SPEED, get_hitbox
 from abc import ABC, abstractmethod
+from opax.models.dynamics_model import DynamicsModel
+
 
 MARGIN = 0.2
 
@@ -133,3 +135,24 @@ class Spot2DEnvSim(Spot2DBaseSim):
         vy = action_global[1]
         vtheta = action[2]
         self.state = np.array([x, y, theta, vx, vy, vtheta])
+
+
+class Spot2DModelSim(Spot2DBaseSim):
+    def __init__(self, model: DynamicsModel, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.model = model
+        self.model.reward_model = self.reward
+        self.model._init_fn()
+
+    def _update_state(self, action):
+        obs = self._get_obs()
+        next_obs, _ = self.model.evaluate(
+            self.model.model_params,
+            obs,
+            action,
+            rng=None,
+            sampling_idx=None,
+            model_props=self.model.model_props,
+        )
+        angle = np.arctan2(next_obs[3, None], next_obs[2, None])
+        self.state = np.concatenate([next_obs[:2], angle, next_obs[4:]])

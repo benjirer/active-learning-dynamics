@@ -10,7 +10,7 @@ from enum import Enum
 from alrd.spot_gym.model.mobility_command import MobilityCommand
 
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
-from alrd.spot_gym.model.spot import SpotGymBase
+from alrd.spot_gym.model.spot import SpotBaseModel
 from alrd.spot_gym.model.orientation_command import OrientationCommand
 
 import bosdyn.api.basic_command_pb2 as basic_command_pb2
@@ -50,7 +50,7 @@ class RobotMode(Enum):
     Hop = 8
 
 
-class SpotXbox(SpotGymBase):
+class SpotXbox(SpotBaseModel):
     """SpotXbox class provides mapping between xbox controller commands and Spot API calls.
 
     Attributes:

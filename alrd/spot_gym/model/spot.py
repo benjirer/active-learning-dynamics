@@ -84,8 +84,8 @@ class SpotVerbose(Enum):
     VERBOSE = 1
 
 
-class SpotGymBase(object):
-    """SpotGym class initializes the robot and provides methods to control it and read the state.
+class SpotBaseModel(object):
+    """SpotBaseModel class initializes the robot and provides methods to control it and read the state.
 
     Args:
         verbose: verbosity level, default: basic environment information printed, verbose: networking errors printed
@@ -424,7 +424,7 @@ class StopFeedback(Enum):
     ONGOING = 2
 
 
-class SpotGymStateMachine(SpotGymBase):
+class SpotBaseStateMachine(SpotBaseModel):
     """
     Assumes only one thread is calling issue command and reset.
     """

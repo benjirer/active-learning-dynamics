@@ -14,8 +14,7 @@ from alrd.spot_gym.envs.spot2d import (
     Spot2DReward,
     change_spot2d_obs_frame,
 )
-from alrd.spot_gym.envs.simulate2d import Spot2DEnvSim
-from alrd.spot_gym.envs.sim_model import Spot2DModelSim
+from alrd.spot_gym.envs.simulate2d import Spot2DEnvSim, Spot2DModelSim
 from alrd.spot_gym.envs.spotgym import SpotGym
 from alrd.spot_gym.wrappers.operational_wrappers import (
     QueryGoalWrapper,
