@@ -77,6 +77,7 @@ def create_spot_env(
                 cmd_freq,
                 monitor_freq,
                 log_dir=log_dir,
+                log_str=False,
                 action_cost=action_cost,
                 velocity_cost=velocity_cost,
             )

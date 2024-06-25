@@ -4,35 +4,40 @@ import numpy as np
 from typing import Union
 import textwrap
 
+
 class KeyboardAgent(Agent):
     def __init__(self, xy_speed, a_speed, noangle=False) -> None:
         self.listener = KeyboardListener()
         self.xy_speed = xy_speed
         self.a_speed = a_speed
         self.cmds = {
-            'w': (1, 0, 0),
-            'a': (0, -1, 0),
-            's': (-1, 0, 0),
-            'd': (0, 1, 0),
-            'q': (0, 0, 1),
-            'e': (0, 0, -1)
+            "w": (1, 0, 0),
+            "a": (0, -1, 0),
+            "s": (-1, 0, 0),
+            "d": (0, 1, 0),
+            "q": (0, 0, 1),
+            "e": (0, 0, -1),
         }
         self.noangle = noangle
-    
+
     def description(self):
-        s = textwrap.dedent("""
+        s = textwrap.dedent(
+            """
             Keyboard control:
             --------------
             w: move forward
             a: move left
             s: move backward
             d: move right
-            """)
+            """
+        )
         if not self.noangle:
-            s += textwrap.dedent("""
+            s += textwrap.dedent(
+                """
             q: rotate left
             e: rotate right
-            """)
+            """
+            )
         return s
 
     def act(self, obs):
@@ -48,6 +53,7 @@ class KeyboardAgent(Agent):
             action = action[:2]
         return action
 
+
 class KeyboardGPAgent(Agent):
     def __init__(self, gp_agent, xy_speed, a_speed) -> None:
         super().__init__()
@@ -55,12 +61,13 @@ class KeyboardGPAgent(Agent):
         self.kb_agent = KeyboardAgent(xy_speed, a_speed)
 
     def act(self, obs):
-        pressed = list(self.kb_agent.listener.which_pressed(['r']))
+        pressed = list(self.kb_agent.listener.which_pressed(["r"]))
         if len(pressed) > 0:
             action = self.gp_agent.act(obs)
         else:
             action = self.kb_agent.act(obs)
         return action
+
 
 class KeyboardResetAgent(AgentReset):
     def __init__(self, kb_agent: Union[KeyboardAgent, KeyboardGPAgent]) -> None:
@@ -68,7 +75,7 @@ class KeyboardResetAgent(AgentReset):
         self.kb_agent = kb_agent
 
     def act(self, obs):
-        pressed = list(self.kb_agent.listener.which_pressed(['k']))
+        pressed = list(self.kb_agent.listener.which_pressed(["k"]))
         if len(pressed) > 0:
             action = None
         else:

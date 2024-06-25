@@ -57,7 +57,9 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         self.session = session
         self.log_str = log_str
         if log_dir is not None:
-            self.logger.addHandler(logging.FileHandler(self.log_dir / "spot_gym.log"))
+            self.logger.addHandler(
+                logging.FileHandler(self.log_dir / "spot_gym_with_arm.log")
+            )
 
     @property
     def default_reset(self):

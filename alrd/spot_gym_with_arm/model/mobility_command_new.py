@@ -51,12 +51,20 @@ class MobilityCommand(Command):
         arm_cmd = arm_command_pb2.ArmCommand.Request(arm_velocity_command=arm_vel_cmd)
 
         # build command
+        # TODO: add arm cmd as build on command
+        # cmd = RobotCommandBuilder.synchro_velocity_command(
+        #     v_x=self.vx,
+        #     v_y=self.vy,
+        #     v_rot=self.w,
+        #     params=mobility_params,
+        #     build_on_command=arm_cmd,
+        # )
+
         cmd = RobotCommandBuilder.synchro_velocity_command(
             v_x=self.vx,
             v_y=self.vy,
             v_rot=self.w,
             params=mobility_params,
-            build_on_command=arm_cmd,
         )
         super().__init__(cmd)
 

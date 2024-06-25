@@ -30,7 +30,6 @@ from bosdyn.client.robot_command import (
     block_for_trajectory_cmd,
     blocking_sit,
     blocking_stand,
-    block_until_arm_arrives,
 )
 from bosdyn.client.robot_state import RobotStateClient
 from scipy.spatial.transform import Rotation as R
@@ -63,7 +62,7 @@ class SpotEnvironmentConfig(yaml.YAMLObject):
 
 
 ##### Fixed environment parameters #####
-MARGIN = 1.20  # Margin to the walls within which the robot is stopped (m) (added 1m to account for arm) TODO: maybe make hitcircle + hitbox for better accuracy
+MARGIN = 0.20  # Margin to the walls within which the robot is stopped (m)
 CHECK_TIMEOUT = (
     MARGIN / MAX_SPEED
 )  # Maximum time the boundary check will wait for state reading (s)
@@ -139,9 +138,6 @@ class SpotBaseModel(object):
         self.robot_state_client = self.robot.ensure_client(
             RobotStateClient.default_service_name
         )
-        # check for arm
-        assert self.robot.has_arm(), "Robot requires an arm to run this example."
-
         # self.robot_state_server = StateService(self.robot_state_client)
 
     def _start(self):
@@ -164,15 +160,6 @@ class SpotBaseModel(object):
             self.logger.info("Robot is already off!")
             return
         # self.robot_state_server.close()
-        # stow arm
-        stow_arm_cmd = RobotCommandBuilder.arm_stow_command()
-        cmd_id = self.command_client.robot_command_async(
-            stow_arm_cmd, end_time_secs=SHUTDOWN_TIMEOUT
-        ).result()
-        arm_stowed = block_until_arm_arrives(
-            self.command_client, cmd_id, timeout_sec=SHUTDOWN_TIMEOUT
-        )
-        # sit
         blocking_sit(
             self.command_client, timeout_sec=SHUTDOWN_TIMEOUT, update_frequency=10.0
         )
@@ -258,24 +245,18 @@ class SpotBaseModel(object):
 
         self.command_client.robot_command_async(command.cmd, end_time_secs=endtime)
 
-    def _issue_blocking_stand_and_arm_command(self, timeout=STAND_TIMEOUT) -> bool:
-        arm_ready_cmd = RobotCommandBuilder.arm_ready_command()
+    def _issue_blocking_stand_command(self, timeout=STAND_TIMEOUT) -> bool:
         current = time.time()
         endtime = current + timeout
         done = False
         while not done and endtime > current:
             try:
-                cmd_id = self.command_client.robot_command_async(
-                    arm_ready_cmd, end_time_secs=endtime
-                ).result()
                 blocking_stand(
                     self.command_client,
                     timeout_sec=endtime - current,
                     update_frequency=STOP_SLEEP_TIME,
                 )
-                done = block_until_arm_arrives(
-                    self.command_client, cmd_id, timeout_sec=endtime - current
-                )
+                done = True
             except Exception as e:
                 if self.verbose == SpotVerbose.VERBOSE:
                     self.logger.warning(
@@ -492,7 +473,7 @@ class SpotBaseStateMachine(SpotBaseModel):
         assert self.__state == State.SHUTDOWN
         self.logger.info("Starting state machine...")
         self._start()
-        self._issue_blocking_stand_and_arm_command()
+        self._issue_blocking_stand_command()
         # determine body pose in vision frame, which is used to reset the robot
         self.set_start_frame()
         self._set_reset_pose(
@@ -647,7 +628,7 @@ class SpotBaseStateMachine(SpotBaseModel):
         try:
             self.__stop_event.wait()
             while self.__state != State.SHUTDOWN:
-                done = self._issue_blocking_stand_and_arm_command(timeout=STAND_TIMEOUT)
+                done = self._issue_blocking_stand_command(timeout=STAND_TIMEOUT)
                 self.__stop_event.clear()
                 self.__queue.put(
                     StateMachineRequest(StateMachineAction.STOP_DONE, done)

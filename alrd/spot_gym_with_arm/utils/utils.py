@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Tuple
 
 # body constants
-MAX_SPEED = 1.6  # Maximum linear velocity of the robot (m/s)
+MAX_SPEED = 0.8  # Maximum linear velocity of the robot (m/s)
 MAX_ANGULAR_SPEED = 1.5  # Maximum angular velocity of the robot (rad/s)
 DIST_TO_FRONT = 0.55  # Distance from body frame origin to front of the robot (m)
 SPOT_LENGTH = 1.1  # Length of the robot from rear to front (m)
