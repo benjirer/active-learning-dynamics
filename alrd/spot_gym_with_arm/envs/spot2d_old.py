@@ -21,18 +21,6 @@ from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym_with_arm.utils.utils import MAX_ANGULAR_SPEED, MAX_SPEED
-from alrd.spot_gym_with_arm.utils.utils import (
-    MIN_HEIGHT,
-    MAX_HEIGHT,
-    MIN_AZIMUTHAL,
-    MAX_AZIMUTHAL,
-    MIN_RADIAL_POS,
-    MAX_RADIAL_POS,
-    MAX_RADIAL_VEL,
-    MAX_VERTICAL_VEL,
-    MAX_AZIMUTHAL_VEL,
-)
-
 
 from opax.models.reward_model import RewardModel
 from jdm_control.rewards import get_tolerance_fn
@@ -283,37 +271,8 @@ MAX_Y = 3
 
 
 class Spot2DEnv(SpotGym):
-    """
-    Kinematic Observation:
-        x: x position of the robot in the goal frame
-        y: y position of the robot in the goal frame
-        cos: cosine of the heading angle of the robot in the goal frame
-        sin: sine of the heading angle of the robot in the goal frame
-        vx: x velocity of the robot in the goal frame
-        vy: y velocity of the robot in the goal frame
-        w: angular velocity of the robot in the goal frame
-
-    Arm Observation:
-        r: radial position of hand in the body frame
-        az: azimuthal position/angle of hand in the body frame
-        z: z position of hand in the body frame
-        vr: radial velocity of hand in the body frame
-        vaz: azimuthal velocity of hand in the body frame
-        vz: z velocity of hand in the body frame
-
-    Kinematic Action:
-        vx: x velocity command for robot
-        vy: y velocity command for robot
-        w: angular velocity command for robot
-
-    Arm Action:
-        vr: radial velocity command for hand
-        vaz: azimuthal velocity command for hand
-        vz: z velocity command for hand
-    """
-
-    obs_shape = (13,)
-    action_shape = (6,)
+    obs_shape = (7,)
+    action_shape = (3,)
 
     def __init__(
         self,
@@ -338,73 +297,19 @@ class Spot2DEnv(SpotGym):
             session=session,
             log_str=log_str,
         )
-
-        # observation space limits
         self.observation_space = spaces.Box(
             low=np.array(
-                [
-                    MIN_X,
-                    MIN_Y,
-                    -1,
-                    -1,
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
-                    MIN_RADIAL_POS,
-                    MIN_AZIMUTHAL,
-                    MIN_HEIGHT,
-                    -MAX_RADIAL_VEL,
-                    -MAX_AZIMUTHAL_VEL,
-                    -MAX_VERTICAL_VEL,
-                ]
+                [MIN_X, MIN_Y, -1, -1, -MAX_SPEED, -MAX_SPEED, -MAX_ANGULAR_SPEED]
             ),
             high=np.array(
-                [
-                    MAX_X,
-                    MAX_Y,
-                    1,
-                    1,
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
-                    MAX_RADIAL_POS,
-                    MAX_AZIMUTHAL,
-                    MAX_HEIGHT,
-                    MAX_RADIAL_VEL,
-                    MAX_AZIMUTHAL_VEL,
-                    MAX_VERTICAL_VEL,
-                ]
+                [MAX_X, MAX_Y, 1, 1, MAX_SPEED, MAX_SPEED, MAX_ANGULAR_SPEED]
             ),
         )
-
-        # action space limits
         self.action_space = spaces.Box(
-            low=np.array(
-                [
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
-                    -MAX_RADIAL_VEL,
-                    -MAX_AZIMUTHAL_VEL,
-                    -MAX_VERTICAL_VEL,
-                ]
-            ),
-            high=np.array(
-                [
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
-                    MAX_RADIAL_VEL,
-                    MAX_AZIMUTHAL_VEL,
-                    MAX_VERTICAL_VEL,
-                ]
-            ),
+            low=np.array([-MAX_SPEED, -MAX_SPEED, -MAX_ANGULAR_SPEED]),
+            high=np.array([MAX_SPEED, MAX_SPEED, MAX_ANGULAR_SPEED]),
         )
-
-        # check if transform needed
         self.__goal_frame = None  # goal position in vision frame
-
-        # reward model
         self.reward = Spot2DReward.create(
             action_coeff=action_cost, velocity_coeff=velocity_cost
         )
@@ -421,58 +326,22 @@ class Spot2DEnv(SpotGym):
     def get_obs_from_state(self, state: SpotState) -> np.ndarray:
         """
         Returns
-            Kinematic Observations:
-                [x, y, cos, sin, vx, vy, w] with the origin at the goal position and axis aligned to environment frame
-            Arm Observations:
-                [r, az, z, vr, vaz, vz] with the origin at the body frame
+            [x, y, cos, sin, vx, vy, w] with the origin at the goal position and axis aligned to environment frame
         """
         return Spot2DEnv.get_obs_from_state_goal(state, self.__goal_frame)
 
     @staticmethod
     def get_obs_from_state_goal(state: SpotState, goal_frame: Frame2D) -> np.ndarray:
         """
-        Returns
-            Kinematic observations corresponding to the kinematic state using as origin the goal position
-            with the x axis in the direction of the goal orientation.
-
-            Arm observations corresponding to the manipulator state using as origin the body frame.
+        Returns observations corresponding to the state using as origin the goal position
+        with the x axis in the direction of the goal orientation.
         """
-        # kinematic observations
         x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
         angle = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
         x, y, angle = goal_frame.transform_pose(x, y, angle)
         vx, vy, _, _, _, w = state.velocity_of_body_in_vision
         vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
-
-        x_hand, y_hand, z_hand, _, _, _ = state.pose_of_hand_in_vision
-        vx_hand, vy_hand, vz_hand, _, _, _ = state.velocity_of_hand_in_vision
-
-        # arm observations
-        r = np.linalg.norm([x_hand, y_hand])
-        az = np.arctan2(y_hand, x_hand)
-        vr = np.dot(
-            np.array([vx_hand, vy_hand]), np.array([x_hand, y_hand])
-        ) / np.linalg.norm(np.array([x_hand, y_hand]))
-        vaz = np.cross(
-            np.array([x_hand, y_hand]), np.array([vx_hand, vy_hand])
-        ) / np.linalg.norm(np.array([x_hand, y_hand]))
-        return np.array(
-            [
-                x,
-                y,
-                np.cos(angle),
-                np.sin(angle),
-                vx,
-                vy,
-                w,
-                r,
-                az,
-                z_hand,
-                vr,
-                vaz,
-                vz_hand,
-            ]
-        )
+        return np.array([x, y, np.cos(angle), np.sin(angle), vx, vy, w])
 
     def get_cmd_from_action(self, action: np.ndarray) -> Command:
         return MobilityCommand(
@@ -483,14 +352,11 @@ class Spot2DEnv(SpotGym):
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            vr=action[3],
-            vaz=action[4],
-            vz=action[5],
         )
 
     @staticmethod
     def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
-        return np.array([cmd.vx, cmd.vy, cmd.w, cmd.vr, cmd.vaz, cmd.vz])
+        return np.array([cmd.vx, cmd.vy, cmd.w])
 
     def get_reward(self, action, next_obs):
         return self.reward.predict(next_obs, action)
@@ -518,7 +384,7 @@ class Spot2DEnv(SpotGym):
                 option = input(
                     textwrap.dedent(
                         """
-                    Options:
+                    Options:frequency
                     --------------
                     k: keyboard control
                     r: reset base position to current position

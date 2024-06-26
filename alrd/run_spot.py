@@ -4,6 +4,7 @@ import logging
 import yaml
 from alrd.agent import Agent
 from alrd.agent.keyboard import KeyboardAgent
+from alrd.agent.xbox import SpotXbox2D
 from alrd.spot_gym_with_arm import Spot2DEnv
 from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
 from gym.wrappers.rescale_action import RescaleAction
@@ -49,7 +50,6 @@ def run(agent: Agent, env: SpotGym, num_steps: int = 40000, cmd_freq: float = 10
                 return
         else:
             obs = next_obs
-            time.sleep(1 / cmd_freq)
     env.stop_robot()
 
 
@@ -74,7 +74,8 @@ def start():
     )
 
     # create agent
-    agent = KeyboardAgent(xy_speed=1, a_speed=1)
+    # agent = KeyboardAgent(xy_speed=1, a_speed=1)
+    agent = SpotXbox2D(base_speed=1, base_angular=1)
 
     # start env
     env.start()

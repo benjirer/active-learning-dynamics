@@ -1,4 +1,5 @@
 from alrd.agent.keyboard import KeyboardAgent
+from alrd.agent.xbox import SpotXbox2D
 
 
 # Initialize the KeyboardAgent with example parameters
@@ -6,10 +7,10 @@ xy_speed = 1.0  # Example speed for x and y movements
 a_speed = 0.1  # Example speed for angular movements
 noangle = False  # Whether to disable angle movements
 
-agent = KeyboardAgent(xy_speed, a_speed, noangle)
+agent = SpotXbox2D(base_speed=xy_speed, base_angular=a_speed)
 
 # Print the description of controls
-print(agent.description())
+# print(agent.description())
 
 # Assuming you have some kind of loop to continually check for actions
 try:
