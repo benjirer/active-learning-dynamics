@@ -5,6 +5,7 @@ import yaml
 from alrd.agent import Agent
 from alrd.agent.keyboard import KeyboardAgent
 from alrd.agent.xbox import SpotXbox2D
+from alrd.agent.spacebox import SpotSpaceBox
 from alrd.spot_gym_with_arm import Spot2DEnv
 from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
 from gym.wrappers.rescale_action import RescaleAction
@@ -14,11 +15,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
 
 
-def run(agent: Agent, env: SpotGym, num_steps: int = 40000, cmd_freq: float = 10):
+def run(agent: Agent, env: SpotGym, num_steps: int = 1000, cmd_freq: float = 10):
     started = False
     step = 0
 
-    while step < num_steps:
+    while True:
         print(step)
 
         # if not started, reset the environment
@@ -64,7 +65,7 @@ def start():
         Loader=yaml.Loader,
     )
 
-    cmd_freq = 15
+    cmd_freq = 10
 
     # create env
     env = Spot2DEnv(
@@ -75,7 +76,8 @@ def start():
 
     # create agent
     # agent = KeyboardAgent(xy_speed=1, a_speed=1)
-    agent = SpotXbox2D(base_speed=1, base_angular=1)
+    # agent = SpotXbox2D(base_speed=1, base_angular=1, arm_speed=1)
+    agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, arm_speed=1.0)
 
     # start env
     env.start()

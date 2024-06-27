@@ -37,39 +37,41 @@ class MobilityCommand(Command):
             stair_hint=self.stair_hint,
         )
 
-        # arm command
-        cylindrical_velocity = arm_command_pb2.ArmVelocityCommand.CylindricalVelocity()
-        cylindrical_velocity.linear_velocity.r = self.vr
-        cylindrical_velocity.linear_velocity.theta = self.vaz
-        cylindrical_velocity.linear_velocity.z = self.vz
+        if self.vr != 0 or self.vaz != 0 or self.vz != 0:
+            # arm command
+            cylindrical_velocity = (
+                arm_command_pb2.ArmVelocityCommand.CylindricalVelocity()
+            )
+            cylindrical_velocity.linear_velocity.r = self.vr
+            cylindrical_velocity.linear_velocity.theta = self.vaz
+            cylindrical_velocity.linear_velocity.z = self.vz
 
-        # might need to change this, not sure if correct
-        # maybe "robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(arm_vel_command) is needed instead
-        arm_vel_cmd = arm_command_pb2.ArmVelocityCommand.Request(
-            cylindrical_velocity=cylindrical_velocity
-        )
-        arm_cmd = arm_command_pb2.ArmCommand.Request(arm_velocity_command=arm_vel_cmd)
-        robot_command = robot_command_pb2.RobotCommand()
-        robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
-            arm_cmd
-        )
+            arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
+                cylindrical_velocity=cylindrical_velocity
+            )
 
-        # build command
-        # TODO: add arm cmd as build on command
-        cmd = RobotCommandBuilder.synchro_velocity_command(
-            v_x=self.vx,
-            v_y=self.vy,
-            v_rot=self.w,
-            params=mobility_params,
-            build_on_command=robot_command,
-        )
+            robot_command = robot_command_pb2.RobotCommand()
+            print(robot_command)
+            robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
+                arm_velocity_command
+            )
 
-        # cmd = RobotCommandBuilder.synchro_velocity_command(
-        #     v_x=self.vx,
-        #     v_y=self.vy,
-        #     v_rot=self.w,
-        #     params=mobility_params,
-        # )
+            # build command
+            # TODO: add arm cmd as build on command
+            cmd = RobotCommandBuilder.synchro_velocity_command(
+                v_x=self.vx,
+                v_y=self.vy,
+                v_rot=self.w,
+                params=mobility_params,
+                build_on_command=robot_command,
+            )
+        else:
+            cmd = RobotCommandBuilder.synchro_velocity_command(
+                v_x=self.vx,
+                v_y=self.vy,
+                v_rot=self.w,
+                params=mobility_params,
+            )
         super().__init__(cmd)
 
     def __array__(self, dtype=None) -> np.ndarray:
