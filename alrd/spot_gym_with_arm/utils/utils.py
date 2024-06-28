@@ -5,14 +5,14 @@ import textwrap
 from enum import Enum
 from typing import Tuple
 
-# body constants
+# body limits
 MAX_SPEED = 0.8  # Maximum linear velocity of the robot (m/s)
 MAX_ANGULAR_SPEED = 1.5  # Maximum angular velocity of the robot (rad/s)
 DIST_TO_FRONT = 0.55  # Distance from body frame origin to front of the robot (m)
 SPOT_LENGTH = 1.1  # Length of the robot from rear to front (m)
 SPOT_WIDTH = 0.5  # Width of the robot from left to right side (m)
 
-# arm constants
+# arm limits
 MIN_HEIGHT = 0.0
 MAX_HEIGHT = 1.8
 MIN_AZIMUTHAL = -(150 / 180) * np.pi
@@ -23,6 +23,24 @@ ARM_MAX_LINEAR_VELOCITY = 0.5
 MAX_RADIAL_VEL = ARM_MAX_LINEAR_VELOCITY
 MAX_VERTICAL_VEL = ARM_MAX_LINEAR_VELOCITY
 MAX_AZIMUTHAL_VEL = np.pi / 4
+
+# arm joint position limits (rad)
+# from https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
+SH0_POS_MIN = -150.0 * (np.pi / 180.0)
+SH0_POS_MAX = 180.0 * (np.pi / 180.0)
+SH1_POS_MIN = -180.0 * (np.pi / 180.0)
+SH1_POS_MAX = 30.0 * (np.pi / 180.0)
+EL0_POS_MIN = 0.0
+EL0_POS_MAX = 180.0 * (np.pi / 180.0)
+EL1_POS_MIN = -160.0 * (np.pi / 180.0)
+EL1_POS_MAX = 160.0 * (np.pi / 180.0)
+WR0_POS_MIN = -105.0 * (np.pi / 180.0)
+WR0_POS_MAX = 105.0 * (np.pi / 180.0)
+WR1_POS_MIN = -165.0 * (np.pi / 180.0)
+WR1_POS_MAX = 165.0 * (np.pi / 180.0)
+
+# arm joint velocity limits (rad/s)
+MAX_JOINT_VEL = 10.0
 
 
 def get_front_coord(x: float, y: float, cos: float, sin: float) -> Tuple[float, float]:

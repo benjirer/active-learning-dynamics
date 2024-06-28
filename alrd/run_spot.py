@@ -6,6 +6,7 @@ from alrd.agent import Agent
 from alrd.agent.keyboard import KeyboardAgent
 from alrd.agent.xbox import SpotXbox2D
 from alrd.agent.spacebox import SpotSpaceBox
+from alrd.agent.randomxbox import SpotRandomXbox
 from alrd.spot_gym_with_arm import Spot2DEnv
 from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
 from gym.wrappers.rescale_action import RescaleAction
@@ -77,7 +78,8 @@ def start():
     # create agent
     # agent = KeyboardAgent(xy_speed=1, a_speed=1)
     # agent = SpotXbox2D(base_speed=1, base_angular=1, arm_speed=1)
-    agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, arm_speed=1.0)
+    # agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, arm_speed=1.0)
+    agent = SpotRandomXbox(base_speed=1.0, base_angular=1.0, arm_speed=1.0)
 
     # start env
     env.start()
@@ -86,7 +88,7 @@ def start():
 
     # run
     try:
-        run(agent, env, num_steps=500, cmd_freq=cmd_freq)
+        run(agent, env, num_steps=200, cmd_freq=cmd_freq)
     except KeyboardInterrupt:
         print("Exiting due to keyboard interrupt")
         env.stop_robot()

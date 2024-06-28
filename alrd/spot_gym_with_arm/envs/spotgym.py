@@ -142,7 +142,9 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_cmd_from_action(self, action: np.ndarray) -> Command:
+    def get_cmd_from_action(
+        self, action: np.ndarray, prev_state: np.ndarray
+    ) -> Command:
         raise NotImplementedError
 
     @abstractmethod
@@ -157,7 +159,7 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         """
         Converts the action to a robot command, applies it and returns the next state as a numpy array
         """
-        cmd = self.get_cmd_from_action(action)
+        cmd = self.get_cmd_from_action(action, self.__last_robot_state)
         next_state, cmd_time, read_time, oob = self._step(cmd)
         info = {"cmd_time": cmd_time, "read_time": read_time, "oob": oob}
         truncate = False

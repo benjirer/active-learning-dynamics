@@ -437,6 +437,34 @@ class SpotState:
             pose_of_hand.rotation.w,
         )
 
+    @property
+    def arm_joint_positions(self):
+        # return arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
+        # arm joint states according to https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
+        joint_states = self.kinematic_state.joint_states
+        return (
+            joint_states[12].position,
+            joint_states[13].position,
+            joint_states[15].position,
+            joint_states[16].position,
+            joint_states[17].position,
+            joint_states[18].position,
+        )
+
+    @property
+    def arm_joint_velocities(self):
+        # return arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
+        # arm joint states according to https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
+        joint_states = self.kinematic_state.joint_states
+        return (
+            joint_states[12].velocity,
+            joint_states[13].velocity,
+            joint_states[15].velocity,
+            joint_states[16].velocity,
+            joint_states[17].velocity,
+            joint_states[18].velocity,
+        )
+
     def to_str(self) -> str:
         s = self.kinematic_state.to_str()
         s += "\n"
