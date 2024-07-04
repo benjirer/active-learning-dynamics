@@ -206,8 +206,7 @@ class KinematicState:
     def to_str(self) -> str:
         s = ""
         for jointState in self.joint_states:
-            if jointState.name[:3] != "arm":
-                s += str(jointState) + "\n"
+            s += str(jointState) + "\n"
 
         s += "velocity_of_body_in_vision {\n"
         s += str(self.velocity_of_body_in_vision)
@@ -335,7 +334,7 @@ class SpotState:
 
     kinematic_state: KinematicState
     manipulator_state: ManipulatorState
-    """Interface for accessing easily relevant bosdyn RobotState fields"""
+    """Interface for easily accessing relevant bosdyn RobotState fields"""
 
     @staticmethod
     def from_robot_state(time, robot_state: RobotState) -> SpotState:
@@ -439,30 +438,35 @@ class SpotState:
 
     @property
     def arm_joint_positions(self):
-        # return arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
+        # returns arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
         # arm joint states according to https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
         joint_states = self.kinematic_state.joint_states
+        joint_positions = {joint.name: joint.position for joint in joint_states}
         return (
-            joint_states[12].position,
-            joint_states[13].position,
-            joint_states[15].position,
-            joint_states[16].position,
-            joint_states[17].position,
-            joint_states[18].position,
+            joint_positions["arm0.sh0"],
+            joint_positions["arm0.sh1"],
+            joint_positions["arm0.el0"],
+            joint_positions["arm0.el1"],
+            joint_positions["arm0.wr0"],
+            joint_positions["arm0.wr1"],
         )
 
     @property
     def arm_joint_velocities(self):
-        # return arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
+        # returns arm.sh0, arm.sh1, arm.el0, arm.el1, arm.wr0, arm.wr1
         # arm joint states according to https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
         joint_states = self.kinematic_state.joint_states
+        # build dict
+        joint_velocities = {}
+        for joint in joint_states:
+            joint_velocities[joint.name] = joint.velocity
         return (
-            joint_states[12].velocity,
-            joint_states[13].velocity,
-            joint_states[15].velocity,
-            joint_states[16].velocity,
-            joint_states[17].velocity,
-            joint_states[18].velocity,
+            joint_velocities["arm0.sh0"],
+            joint_velocities["arm0.sh1"],
+            joint_velocities["arm0.el0"],
+            joint_velocities["arm0.el1"],
+            joint_velocities["arm0.wr0"],
+            joint_velocities["arm0.wr1"],
         )
 
     def to_str(self) -> str:

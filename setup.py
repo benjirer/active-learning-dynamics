@@ -17,6 +17,7 @@ required = [
     "bosdyn-mission>=3.3.0",
     "bosdyn-choreography-client>=3.3.0",
     "shapely>=2.0.1",
+    "casadi >= 3.5.5",
     "opax @ git+https://github.com/benjirer/opax.git",
     "jdm_control @ git+http://github.com/idrave/jdm_control.git",
     "urdf2casadi @ git+https://github.com/mahaarbo/urdf2casadi.git",

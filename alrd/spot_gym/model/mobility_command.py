@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 import numpy as np
 import logging
 import csv
@@ -57,7 +58,7 @@ class MobilityCommand(Command):
     wr1_dq: float
 
     # commanded arm joint positions
-    commanded_arm_joint_positions: np.ndarray = None
+    commanded_arm_joint_positions: np.ndarray = np.zeros(6)
 
     # safety check infringed
     safety_check_infringed: bool = False
@@ -86,6 +87,7 @@ class MobilityCommand(Command):
         ):
             # as the API only allows for arm joint position commands, the agent commands the arm joint dq and here we command q_new (q_new = q_prev + dq) via the robot command
             joint_positions_prev = self.prev_state.arm_joint_positions
+            logger.info("Joint positions prev: {}".format(joint_positions_prev))
 
             joint_positions_new_pre = [
                 joint_positions_prev[0] + self.sh0_dq,
@@ -96,44 +98,46 @@ class MobilityCommand(Command):
                 joint_positions_prev[5] + self.wr1_dq,
             ]
 
+            joint_positions_new = [copy(joint_positions_prev[i]) for i in range(6)]
+
             # perform three safety checks:
             # 1. check if joint limits are exceeded
             # 2. check if end effector height is at least 0.1m
             # 3. use forward kinematics to check if end effector height is still at least 0.1m
             # note: self collision is handled by the robot
 
-            # 1. check joint limits
-            joint_positions_new[0] = max(
-                SH0_POS_MIN, min(SH0_POS_MAX, joint_positions_new_pre[0])
-            )
-            joint_positions_new[1] = max(
-                SH1_POS_MIN, min(SH1_POS_MAX, joint_positions_new_pre[1])
-            )
-            joint_positions_new[2] = max(
-                EL0_POS_MIN, min(EL0_POS_MAX, joint_positions_new_pre[2])
-            )
-            joint_positions_new[3] = max(
-                EL1_POS_MIN, min(EL1_POS_MAX, joint_positions_new_pre[3])
-            )
-            joint_positions_new[4] = max(
-                WR0_POS_MIN, min(WR0_POS_MAX, joint_positions_new_pre[4])
-            )
-            joint_positions_new[5] = max(
-                WR1_POS_MIN, min(WR1_POS_MAX, joint_positions_new_pre[5])
-            )
+            # # 1. check joint limits
+            # joint_positions_new[0] = max(
+            #     SH0_POS_MIN, min(SH0_POS_MAX, joint_positions_new_pre[0])
+            # )
+            # joint_positions_new[1] = max(
+            #     SH1_POS_MIN, min(SH1_POS_MAX, joint_positions_new_pre[1])
+            # )
+            # joint_positions_new[2] = max(
+            #     EL0_POS_MIN, min(EL0_POS_MAX, joint_positions_new_pre[2])
+            # )
+            # joint_positions_new[3] = max(
+            #     EL1_POS_MIN, min(EL1_POS_MAX, joint_positions_new_pre[3])
+            # )
+            # joint_positions_new[4] = max(
+            #     WR0_POS_MIN, min(WR0_POS_MAX, joint_positions_new_pre[4])
+            # )
+            # joint_positions_new[5] = max(
+            #     WR1_POS_MIN, min(WR1_POS_MAX, joint_positions_new_pre[5])
+            # )
 
-            if joint_positions_new != joint_positions_new_pre:
-                self.safety_check_infringed = True
-                logger.info(
-                    "Safety check infringed. Joint position command reset to previous position."
-                )
+            # if joint_positions_new != joint_positions_new_pre:
+            #     self.safety_check_infringed = True
+            #     logger.info("Safety check infringed due to joint limit")
+
+            joint_positions_new = joint_positions_new_pre
 
             # 2. check if end effector height is at least 0.1m
             if self.prev_state.pose_of_hand[2] <= 0.1:
                 joint_positions_new = joint_positions_prev
                 self.safety_check_infringed = True
                 logger.info(
-                    "Safety check infringed. Joint position command reset to previous position."
+                    "Safety check infringed due to height. Joint position command reset to previous position."
                 )
 
             # 3. use forward kinematics to check if end effector height is still at least 0.1m
@@ -266,46 +270,3 @@ class MobilityCommand(Command):
     @staticmethod
     def size() -> int:
         return 15
-
-        # # log in csv: prev state, new state, velocity commands
-        # myCsvRow = (
-        #     str(self.prev_state.arm_joint_positions[0])
-        #     + ","
-        #     + str(self.prev_state.arm_joint_positions[1])
-        #     + ","
-        #     + str(self.prev_state.arm_joint_positions[2])
-        #     + ","
-        #     + str(self.prev_state.arm_joint_positions[3])
-        #     + ","
-        #     + str(self.prev_state.arm_joint_positions[4])
-        #     + ","
-        #     + str(self.prev_state.arm_joint_positions[5])
-        #     + ","
-        #     + str(joint_positions_new[0])
-        #     + ","
-        #     + str(joint_positions_new[1])
-        #     + ","
-        #     + str(joint_positions_new[2])
-        #     + ","
-        #     + str(joint_positions_new[3])
-        #     + ","
-        #     + str(joint_positions_new[4])
-        #     + ","
-        #     + str(joint_positions_new[5])
-        #     + ","
-        #     + str(self.sh0_dq / self.cmd_freq)
-        #     + ","
-        #     + str(self.sh1_dq / self.cmd_freq)
-        #     + ","
-        #     + str(self.el0_dq / self.cmd_freq)
-        #     + ","
-        #     + str(self.el1_dq / self.cmd_freq)
-        #     + ","
-        #     + str(self.wr0_dq / self.cmd_freq)
-        #     + ","
-        #     + str(self.wr1_dq / self.cmd_freq)
-        #     + "\n"
-        # )
-
-        # with open("logger.csv", "a") as fd:
-        #     fd.write(myCsvRow)

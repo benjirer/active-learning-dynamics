@@ -305,7 +305,6 @@ class Spot2DEnv(SpotGym):
         vx: x velocity of the robot in the goal frame
         vy: y velocity of the robot in the goal frame
         w: angular velocity of the robot in the goal frame
-        height: height of the robot
 
     Arm Observation:
         joint_pos: joint positions of the arm
@@ -338,7 +337,7 @@ class Spot2DEnv(SpotGym):
         wr1_dq: wrist joint 1 dq command
     """
 
-    obs_shape = (20,)
+    obs_shape = (19,)
     action_shape = (9,)
 
     def __init__(

@@ -43,8 +43,8 @@ class SpotRandomXbox(AgentReset):
         )
         # scale samples to MAX_JOINT_DQ
         # TODO: this is not so elegant
-        safety_factor = 0.05
-        MAX_JOINT_DQ = MAX_ARM_JOINT_VEL / cmd_freq * safety_factor
+        safety_factor = 0.1
+        MAX_JOINT_DQ = safety_factor * MAX_ARM_JOINT_VEL / cmd_freq
         max_sample_value = np.max(np.abs(arm_dq_series_pre))
         self.arm_dq_series = arm_dq_series_pre * MAX_JOINT_DQ / max_sample_value
         # clip just in case
@@ -109,8 +109,8 @@ class SpotRandomXbox(AgentReset):
         sh1 = 0.0
         el0 = 0.0
         el1 = 0.0
-        wr0 = 0.0
-        wr1 = 0.0
+        # wr0 = 0.0
+        # wr1 = 0.0
 
         return np.array([v_x, v_y, v_rot, sh0, sh1, el0, el1, wr0, wr1])
 

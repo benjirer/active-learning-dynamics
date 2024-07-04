@@ -63,7 +63,7 @@ class SpotEnvironmentConfig(yaml.YAMLObject):
 
 
 ##### Fixed environment parameters #####
-MARGIN = 0.20  # Margin to the walls within which the robot is stopped (m) (added 1m to account for arm) TODO: maybe make hitcircle + hitbox for better accuracy
+MARGIN = 0.20  # Margin to the walls within which the robot is stopped (m)
 CHECK_TIMEOUT = (
     MARGIN / MAX_SPEED
 )  # Maximum time the boundary check will wait for state reading (s)
@@ -120,7 +120,7 @@ class SpotBaseModel(object):
         self.logger.setLevel(logging.INFO)
         self.verbose = verbose
 
-    def initialize_robot(self, hostname):
+    def initialize_robot(self, hostname) -> None:
         """Initializes SDK from hostname.
 
         Args:
@@ -139,12 +139,11 @@ class SpotBaseModel(object):
         self.robot_state_client = self.robot.ensure_client(
             RobotStateClient.default_service_name
         )
-        # check for arm
-        assert self.robot.has_arm(), "Robot requires an arm to run this example."
+        assert self.robot.has_arm(), "Robot requires an arm for this setup."
 
         # self.robot_state_server = StateService(self.robot_state_client)
 
-    def _start(self):
+    def _start(self) -> None:
         """Starts robot by toggling E-Stop, acquiring lease, powering on motors."""
         if self.estop_keepalive is None:
             self._toggle_estop()
@@ -153,7 +152,7 @@ class SpotBaseModel(object):
         self._power_motors()
         # self.robot_state_server.start()
 
-    def _shutdown(self):
+    def _shutdown(self) -> None:
         """Returns lease to power off."""
         if (
             not self.motors_powered
@@ -164,14 +163,16 @@ class SpotBaseModel(object):
             self.logger.info("Robot is already off!")
             return
         # self.robot_state_server.close()
+
         # stow arm
         stow_arm_cmd = RobotCommandBuilder.arm_stow_command()
         cmd_id = self.command_client.robot_command_async(
             stow_arm_cmd, end_time_secs=SHUTDOWN_TIMEOUT
         ).result()
-        arm_stowed = block_until_arm_arrives(
+        block_until_arm_arrives(
             self.command_client, cmd_id, timeout_sec=SHUTDOWN_TIMEOUT
         )
+
         # sit
         blocking_sit(
             self.command_client, timeout_sec=SHUTDOWN_TIMEOUT, update_frequency=10.0
@@ -184,7 +185,7 @@ class SpotBaseModel(object):
         self._toggle_estop()
         self.logger.info("Robot powered off")
 
-    def _toggle_estop(self):
+    def _toggle_estop(self) -> None:
         """Toggles on/off E-Stop."""
 
         if not self.estop_keepalive:
@@ -204,7 +205,7 @@ class SpotBaseModel(object):
             self.estop_keepalive = None
             # sys.exit('E-Stop')
 
-    def _gain_control(self):
+    def _gain_control(self) -> None:
         """Acquires lease of the robot to gain control."""
 
         if self.has_robot_control or not self.estop_keepalive:
@@ -225,7 +226,7 @@ class SpotBaseModel(object):
             )
             self.has_robot_control = True
 
-    def _power_motors(self):
+    def _power_motors(self) -> None:
         """Powers the motors on in the robot."""
 
         if (
@@ -259,12 +260,14 @@ class SpotBaseModel(object):
         self.command_client.robot_command_async(command.cmd, end_time_secs=endtime)
 
     def _issue_blocking_stand_and_arm_command(self, timeout=STAND_TIMEOUT) -> bool:
-        arm_ready_cmd = RobotCommandBuilder.arm_ready_command()
+        """Issues a blocking arm ready and blocking stand command to the robot."""
+
         current = time.time()
         endtime = current + timeout
         done = False
         while not done and endtime > current:
             try:
+                arm_ready_cmd = RobotCommandBuilder.arm_ready_command()
                 cmd_id = self.command_client.robot_command_async(
                     arm_ready_cmd, end_time_secs=endtime
                 ).result()
@@ -273,9 +276,10 @@ class SpotBaseModel(object):
                     timeout_sec=endtime - current,
                     update_frequency=STOP_SLEEP_TIME,
                 )
-                done = block_until_arm_arrives(
+                block_until_arm_arrives(
                     self.command_client, cmd_id, timeout_sec=endtime - current
                 )
+                done = True
             except Exception as e:
                 if self.verbose == SpotVerbose.VERBOSE:
                     self.logger.warning(
@@ -287,30 +291,20 @@ class SpotBaseModel(object):
                 break
             current = time.time()
         return done
-        # current = time.time()
-        # endtime = current + timeout
-        # done = False
-        # while not done and endtime > current:
-        #     try:
-        #         blocking_stand(
-        #             self.command_client,
-        #             timeout_sec=endtime - current,
-        #             update_frequency=STOP_SLEEP_TIME,
-        #         )
-        #         done = True
-        #     except Exception as e:
-        #         if self.verbose == SpotVerbose.VERBOSE:
-        #             self.logger.warning(
-        #                 "Error stopping robot:\n" + traceback.format_exc()
-        #             )
-        #     if not done and endtime > time.time():
-        #         time.sleep(STOP_SLEEP_TIME)
-        #     else:
-        #         break
-        #     current = time.time()
-        # return done
 
     def _issue_goal_pose_command(self, x, y, theta, timeout=POSE_TIMEOUT) -> bool:
+        """Issues a blocking goal pose command to the robot.
+
+        Args:
+            x: x-coordinate of the goal pose in the vision frame (m).
+            y: y-coordinate of the goal pose in the vision frame (m).
+            theta: heading of the goal pose in the vision frame (rad).
+            timeout: time to wait for the robot to reach the goal pose (s).
+
+        Returns:
+            bool: True if the robot reached the goal pose, False otherwise.
+        """
+
         cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
             goal_x=x,
             goal_y=y,
@@ -341,6 +335,15 @@ class SpotBaseModel(object):
         return done
 
     def _read_robot_state(self, timeout=None) -> Optional[SpotState]:
+        """Reads the state of the robot.
+
+        Args:
+            timeout: time to wait for the robot to read the state (s).
+
+        Returns:
+            SpotState: state of the robot.
+        """
+
         if timeout is not None:
             current = time.time()
             endtime = current + timeout
@@ -472,7 +475,7 @@ class SpotBaseStateMachine(SpotBaseModel):
 
     def __init__(self, config: SpotEnvironmentConfig, monitor_freq=30.0, **args):
         """
-        Params:
+        Args:
             config: configuration of the environment
             monitor_freq: frequency of monitoring the robot state in Hz
         """

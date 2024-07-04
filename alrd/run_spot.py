@@ -18,7 +18,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
 
 
-# data collection class
+# data collection classes
+# class to store all data vectors (states and transitions)
+class DataBuffer:
+    def __init__(self, states, transitions):
+        self.states = states
+        self.transitions = transitions
+
+
+# class to store individual transitions
 class transition:
     def __init__(
         self, step, obs, action, given_commands, reward, next_obs, terminated, truncated
@@ -39,12 +47,9 @@ def run(
     num_steps: int = 1000,
     cmd_freq: float = 10,
     collect_data: bool = False,
+    data_buffer: DataBuffer = None,
     experiment_dir: str | None = None,
 ):
-    # set up data collection vectors
-    if collect_data:
-        transitions = []
-        states = []
 
     started = False
     step = 0
@@ -57,7 +62,7 @@ def run(
             count = 0
             obs, info = env.reset()
             if collect_data:
-                states.append(obs)
+                data_buffer.states.append(obs)
             if obs is None:
                 return
             agent.reset()
@@ -71,8 +76,8 @@ def run(
         if action is not None:
             next_obs, reward, terminated, truncated, info = env.step(action)
             if collect_data:
-                states.append(next_obs)
-                transitions.append(
+                data_buffer.states.append(next_obs)
+                data_buffer.transitions.append(
                     transition(
                         step,
                         obs,
@@ -92,25 +97,11 @@ def run(
         if action is None or terminated or truncated:
             started = False
             if count > 0:
-                logger.info("Terminated %s. Truncated %s" % (terminated, truncated))
+                # logger.info("Terminated %s. Truncated %s" % (terminated, truncated))
                 return
         else:
             obs = next_obs
 
-    if collect_data:
-        open(
-            os.makedirs(
-                os.path.join(experiment_dir, "transitions.pickle", exist_ok=True)
-            ),
-            "wb",
-        ).write(pickle.dumps(transitions))
-        open(
-            os.makedirs(
-                os.path.join(experiment_dir, "states.pickle", exist_ok=True),
-                exist_ok=True,
-            ),
-            "wb",
-        ).write(pickle.dumps(states))
     env.stop_robot()
 
 
@@ -133,7 +124,9 @@ def start_experiment():
 
     # set up data collection directory
     experiment_dir = None
+    data_buffer = None
     if collect_data:
+        data_buffer = DataBuffer([], [])
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S")
         experiment_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
@@ -144,16 +137,19 @@ def start_experiment():
             "num_steps: {}".format(num_steps),
             "cmd_freq: {}".format(cmd_freq),
         ]
+        os.makedirs(experiment_dir, exist_ok=True)
+        settings_path = os.path.join(experiment_dir, "experiment_settings.pickle")
         open(
-            os.makedirs(
-                os.path.join(experiment_dir, "experiment_settings.pickle"),
-                exist_ok=True,
-            ),
+            settings_path,
             "wb",
         ).write(pickle.dumps(experiment_settings))
 
     episode = 0
     while episode < num_episodes:
+
+        if collect_data:
+            transitions_path = os.path.join(experiment_dir, "transitions.pickle")
+            states_path = os.path.join(experiment_dir, "states.pickle")
 
         # create env
         env = Spot2DEnv(
@@ -187,6 +183,7 @@ def start_experiment():
                 num_steps=num_steps,
                 cmd_freq=cmd_freq,
                 collect_data=collect_data,
+                data_buffer=data_buffer,
                 experiment_dir=experiment_dir,
             )
         except KeyboardInterrupt:
@@ -201,6 +198,16 @@ def start_experiment():
             logger.info("Exiting due to finish")
             env.stop_robot()
             env.close()
+
+        if collect_data:
+            open(
+                transitions_path,
+                "wb",
+            ).write(pickle.dumps(data_buffer.transitions))
+            open(
+                states_path,
+                "wb",
+            ).write(pickle.dumps(data_buffer.states))
 
         episode += 1
 
