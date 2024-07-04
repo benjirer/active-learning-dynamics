@@ -1,5 +1,5 @@
 from __future__ import annotations
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
+from alrd.spot_gym.model.command import Command, CommandEnum
 from bosdyn.client.robot_command import RobotCommandBuilder
 from bosdyn.geometry import EulerZXY
 

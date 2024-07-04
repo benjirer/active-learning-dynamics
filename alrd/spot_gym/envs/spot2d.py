@@ -8,18 +8,18 @@ from jax import jit
 import jax
 import jax.numpy as jnp
 import numpy as np
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
-from alrd.spot_gym_with_arm.model.mobility_command import MobilityCommand
-from alrd.spot_gym_with_arm.envs.record import Session
-from alrd.spot_gym_with_arm.model.robot_state import SpotState
-from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
-from alrd.spot_gym_with_arm.model.spot import SpotEnvironmentConfig
+from alrd.spot_gym.model.command import Command, CommandEnum
+from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.envs.record import Session
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent
 from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
-from alrd.spot_gym_with_arm.utils.utils import (
+from alrd.spot_gym.utils.utils import (
     MAX_ANGULAR_SPEED,
     MAX_SPEED,
     MIN_HEIGHT,
@@ -43,7 +43,7 @@ from alrd.spot_gym_with_arm.utils.utils import (
     WR0_POS_MAX,
     WR1_POS_MIN,
     WR1_POS_MAX,
-    MAX_JOINT_VEL,
+    MAX_ARM_JOINT_VEL,
 )
 
 
@@ -330,12 +330,12 @@ class Spot2DEnv(SpotGym):
         w: angular velocity command for robot
 
     Arm Action:
-        sh0_vel: shoulder joint 0 velocity command
-        sh1_vel: shoulder joint 1 velocity command
-        el0_vel: elbow joint 0 velocity command
-        el1_vel: elbow joint 1 velocity command
-        wr0_vel: wrist joint 0 velocity command
-        wr1_vel: wrist joint 1 velocity command
+        sh0_dq: shoulder joint 0 dq command
+        sh1_dq: shoulder joint 1 dq command
+        el0_dq: elbow joint 0 dq command
+        el1_dq: elbow joint 1 dq command
+        wr0_dq: wrist joint 0 dq command
+        wr1_dq: wrist joint 1 dq command
     """
 
     obs_shape = (20,)
@@ -385,12 +385,12 @@ class Spot2DEnv(SpotGym):
                     EL1_POS_MIN,
                     WR0_POS_MIN,
                     WR1_POS_MIN,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -408,12 +408,12 @@ class Spot2DEnv(SpotGym):
                     EL1_POS_MAX,
                     WR0_POS_MAX,
                     WR1_POS_MAX,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
                 ]
             ),
         )
@@ -425,12 +425,12 @@ class Spot2DEnv(SpotGym):
                     -MAX_SPEED,
                     -MAX_SPEED,
                     -MAX_ANGULAR_SPEED,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
-                    -MAX_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -438,12 +438,12 @@ class Spot2DEnv(SpotGym):
                     MAX_SPEED,
                     MAX_SPEED,
                     MAX_ANGULAR_SPEED,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
-                    MAX_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
                 ]
             ),
         )
@@ -522,12 +522,12 @@ class Spot2DEnv(SpotGym):
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            sh0_vel=action[3],
-            sh1_vel=action[4],
-            el0_vel=action[5],
-            el1_vel=action[6],
-            wr0_vel=action[7],
-            wr1_vel=action[8],
+            sh0_dq=action[3],
+            sh1_dq=action[4],
+            el0_dq=action[5],
+            el1_dq=action[6],
+            wr0_dq=action[7],
+            wr1_dq=action[8],
         )
 
     @staticmethod
@@ -537,12 +537,12 @@ class Spot2DEnv(SpotGym):
                 cmd.vx,
                 cmd.vy,
                 cmd.w,
-                cmd.sh0_vel,
-                cmd.sh1_vel,
-                cmd.el0_vel,
-                cmd.el1_vel,
-                cmd.wr0_vel,
-                cmd.wr1_vel,
+                cmd.sh0_dq,
+                cmd.sh1_dq,
+                cmd.el0_dq,
+                cmd.el1_dq,
+                cmd.wr0_dq,
+                cmd.wr1_dq,
             ]
         )
 

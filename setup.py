@@ -19,6 +19,7 @@ required = [
     "shapely>=2.0.1",
     "opax @ git+https://github.com/benjirer/opax.git",
     "jdm_control @ git+http://github.com/idrave/jdm_control.git",
+    "urdf2casadi @ git+https://github.com/mahaarbo/urdf2casadi.git",
 ]
 
 extras = {}

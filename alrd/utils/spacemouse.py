@@ -36,12 +36,10 @@ class SpaceMouseExpert:
             return self.latest_data["action"], self.latest_data["buttons"]
 
 
-# make executable
-
 if __name__ == "__main__":
 
     spacemouse = SpaceMouseExpert()
-    while True:
+    while not KeyboardInterrupt:
         action, buttons = spacemouse.get_action()
         print(f"Action: {action}, Buttons: {buttons}")
     pyspacemouse.close()

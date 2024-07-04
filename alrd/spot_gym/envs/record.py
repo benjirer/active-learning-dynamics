@@ -1,13 +1,13 @@
-from alrd.spot_gym_with_arm.model.mobility_command import MobilityCommand
-from alrd.spot_gym_with_arm.model.orientation_command import OrientationCommand
-from alrd.spot_gym_with_arm.model.arm_command import ArmCylindricalVelocityCommand
-from alrd.spot_gym_with_arm.model.robot_vel_command import RobotVelCommand
-from alrd.spot_gym_with_arm.model.robot_state import (
+from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.model.orientation_command import OrientationCommand
+from alrd.spot_gym.model.arm_command import ArmCylindricalVelocityCommand
+from alrd.spot_gym.model.robot_vel_command import RobotVelCommand
+from alrd.spot_gym.model.robot_state import (
     SpotState,
     JOINT_NAMES,
     KinematicState,
 )
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
+from alrd.spot_gym.model.command import Command, CommandEnum
 from typing import List, Tuple
 from dataclasses import dataclass, field, asdict
 from opax.utils.replay_buffer import Transition, ReplayBuffer, ReplayBuffer

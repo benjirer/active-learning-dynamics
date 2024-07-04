@@ -7,11 +7,11 @@ import time
 import logging
 import traceback
 from enum import Enum
-from alrd.spot_gym_with_arm.model.mobility_command import MobilityCommand
+from alrd.spot_gym.model.mobility_command import MobilityCommand
 
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
-from alrd.spot_gym_with_arm.model.spot import SpotBaseModel
-from alrd.spot_gym_with_arm.model.orientation_command import OrientationCommand
+from alrd.spot_gym.model.spot import SpotBaseModel
+from alrd.spot_gym.model.orientation_command import OrientationCommand
 
 import bosdyn.api.basic_command_pb2 as basic_command_pb2
 import bosdyn.client

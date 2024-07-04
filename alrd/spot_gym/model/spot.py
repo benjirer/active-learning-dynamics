@@ -15,10 +15,10 @@ import bosdyn.client
 import bosdyn.client.estop
 import bosdyn.client.util
 import numpy as np
-from alrd.spot_gym_with_arm.model.command import Command
-from alrd.spot_gym_with_arm.model.robot_state import SpotState
-from alrd.spot_gym_with_arm.utils.utils import MAX_SPEED, get_hitbox
-from alrd.spot_gym_with_arm.utils.utils import Vector3D
+from alrd.spot_gym.model.command import Command
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.utils.utils import MAX_SPEED, get_hitbox
+from alrd.spot_gym.utils.utils import Vector3D
 from alrd.utils.utils import change_frame_2d, Frame2D
 from bosdyn.api import estop_pb2
 from bosdyn.client import frame_helpers

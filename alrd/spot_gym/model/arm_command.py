@@ -1,6 +1,6 @@
 from __future__ import annotations
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
-from alrd.spot_gym_with_arm.utils.utils import CylindricalVelocity
+from alrd.spot_gym.model.command import Command, CommandEnum
+from alrd.spot_gym.utils.utils import CylindricalVelocity
 from google.protobuf import wrappers_pb2
 from bosdyn.api import (
     geometry_pb2,

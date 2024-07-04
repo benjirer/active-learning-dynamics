@@ -1,7 +1,7 @@
 from __future__ import annotations
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
-from alrd.spot_gym_with_arm.model.mobility_command import MobilityCommand
-from alrd.spot_gym_with_arm.model.arm_command import ArmCylindricalVelocityCommand
+from alrd.spot_gym.model.command import Command, CommandEnum
+from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.model.arm_command import ArmCylindricalVelocityCommand
 from bosdyn.client.robot_command import RobotCommandBuilder
 import numpy as np
 from dataclasses import dataclass

@@ -3,12 +3,12 @@ from __future__ import annotations
 import numpy as np
 from gym import spaces
 
-from alrd.spot_gym_with_arm.model.command import Command, CommandEnum
-from alrd.spot_gym_with_arm.model.arm_command import ARM_MAX_LINEAR_VELOCITY
-from alrd.spot_gym_with_arm.envs.record import Session
-from alrd.spot_gym_with_arm.model.robot_state import SpotState
-from alrd.spot_gym_with_arm.model.spot import SpotEnvironmentConfig
-from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
+from alrd.spot_gym.model.command import Command, CommandEnum
+from alrd.spot_gym.model.arm_command import ARM_MAX_LINEAR_VELOCITY
+from alrd.spot_gym.envs.record import Session
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.model.spot import SpotEnvironmentConfig
+from alrd.spot_gym.envs.spotgym import SpotGym
 from pathlib import Path
 
 MIN_HEIGHT = 0.0

@@ -7,20 +7,20 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from alrd.spot_gym_with_arm.model.spot import SpotEnvironmentConfig
-from alrd.spot_gym_with_arm.envs.spot2d import (
+from alrd.spot_gym.model.spot import SpotEnvironmentConfig
+from alrd.spot_gym.envs.spot2d import (
     Spot2DEnv,
     Spot2DEnvDone,
     Spot2DReward,
     change_spot2d_obs_frame,
 )
-from alrd.spot_gym_with_arm.envs.simulate2d import Spot2DEnvSim, Spot2DModelSim
-from alrd.spot_gym_with_arm.envs.spotgym import SpotGym
-from alrd.spot_gym_with_arm.wrappers.operational_wrappers import (
+from alrd.spot_gym.envs.simulate2d import Spot2DEnvSim, Spot2DModelSim
+from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.wrappers.operational_wrappers import (
     QueryGoalWrapper,
     QueryStartWrapper,
 )
-from alrd.spot_gym_with_arm.envs.random_pos import RandomPosInit
+from alrd.spot_gym.envs.random_pos import RandomPosInit
 from jax import vmap
 
 from opax.utils.replay_buffer import (

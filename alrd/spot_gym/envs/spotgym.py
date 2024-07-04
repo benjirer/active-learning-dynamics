@@ -9,10 +9,10 @@ from typing import Tuple
 
 import gym
 import numpy as np
-from alrd.spot_gym_with_arm.model.command import Command
-from alrd.spot_gym_with_arm.envs.record import Session, Episode
-from alrd.spot_gym_with_arm.model.robot_state import SpotState
-from alrd.spot_gym_with_arm.model.spot import (
+from alrd.spot_gym.model.command import Command
+from alrd.spot_gym.envs.record import Session, Episode
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.model.spot import (
     SpotBaseStateMachine,
     SpotEnvironmentConfig,
 )
@@ -161,7 +161,12 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         """
         cmd = self.get_cmd_from_action(action, self.__last_robot_state)
         next_state, cmd_time, read_time, oob = self._step(cmd)
-        info = {"cmd_time": cmd_time, "read_time": read_time, "oob": oob}
+        info = {
+            "cmd": cmd.to_str(),
+            "cmd_time": cmd_time,
+            "read_time": read_time,
+            "oob": oob,
+        }
         truncate = False
         if next_state is None:
             # if command was interrupted, return previous state

@@ -1,5 +1,5 @@
 from gym.core import Env, Wrapper
-from alrd.spot_gym_with_arm.envs.spot2d import Spot2DEnv
+from alrd.spot_gym.envs.spot2d import Spot2DEnv
 import random
 import numpy as np
 

@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import Tuple
-from alrd.spot_gym_with_arm.envs.spot2d import Spot2DEnv
+from alrd.spot_gym.envs.spot2d import Spot2DEnv
 from alrd.utils.utils import Frame2D, rotate_2d_vector
-from alrd.spot_gym_with_arm.utils.utils import get_hitbox
+from alrd.spot_gym.utils.utils import get_hitbox
 from gym.core import Env, Wrapper
 import numpy as np
 from pathlib import Path
 import matplotlib
 
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
