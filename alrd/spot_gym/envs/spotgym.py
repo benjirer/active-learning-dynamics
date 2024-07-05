@@ -162,7 +162,9 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         cmd = self.get_cmd_from_action(action, self.__last_robot_state)
         next_state, cmd_time, read_time, oob = self._step(cmd)
         info = {
-            "cmd": cmd.to_str(),
+            "cmd": cmd,
+            "last_state": self.__last_robot_state,
+            "next_state": next_state,
             "cmd_time": cmd_time,
             "read_time": read_time,
             "oob": oob,

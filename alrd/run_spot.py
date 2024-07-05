@@ -4,6 +4,7 @@ import logging
 import yaml
 import pickle
 import os
+import numpy as np
 from alrd.agent import Agent
 from alrd.agent.keyboard import KeyboardAgent
 from alrd.agent.xbox import SpotXbox2D
@@ -12,6 +13,7 @@ from alrd.agent.randomxbox import SpotRandomXbox
 from alrd.spot_gym import Spot2DEnv
 from alrd.spot_gym.envs.spotgym import SpotGym
 from gym.wrappers.rescale_action import RescaleAction
+from alrd.spot_gym.model.robot_state import SpotState
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -19,26 +21,44 @@ logger = logging.getLogger(__file__)
 
 
 # data collection classes
-# class to store all data vectors (states and transitions)
-class DataBuffer:
-    def __init__(self, states, transitions):
-        self.states = states
-        self.transitions = transitions
-
-
 # class to store individual transitions
-class transition:
-    def __init__(
-        self, step, obs, action, given_commands, reward, next_obs, terminated, truncated
-    ):
+class TransitionData:
+    def __init__(self, step, obs, action, cmd, reward, next_obs, terminated, truncated):
         self.step = step
         self.obs = obs
         self.action = action
-        self.given_commands = given_commands
+        self.cmd = cmd
         self.reward = reward
         self.next_obs = next_obs
         self.terminated = terminated
         self.truncated = truncated
+
+
+# class to store individual states
+class StateData:
+    def __init__(self, step: int, last_state: SpotState, next_state: SpotState):
+        self.step = step
+        self.last_state = last_state
+        self.next_state = next_state
+
+
+# class to store all data vectors for an episode
+class DataBuffer:
+    def __init__(
+        self,
+        states: list[StateData] = [],
+        observations: list[np.ndarray] = [],
+        transitions: list[TransitionData] = [],
+    ):
+        self.states = states
+        self.observations = observations
+        self.transitions = transitions
+
+
+# class to store all DataBuffers for a session
+class SessionBuffer:
+    def __init__(self, data_buffers: list[DataBuffer] = []):
+        self.data_buffers = data_buffers
 
 
 def run(
@@ -48,7 +68,7 @@ def run(
     cmd_freq: float = 10,
     collect_data: bool = False,
     data_buffer: DataBuffer = None,
-    experiment_dir: str | None = None,
+    session_dir: str | None = None,
 ):
 
     started = False
@@ -62,7 +82,7 @@ def run(
             count = 0
             obs, info = env.reset()
             if collect_data:
-                data_buffer.states.append(obs)
+                data_buffer.observations.append(obs)
             if obs is None:
                 return
             agent.reset()
@@ -76,9 +96,9 @@ def run(
         if action is not None:
             next_obs, reward, terminated, truncated, info = env.step(action)
             if collect_data:
-                data_buffer.states.append(next_obs)
+                data_buffer.observations.append(next_obs)
                 data_buffer.transitions.append(
-                    transition(
+                    TransitionData(
                         step,
                         obs,
                         action,
@@ -87,6 +107,13 @@ def run(
                         next_obs,
                         terminated,
                         truncated,
+                    )
+                )
+                data_buffer.states.append(
+                    StateData(
+                        step,
+                        info["last_state"],
+                        info["next_state"],
                     )
                 )
             if next_obs is not None:
@@ -109,7 +136,7 @@ def start_experiment():
 
     # experiment settings
     num_episodes = 1
-    num_steps = 200
+    num_steps = 10000
     cmd_freq = 10
     collect_data = True
 
@@ -123,12 +150,13 @@ def start_experiment():
     )
 
     # set up data collection directory
-    experiment_dir = None
-    data_buffer = None
+    session_dir = None
+    session_buffer = None
+
     if collect_data:
-        data_buffer = DataBuffer([], [])
+        session_buffer = SessionBuffer()
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S")
-        experiment_dir = (
+        session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
         )
@@ -137,8 +165,8 @@ def start_experiment():
             "num_steps: {}".format(num_steps),
             "cmd_freq: {}".format(cmd_freq),
         ]
-        os.makedirs(experiment_dir, exist_ok=True)
-        settings_path = os.path.join(experiment_dir, "experiment_settings.pickle")
+        os.makedirs(session_dir, exist_ok=True)
+        settings_path = os.path.join(session_dir, "experiment_settings.pickle")
         open(
             settings_path,
             "wb",
@@ -147,9 +175,9 @@ def start_experiment():
     episode = 0
     while episode < num_episodes:
 
+        data_buffer = None
         if collect_data:
-            transitions_path = os.path.join(experiment_dir, "transitions.pickle")
-            states_path = os.path.join(experiment_dir, "states.pickle")
+            data_buffer = DataBuffer()
 
         # create env
         env = Spot2DEnv(
@@ -184,32 +212,40 @@ def start_experiment():
                 cmd_freq=cmd_freq,
                 collect_data=collect_data,
                 data_buffer=data_buffer,
-                experiment_dir=experiment_dir,
+                session_dir=session_dir,
             )
         except KeyboardInterrupt:
             logger.info("Exiting due to keyboard interrupt")
             env.stop_robot()
             env.close()
+            if collect_data:
+                session_buffer.data_buffers.append(data_buffer)
+                session_path = os.path.join(session_dir, "session_buffer.pickle")
+                open(
+                    session_path,
+                    "wb",
+                ).write(pickle.dumps(session_buffer))
         except Exception as e:
             logger.error("Exiting due to exception: %s" % e)
             env.stop_robot()
             env.close()
+            if collect_data:
+                session_buffer.data_buffers.append(data_buffer)
         finally:
             logger.info("Exiting due to finish")
             env.stop_robot()
             env.close()
-
-        if collect_data:
-            open(
-                transitions_path,
-                "wb",
-            ).write(pickle.dumps(data_buffer.transitions))
-            open(
-                states_path,
-                "wb",
-            ).write(pickle.dumps(data_buffer.states))
+            if collect_data:
+                session_buffer.data_buffers.append(data_buffer)
 
         episode += 1
+
+    if collect_data:
+        session_path = os.path.join(session_dir, "session_buffer.pickle")
+        open(
+            session_path,
+            "wb",
+        ).write(pickle.dumps(session_buffer))
 
 
 if __name__ == "__main__":
