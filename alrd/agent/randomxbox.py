@@ -34,11 +34,9 @@ class SpotRandomXbox(AgentReset):
         # generates one series of colored noise samples for arm dq for the entire current episode given number of steps
         # TODO: pass these arguments at construction, especially use seed generator to get new seed at each episode in run_spot, not here
         rng = np.random.default_rng(seed=0)
-        exponent = 1.0
-        size = steps * 6
         arm_dq_series_pre = powerlaw_psd_gaussian_numpy(
-            exponent=exponent,
-            size=size,
+            exponent=1.0,  # pink noise
+            size=steps * 6,
             random_state=rng,
         )
         # scale samples to MAX_JOINT_DQ
