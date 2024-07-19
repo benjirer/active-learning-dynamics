@@ -23,6 +23,8 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MIN,
     WR1_POS_MAX,
 )
+from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
+from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
 
 # logging
@@ -33,6 +35,10 @@ logger = logging.getLogger(__file__)
 @dataclass
 class MobilityCommand(Command):
     cmd_type = CommandEnum.MOBILITY
+
+    # forward and inverse kinematics
+    spot_arm_fk: SpotArmFK = SpotArmFK()
+    spot_arm_ik: SpotArmIK = SpotArmIK()
 
     # previous robot state
     prev_state: SpotState
@@ -141,7 +147,17 @@ class MobilityCommand(Command):
                 )
 
             # 3. use forward kinematics to check if end effector height is still at least 0.1m
-            # TODO: implement this
+            # TODO: test this
+            hand_pose_fk = self.spot_arm_fk.get_ee_position(joint_positions_new)
+            if hand_pose_fk[2] <= 0.1:
+                joint_positions_new = self.spot_arm_ik.compute_ik(
+                    current_arm_joint_states=joint_positions_prev,
+                    ee_target=[hand_pose_fk[0], hand_pose_fk[1], 0.11],
+                )
+                self.safety_check_infringed = True
+                logger.info(
+                    "Safety check infringed due to height. Joint position command reset using inverse kinematics."
+                )
 
             # make arm joint command
             self.commanded_arm_joint_positions = joint_positions_new

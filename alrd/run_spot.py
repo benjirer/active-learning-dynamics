@@ -139,6 +139,12 @@ def start_experiment():
     num_steps = 10000
     cmd_freq = 10
     collect_data = True
+    random_seed = 0
+
+    # random seeds for noise sampling
+    sampling_seeds = np.random.default_rng(seed=random_seed).integers(
+        0, 2**32, size=num_episodes
+    )
 
     # import real world config
     config = yaml.load(
@@ -196,6 +202,7 @@ def start_experiment():
             arm_speed=1.0,
             cmd_freq=cmd_freq,
             steps=num_steps,
+            random_seed=sampling_seeds[episode],
         )
 
         # start env
