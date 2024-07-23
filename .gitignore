@@ -1,5 +1,14 @@
+# ignore large output files and wandb files
+output/
+collected_data/
+wandb/
+
+# ignore supplementary files
 __pycache__/
 .vscode/
 alrd.egg-info/
-wandb/
-output/
+
+# ignore jit and casadi files
+*.c
+*.so
+*.o

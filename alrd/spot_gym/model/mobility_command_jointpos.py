@@ -2,7 +2,6 @@ from __future__ import annotations
 from copy import copy
 import numpy as np
 import logging
-import csv
 from alrd.spot_gym.model.command import Command, CommandEnum, LocomotionHint
 from alrd.spot_gym.model.robot_state import SpotState
 from bosdyn.client.robot_command import RobotCommandBuilder
@@ -34,12 +33,6 @@ logger = logging.getLogger(__file__)
 
 @dataclass
 class MobilityCommand(Command):
-    cmd_type = CommandEnum.MOBILITY
-
-    # forward and inverse kinematics
-    spot_arm_fk: SpotArmFK = SpotArmFK()
-    spot_arm_ik: SpotArmIK = SpotArmIK()
-
     # previous robot state
     prev_state: SpotState
 
@@ -63,8 +56,12 @@ class MobilityCommand(Command):
     wr0_dq: float
     wr1_dq: float
 
-    # commanded arm joint positions
-    commanded_arm_joint_positions: np.ndarray = np.zeros(6)
+    # command type
+    cmd_type = CommandEnum.MOBILITY
+
+    # forward and inverse kinematics
+    spot_arm_fk: SpotArmFK = SpotArmFK()
+    spot_arm_ik: SpotArmIK = SpotArmIK()
 
     # safety check infringed
     safety_check_infringed: bool = False

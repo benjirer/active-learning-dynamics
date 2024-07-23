@@ -1,4 +1,4 @@
-from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.model.mobility_command_jointpos import MobilityCommand
 from alrd.spot_gym.model.orientation_command import OrientationCommand
 from alrd.spot_gym.model.arm_command import ArmCylindricalVelocityCommand
 from alrd.spot_gym.model.robot_vel_command import RobotVelCommand

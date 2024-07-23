@@ -5,13 +5,20 @@ import yaml
 import pickle
 import os
 import numpy as np
-from alrd.agent import Agent
+
+# agents
+from alrd.agent.absagent import Agent
 from alrd.agent.keyboard import KeyboardAgent
 from alrd.agent.xbox import SpotXbox2D
 from alrd.agent.spacebox import SpotSpaceBox
 from alrd.agent.randomxbox import SpotRandomXbox
-from alrd.spot_gym import Spot2DEnv
+
+# environments
+from alrd.spot_gym.envs.spot_eevel import SpotEEVelEnv
+from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
 from alrd.spot_gym.envs.spotgym import SpotGym
+
+# additionals
 from gym.wrappers.rescale_action import RescaleAction
 from alrd.spot_gym.model.robot_state import SpotState
 
@@ -61,6 +68,7 @@ class SessionBuffer:
         self.data_buffers = data_buffers
 
 
+# run episode
 def run(
     agent: Agent,
     env: SpotGym,
@@ -132,11 +140,12 @@ def run(
     env.stop_robot()
 
 
+# start experiment
 def start_experiment():
 
     # experiment settings
     num_episodes = 1
-    num_steps = 10000
+    num_steps = 1000
     cmd_freq = 10
     collect_data = True
     random_seed = 0
@@ -185,8 +194,9 @@ def start_experiment():
         if collect_data:
             data_buffer = DataBuffer()
 
+        # note: make sure env and agent are compatible
         # create env
-        env = Spot2DEnv(
+        env = SpotEEVelEnv(
             config,
             cmd_freq=cmd_freq,
             log_str=False,
@@ -194,23 +204,23 @@ def start_experiment():
 
         # create agent
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
-        # agent = SpotXbox2D(base_speed=1, base_angular=1, arm_speed=1)
-        # agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, arm_speed=1.0)
-        agent = SpotRandomXbox(
-            base_speed=1.0,
-            base_angular=1.0,
-            arm_speed=1.0,
-            cmd_freq=cmd_freq,
-            steps=num_steps,
-            random_seed=sampling_seeds[episode],
-        )
+        agent = SpotXbox2D(base_speed=1, base_angular=1, arm_speed=0.5)
+        # agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
+        # agent = SpotRandomXbox(
+        #     base_speed=1.0,
+        #     base_angular=1.0,
+        #     arm_speed=1.0,
+        #     cmd_freq=cmd_freq,
+        #     steps=num_steps,
+        #     random_seed=sampling_seeds[episode],
+        # )
 
         # start env
         env.start()
         logger.info("env: %s. obs: %s" % (type(env), env.observation_space.shape))
         env = RescaleAction(env, min_action=-1, max_action=1)
 
-        # run
+        # run episode
         try:
             run(
                 agent,

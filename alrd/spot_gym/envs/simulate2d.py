@@ -5,7 +5,7 @@ sys.modules["gym"] = gym
 from gym import spaces
 import numpy as np
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
-from alrd.spot_gym.envs.spot2d import Spot2DReward, MIN_X, MIN_Y, MAX_X, MAX_Y
+from alrd.spot_gym.envs.spot_jointpos import Spot2DReward, MIN_X, MIN_Y, MAX_X, MAX_Y
 from alrd.utils.utils import Frame2D
 import math
 from alrd.spot_gym.utils.utils import MAX_SPEED, MAX_ANGULAR_SPEED, get_hitbox

@@ -7,7 +7,7 @@ import time
 import logging
 import traceback
 from enum import Enum
-from alrd.spot_gym.model.mobility_command import MobilityCommand
+from alrd.spot_gym.model.mobility_command_jointpos import MobilityCommand
 
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 from alrd.spot_gym.model.spot import SpotBaseModel

@@ -33,7 +33,7 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         Args:
             cmd_freq: Environment's action frequency. Commands will take at approximately 1/cmd_freq seconds to execute.
             monitor_freq: Environment's desired state monitoring frequency for checking position boundaries.
-            log_dir: Directory where to save environment logs.
+            log_dir: Directory where to save environment logs.cmd
             session: Session object to record episode data.
             log_str: If True, command and state info is logged as a string to a file.
         If log_dir is not None and session is not None, session data will be dumped after each episode.

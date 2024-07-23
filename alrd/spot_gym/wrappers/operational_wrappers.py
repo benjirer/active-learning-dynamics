@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Tuple
-from alrd.spot_gym.envs.spot2d import Spot2DEnv
+from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
 from alrd.utils.utils import Frame2D, rotate_2d_vector
 from alrd.spot_gym.utils.utils import get_hitbox
 from gym.core import Env, Wrapper
@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 
 
 class RandomGoalWrapper(Wrapper):
-    def __init__(self, env: Spot2DEnv):
+    def __init__(self, env: SpotJointPosEnv):
         super().__init__(env)
 
     def reset(self, **kwargs):
@@ -22,7 +22,7 @@ class RandomGoalWrapper(Wrapper):
 
 
 class QueryStartWrapper(Wrapper):
-    def __init__(self, env: Spot2DEnv):
+    def __init__(self, env: SpotJointPosEnv):
         super().__init__(env)
 
     def reset(self, seed: int | None = None, options: dict | None = None):
@@ -36,7 +36,7 @@ class QueryStartWrapper(Wrapper):
 
 
 class QueryGoalWrapper(Wrapper):
-    def __init__(self, env: Spot2DEnv):
+    def __init__(self, env: SpotJointPosEnv):
         super().__init__(env)
 
     def reset(self, seed: int | None = None, options: dict | None = None):
@@ -50,7 +50,7 @@ class QueryGoalWrapper(Wrapper):
 
 
 class FixedGoal2DWrapper(Wrapper):
-    def __init__(self, env: Spot2DEnv, goal: np.ndarray):
+    def __init__(self, env: SpotJointPosEnv, goal: np.ndarray):
         assert goal.shape == (3,)
         super().__init__(env)
         self.goal = goal
@@ -75,7 +75,7 @@ class OptionWrapper(Wrapper):
 
 
 class Trajectory2DWrapper(Wrapper):
-    def __init__(self, env: Spot2DEnv, output_dir: str):
+    def __init__(self, env: SpotJointPosEnv, output_dir: str):
         super().__init__(env)
         self.__trajectory = []
         self.__output_dir = Path(output_dir)

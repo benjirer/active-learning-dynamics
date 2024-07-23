@@ -14,7 +14,7 @@ SPOT_WIDTH = 0.5  # Width of the robot from left to right side (m)
 
 # arm constants
 # from https://d3cjkvgbik1jtv.cloudfront.net/Spot+IFU/spot_arm_information_for_use_EN_v1.0.pdf
-# TODO: add real lengths
+# TODO: THESE ARE NOT REAL LENGTHS - add real lengths
 ARM_FULL_LENGTH = 0.985  # Full length of the arm (m)
 ARM_LINK_0_LENGTH = 0.1  # Length of the base - sh0 link of the arm (m)
 ARM_LINK_1_LENGTH = 0.1  # Length of the sh0 - sh1 link of the arm (m)

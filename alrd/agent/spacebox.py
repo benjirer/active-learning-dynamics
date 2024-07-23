@@ -1,4 +1,4 @@
-from alrd.agent import AgentReset
+from alrd.agent.absagent import AgentReset
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 from alrd.utils.spacemouse import SpaceMouseExpert
 from typing import Optional
@@ -7,12 +7,12 @@ import numpy as np
 
 class SpotSpaceBox(AgentReset):
     """SpotSpaceBox class provides mapping between:
-    - Xbox controller commands and Spot2D actions for base
-    - SpaceMouse commands and Spot2D actions for arm
+    - Xbox controller commands and actions for base
+    - SpaceMouse commands and actions for end effector
     """
 
     def __init__(
-        self, base_speed: float = 1.0, base_angular: float = 1.0, arm_speed: float = 0.5
+        self, base_speed: float = 1.0, base_angular: float = 1.0, ee_speed: float = 0.5
     ):
         super().__init__()
 
@@ -23,7 +23,7 @@ class SpotSpaceBox(AgentReset):
         # speed parameters
         self.base_speed = base_speed
         self.base_angular = base_angular
-        self.arm_speed = arm_speed
+        self.ee_speed = ee_speed
 
     def _move(
         self,
@@ -54,23 +54,15 @@ class SpotSpaceBox(AgentReset):
             sm_up_down: SpaceMouse up-down value
         """
 
-        # Stick left_x controls robot v_y
+        # base velocity control
         v_y = -left_x * self.base_speed
-
-        # Stick left_y controls robot v_x
         v_x = left_y * self.base_speed
-
-        # Stick right_x controls robot v_rot
         v_rot = -right_x * self.base_angular
 
-        # SpaceMouse forward-backward controls arm v_r
-        v_r = -sm_forward_backward * self.arm_speed
-
-        # SpaceMouse left-right controls arm v_az
-        v_az = -sm_left_right * self.arm_speed
-
-        # SpaceMouse up-down controls arm v_z
-        v_z = sm_up_down * self.arm_speed
+        # ee velocity control
+        v_z = sm_up_down * self.ee_speed
+        v_az = sm_left_right * self.ee_speed
+        v_r = sm_forward_backward * self.ee_speed
 
         return np.array([v_x, v_y, v_rot, v_r, v_az, v_z])
 
