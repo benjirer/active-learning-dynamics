@@ -139,26 +139,26 @@ class MobilityCommand(Command):
 
             joint_positions_new = joint_positions_new_pre
 
-            # 2. check if end effector height is at least 0.1m
-            if self.prev_state.pose_of_hand[2] <= 0.1:
-                joint_positions_new = joint_positions_prev
-                self.safety_check_infringed = True
-                logger.info(
-                    "Safety check infringed due to height. Joint position command reset to previous position."
-                )
+            # # 2. check if end effector height is at least 0.1m
+            # if self.prev_state.pose_of_hand[2] <= 0.1:
+            #     joint_positions_new = joint_positions_prev
+            #     self.safety_check_infringed = True
+            #     logger.info(
+            #         "Safety check infringed due to height. Joint position command reset to previous position."
+            #     )
 
-            # 3. use forward kinematics to check if end effector height is still at least 0.1m
-            # TODO: test this
-            hand_pose_fk = self.spot_arm_fk.get_ee_position(joint_positions_new)
-            if hand_pose_fk[2] <= 0.1:
-                joint_positions_new = self.spot_arm_ik.compute_ik(
-                    current_arm_joint_states=joint_positions_prev,
-                    ee_target=[hand_pose_fk[0], hand_pose_fk[1], 0.11],
-                )
-                self.safety_check_infringed = True
-                logger.info(
-                    "Safety check infringed due to height. Joint position command reset using inverse kinematics."
-                )
+            # # 3. use forward kinematics to check if end effector height is still at least 0.1m
+            # # TODO: test this
+            # hand_pose_fk = self.spot_arm_fk.get_ee_position(joint_positions_new)
+            # if hand_pose_fk[2] <= 0.1:
+            #     joint_positions_new = self.spot_arm_ik.compute_ik(
+            #         current_arm_joint_states=joint_positions_prev,
+            #         ee_target=[hand_pose_fk[0], hand_pose_fk[1], 0.11],
+            #     )
+            #     self.safety_check_infringed = True
+            #     logger.info(
+            #         "Safety check infringed due to height. Joint position command reset using inverse kinematics."
+            #     )
 
             # make arm joint command
             self.commanded_arm_joint_positions = joint_positions_new

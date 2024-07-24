@@ -20,21 +20,34 @@ class SpotXboxEEVel(AgentReset):
         self.base_angular = base_angular
         self.ee_speed = ee_speed
 
-    def _move(self, left_x, left_y, right_x, right_y):
-        # base velocity control
-        v_y = -left_x * self.base_speed
-        v_x = left_y * self.base_speed
-
-        # base rotation control (not used as right stick is used for end effector)
+    def _move(self, left_x, left_y, right_x, right_y, right_trigger, left_trigger):
+        # set all to 0
+        v_x = 0
+        v_y = 0
         v_rot = 0
-        # v_rot = -right_x * self.base_angular
+        v_1 = 0
+        v_2 = 0
+        v_3 = 0
 
-        # end effector velocity control
-        # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal)
-        # if cartesian: v_1 = v_x, v_2 = v_y
-        v_1 = right_y * self.ee_speed
-        v_2 = right_x * self.ee_speed
-        return np.array([v_x, v_y, v_rot, v_1, v_2, 0])
+        # base velocity control (if left_trigger is not pressed, left_x and left_y are used for base velocity)
+        if not left_trigger:
+            v_y = -left_x * self.base_speed
+            v_x = left_y * self.base_speed
+        # base rotation control (if right_trigger is pressed, right_x is used for base rotation)
+        if right_trigger:
+            v_rot = -right_x * self.base_angular
+
+        # end effector velocity control (if right_trigger is not pressed, right_x and right_y are used for end effector velocity)
+        # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
+        # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
+        if not right_trigger:
+            v_1 = right_y * self.ee_speed
+            v_2 = -right_x * self.ee_speed
+            # if left_trigger is pressed, left_x is used for v_z
+        if left_trigger:
+            v_3 = left_y * self.ee_speed
+
+        return np.array([v_x, v_y, v_rot, v_1, v_2, v_3])
 
     def description(self):
         return """
@@ -68,8 +81,12 @@ class SpotXboxEEVel(AgentReset):
         right_x = self.joy.right_x()
         right_y = self.joy.right_y()
 
+        # xbox toggles
+        right_trigger = self.joy.right_trigger()
+        left_trigger = self.joy.left_trigger()
+
         # exit
         if self.joy.left_bumper() and self.joy.right_bumper() and self.joy.B():
             return None
 
-        return self._move(left_x, left_y, right_x, right_y)
+        return self._move(left_x, left_y, right_x, right_y, right_trigger, left_trigger)

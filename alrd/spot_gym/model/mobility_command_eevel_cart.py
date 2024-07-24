@@ -8,6 +8,7 @@ from bosdyn.client.robot_command import RobotCommandBuilder
 from bosdyn.client.frame_helpers import BODY_FRAME_NAME
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
+from bosdyn.api.geometry_pb2 import Vec3
 from alrd.spot_gym.utils.utils import (
     MAX_ARM_JOINT_VEL,
     SH0_POS_MIN,
@@ -57,6 +58,9 @@ class MobilityCommand(Command):
     hand_vx: float
     hand_vy: float
     hand_vz: float
+    hand_vrx: float
+    hand_vry: float
+    hand_vrz: float
 
     # command type
     cmd_type = CommandEnum.MOBILITY
@@ -82,15 +86,19 @@ class MobilityCommand(Command):
         # make arm command
         # only if ee vel commands are not zero
         if self.hand_vx != 0 or self.hand_vy != 0 or self.hand_vz != 0:
-            # arm command
+            # arm cartesian velocity command
             cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
             cartesian_velocity.frame_name = BODY_FRAME_NAME
             cartesian_velocity.velocity_in_frame_name.x = self.hand_vx
             cartesian_velocity.velocity_in_frame_name.y = self.hand_vy
             cartesian_velocity.velocity_in_frame_name.z = self.hand_vz
 
+            # arm angular velocity command
+            hand_angular_velocity = Vec3(x=0.0, y=0.0, z=0.0)
+
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
-                cartesian_velocity=cartesian_velocity
+                cartesian_velocity=cartesian_velocity,
+                angular_velocity_of_hand_rt_odom_in_hand=hand_angular_velocity,
             )
 
             robot_command = robot_command_pb2.RobotCommand()
@@ -131,6 +139,9 @@ class MobilityCommand(Command):
                 self.hand_vx,
                 self.hand_vy,
                 self.hand_vz,
+                self.hand_vrx,
+                self.hand_vry,
+                self.hand_vrz,
             ],
             dtype=dtype,
         )
@@ -150,6 +161,9 @@ class MobilityCommand(Command):
             hand_vx=arr[9],
             hand_vy=arr[10],
             hand_vz=arr[11],
+            hand_vrx=arr[12],
+            hand_vry=arr[13],
+            hand_vrz=arr[14],
         )
 
     def asdict(self) -> dict:
@@ -170,6 +184,9 @@ class MobilityCommand(Command):
             hand_vx=d["hand_vx"],
             hand_vy=d["hand_vy"],
             hand_vz=d["hand_vz"],
+            hand_vrx=d["hand_vrx"],
+            hand_vry=d["hand_vry"],
+            hand_vrz=d["hand_vrz"],
         )
 
     def to_str(self) -> str:
@@ -184,6 +201,9 @@ class MobilityCommand(Command):
         s += "\thand_x: {:.5f}\n".format(self.hand_vx)
         s += "\thand_y: {:.5f}\n".format(self.hand_vy)
         s += "\thand_z: {:.5f}\n".format(self.hand_vz)
+        s += "\thand_rx: {:.5f}\n".format(self.hand_vrx)
+        s += "\thand_ry: {:.5f}\n".format(self.hand_vry)
+        s += "\thand_rz: {:.5f}\n".format(self.hand_vrz)
         s += "}"
         s += "metadata {\n"
         s += "safe_check_infringed: {}\n".format(self.safety_check_infringed)
@@ -193,4 +213,4 @@ class MobilityCommand(Command):
 
     @staticmethod
     def size() -> int:
-        return 12
+        return 15

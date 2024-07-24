@@ -61,20 +61,25 @@ class SpotXboxRandomJointPos(AgentReset):
         wr0,
         wr1,
     ):
-
+        v_x = 0
+        v_y = 0
+        v_rot = 0
         # base velocity control
-        v_y = -left_x * self.base_speed
-        v_x = left_y * self.base_speed
-        v_rot = -right_x * self.base_angular
+        # v_y = -left_x * self.base_speed
+        # v_x = left_y * self.base_speed
+        # v_rot = -right_x * self.base_angular
 
         # arm joint dq control
         # for testing, only move selected joints
-        # sh0 = 0.0
+        sh0 = 0.0
         sh1 = 0.0
         el0 = 0.0
         el1 = 0.0
-        # wr0 = 0.0
-        # wr1 = 0.0
+        wr0 = 0.0
+        wr1 = 0.0
+
+        sh1 = left_y * 0.05
+        wr0 = right_y * 0.05
 
         return np.array([v_x, v_y, v_rot, sh0, sh1, el0, el1, wr0, wr1])
 

@@ -2,6 +2,7 @@ import threading
 import pyspacemouse
 import numpy as np
 from typing import Tuple
+from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 
 
 class SpaceMouseExpert:
@@ -39,8 +40,12 @@ class SpaceMouseExpert:
 if __name__ == "__main__":
 
     spacemouse = SpaceMouseExpert()
-    while not KeyboardInterrupt:
-        action, buttons = spacemouse.get_action()
-        print(f"Action: {action}, Buttons: {buttons}")
-    pyspacemouse.close()
-    print("SpaceMouse closed.")
+    joy = XboxJoystickFactory.get_joystick()
+
+    try:
+        while True:
+            joy_actions = joy.left_x(), joy.left_y(), joy.right_x(), joy.right_y()
+            action, buttons = spacemouse.get_action()
+            print(f"Action: {action}, Buttons: {buttons} Xbox: {joy_actions}")
+    except KeyboardInterrupt:
+        spacemouse.close()

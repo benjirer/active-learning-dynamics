@@ -326,10 +326,13 @@ class SpotEEVelEnv(SpotGym):
         vx: x velocity command for hand
         vy: velocity command for hand
         vz: z velocity command for hand
+        vrx: x angular velocity command for hand
+        vry: y angular velocity command for hand
+        vrz: z angular velocity command for hand
     """
 
     obs_shape = (13,)
-    action_shape = (6,)
+    action_shape = (9,)
 
     def __init__(
         self,
@@ -406,6 +409,9 @@ class SpotEEVelEnv(SpotGym):
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
+                    -MAX_ARM_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -416,6 +422,9 @@ class SpotEEVelEnv(SpotGym):
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
+                    MAX_ARM_JOINT_VEL,
                 ]
             ),
         )
@@ -499,11 +508,26 @@ class SpotEEVelEnv(SpotGym):
             hand_vx=action[3],
             hand_vy=action[4],
             hand_vz=action[5],
+            hand_vrx=action[6],
+            hand_vry=action[7],
+            hand_vrz=action[8],
         )
 
     @staticmethod
     def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
-        return np.array([cmd.vx, cmd.vy, cmd.w, cmd.hand_vx, cmd.hand_vy, cmd.hand_vz])
+        return np.array(
+            [
+                cmd.vx,
+                cmd.vy,
+                cmd.w,
+                cmd.hand_vx,
+                cmd.hand_vy,
+                cmd.hand_vz,
+                cmd.hand_vrx,
+                cmd.hand_vry,
+                cmd.hand_vrz,
+            ]
+        )
 
     def get_reward(self, action, next_obs):
         return self.reward.predict(next_obs, action)

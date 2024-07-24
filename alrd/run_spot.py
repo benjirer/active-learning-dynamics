@@ -204,14 +204,20 @@ def start_experiment():
             log_str=False,
         )
 
+        # env = SpotJointPosEnv(
+        #     config,
+        #     cmd_freq=cmd_freq,
+        #     log_str=False,
+        # )
+
         # create agent
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
-        agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=0.5)
-        # agent = SpotXboxSpacemouse(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
+        # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
+        agent = SpotXboxSpacemouse(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
         #     base_angular=1.0,
-        #     arm_speed=1.0,
+        #     arm_joint_speed=1.0,
         #     cmd_freq=cmd_freq,
         #     steps=num_steps,
         #     random_seed=sampling_seeds[episode],

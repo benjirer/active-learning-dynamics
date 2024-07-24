@@ -274,8 +274,23 @@ class ManipulatorState:
             Vector3D(linear_velocity.x, linear_velocity.y, linear_velocity.z),
             Vector3D(angular_velocity.x, angular_velocity.y, angular_velocity.z),
         )
-        velocity_of_hand_in_body = express_se3_velocity_in_new_frame(
-            velocity_of_hand_in_odom, ODOM_FRAME_NAME, BODY_FRAME_NAME
+        velocity_of_hand_in_body_pre = express_se3_velocity_in_new_frame(
+            robot_state.kinematic_state.transforms_snapshot,
+            ODOM_FRAME_NAME,
+            BODY_FRAME_NAME,
+            manipulator_state.velocity_of_hand_in_odom,
+        )
+        velocity_of_hand_in_body = SE3Velocity(
+            Vector3D(
+                velocity_of_hand_in_body_pre.linear.x,
+                velocity_of_hand_in_body_pre.linear.y,
+                velocity_of_hand_in_body_pre.linear.z,
+            ),
+            Vector3D(
+                velocity_of_hand_in_body_pre.angular.x,
+                velocity_of_hand_in_body_pre.angular.y,
+                velocity_of_hand_in_body_pre.angular.z,
+            ),
         )
         pose_of_hand_in_body = get_a_tform_b(
             robot_state.kinematic_state.transforms_snapshot,

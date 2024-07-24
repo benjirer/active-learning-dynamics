@@ -24,7 +24,7 @@ ARM_LINK_4_LENGTH = 0.3  # Length of the el1 - wr0 link of the arm (m)
 ARM_LINK_5_LENGTH = 0.1  # Length of the wr0 - wr1 link of the arm (m)
 
 # body limits
-MAX_SPEED = 0.8  # Maximum linear velocity of the robot (m/s)
+MAX_SPEED = 0.5  # Maximum linear velocity of the robot (m/s)
 MAX_ANGULAR_SPEED = 1.5  # Maximum angular velocity of the robot (rad/s)
 
 # arm limits
