@@ -5,11 +5,8 @@ from typing import Optional
 import numpy as np
 
 
-class SpotSpaceBox(AgentReset):
-    """SpotSpaceBox class provides mapping between:
-    - Xbox controller commands and actions for base
-    - SpaceMouse commands and actions for end effector
-    """
+class SpotXboxSpacemouse(AgentReset):
+    """SpotXboxSpacemouse class provides mapping between xbox controller commands and actions for base and spacemouse commands and actions for end effector of SpotEEVelEnv."""
 
     def __init__(
         self, base_speed: float = 1.0, base_angular: float = 1.0, ee_speed: float = 0.5
@@ -35,25 +32,6 @@ class SpotSpaceBox(AgentReset):
         sm_left_right,
         sm_up_down,
     ):
-        """Commands the robot and arm using:
-        - Xbox left stick for robot base linear velocity
-        - Xbox right stick for robot base angular velocity
-        - SpaceMouse:
-            - forward-backward for v_r radial velocity
-            - left-right for v_az azimuthal velocity
-            - up-down for v_z vertical velocity
-            - TODO: turn for v_rot_wrist wrist rotation velocity
-
-        Args:
-            left_x: Xbox left stick x-axis value
-            left_y: Xbox left stick y-axis value
-            right_x: Xbox right stick x-axis value
-            right_y: Xbox right stick y-axis value
-            sm_forward_backward: SpaceMouse forward-backward value
-            sm_left_right: SpaceMouse left-right value
-            sm_up_down: SpaceMouse up-down value
-        """
-
         # base velocity control
         v_y = -left_x * self.base_speed
         v_x = left_y * self.base_speed
@@ -69,34 +47,34 @@ class SpotSpaceBox(AgentReset):
     def description(self):
         return """
         Mapping
-        Button Combination    -> Functionality
+        Button Combination      -> Functionality
         --------------------------------------
         Xbox:
-        LB + RB + B           -> Return None
-          Left Stick          -> Move
-          Right Stick         -> Rotate
+            LB + RB + B         -> Return None
+            Left Stick          -> Body linear velocity
+            Right Stick         -> Body angular velocity
 
         SpaceMouse:
-            Forward-Backward    -> v_r radial velocity
-            Left-Right          -> v_az azimuthal velocity
-            Up-Down             -> v_z vertical velocity
+            Forward-Backward    -> End effector radial velocity
+            Left-Right          -> End effector azimuthal velocity
+            Up-Down             -> End effector vertical velocity
         """
 
     def act(self, obs: np.ndarray) -> Optional[np.ndarray]:
-        """Controls robot base from an Xbox controller and arm from a Spacemouse.
+        """Controls robot base from an xbox controller and end effector from a spacemouse.
 
         Mapping
-        Button Combination    -> Functionality
+        Button Combination      -> Functionality
         --------------------------------------
         Xbox:
-        LB + RB + B           -> Return None
-          Left Stick          -> Move
-          Right Stick         -> Rotate
+            LB + RB + B         -> Return None
+            Left Stick          -> Body linear velocity
+            Right Stick         -> Body angular velocity
 
         SpaceMouse:
-            Forward-Backward    -> v_r radial velocity
-            Left-Right          -> v_az azimuthal velocity
-            Up-Down             -> v_z vertical velocity
+            Forward-Backward    -> End effector radial velocity
+            Left-Right          -> End effector azimuthal velocity
+            Up-Down             -> End effector vertical velocity
 
         Args:
             obs: Observation from the environment.
@@ -107,15 +85,11 @@ class SpotSpaceBox(AgentReset):
         xbox_right_x = self.joy.right_x()
         xbox_right_y = self.joy.right_y()
 
-        # spacemouse arm control
+        # spacemouse end effector control
         actions, buttons = self.mouse.get_action()
         sm_forward_backward = actions[0]
         sm_left_right = actions[5]
         sm_up_down = actions[2]
-
-        # sm_forward_backward = 0
-        # sm_left_right = 0
-        # sm_up_down = 0
 
         # exit
         if self.joy.left_bumper() and self.joy.right_bumper() and self.joy.B():

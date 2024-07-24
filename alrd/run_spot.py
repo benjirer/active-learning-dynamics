@@ -9,12 +9,14 @@ import numpy as np
 # agents
 from alrd.agent.absagent import Agent
 from alrd.agent.keyboard import KeyboardAgent
-from alrd.agent.xbox import SpotXbox2D
-from alrd.agent.spacebox import SpotSpaceBox
-from alrd.agent.randomxbox import SpotRandomXbox
+from alrd.agent.xbox_eevel import SpotXboxEEVel
+from alrd.agent.xbox_spacemouse import SpotXboxSpacemouse
+from alrd.agent.xbox_random_jointpos import SpotXboxRandomJointPos
 
 # environments
-from alrd.spot_gym.envs.spot_eevel import SpotEEVelEnv
+from alrd.spot_gym.envs.spot_eevel_cart import SpotEEVelEnv
+
+# from alrd.spot_gym.envs.spot_eevel_cyl import SpotEEVelEnv
 from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
 from alrd.spot_gym.envs.spotgym import SpotGym
 
@@ -204,9 +206,9 @@ def start_experiment():
 
         # create agent
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
-        agent = SpotXbox2D(base_speed=1, base_angular=1, arm_speed=0.5)
-        # agent = SpotSpaceBox(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
-        # agent = SpotRandomXbox(
+        agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=0.5)
+        # agent = SpotXboxSpacemouse(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
+        # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
         #     base_angular=1.0,
         #     arm_speed=1.0,

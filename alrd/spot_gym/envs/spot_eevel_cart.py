@@ -9,7 +9,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from alrd.spot_gym.model.command import Command, CommandEnum
-from alrd.spot_gym.model.mobility_command_jointpos import MobilityCommand
+from alrd.spot_gym.model.mobility_command_eevel_cart import MobilityCommand
 from alrd.spot_gym.envs.record import Session
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.envs.spotgym import SpotGym
@@ -24,6 +24,11 @@ from alrd.spot_gym.utils.utils import (
     MAX_SPEED,
     ARM_MIN_HEIGHT,
     ARM_MAX_HEIGHT,
+    ARM_MIN_X,
+    ARM_MAX_X,
+    ARM_MIN_Y,
+    ARM_MAX_Y,
+    ARM_MAX_LINEAR_VEL,
     ARM_MIN_AZIMUTHAL,
     ARM_MAX_AZIMUTHAL,
     ARM_MIN_RADIAL,
@@ -45,7 +50,6 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MAX,
     MAX_ARM_JOINT_VEL,
 )
-
 
 from opax.models.reward_model import RewardModel
 from jdm_control.rewards import get_tolerance_fn
@@ -294,7 +298,7 @@ MAX_X = 4
 MAX_Y = 3
 
 
-class SpotJointPosEnv(SpotGym):
+class SpotEEVelEnv(SpotGym):
     """
     Kinematic Observation:
         x: x position of the robot in the goal frame
@@ -306,21 +310,12 @@ class SpotJointPosEnv(SpotGym):
         w: angular velocity of the robot in the goal frame
 
     Arm Observation:
-        joint_pos: joint positions of the arm
-            sh0_pos: shoulder joint 0 position
-            sh1_pos: shoulder joint 1 position
-            el0_pos: elbow joint 0 position
-            el1_pos: elbow joint 1 position
-            wr0_pos: wrist joint 0 position
-            wr1_pos: wrist joint 1 position
-
-        joint_vel: joint velocities of the arm
-            sh0_vel: shoulder joint 0 velocity
-            sh1_vel: shoulder joint 1 velocity
-            el0_vel: elbow joint 0 velocity
-            el1_vel: elbow joint 1 velocity
-            wr0_vel: wrist joint 0 velocity
-            wr1_vel: wrist joint 1 velocity
+        x: position of hand in the body frame
+        y: position of hand in the body frame
+        z: z position of hand in the body frame
+        vx: x velocity of hand in the body frame
+        vy: y velocity of hand in the body frame
+        vz: z velocity of hand in the body frame
 
     Kinematic Action:
         vx: x velocity command for robot
@@ -328,16 +323,13 @@ class SpotJointPosEnv(SpotGym):
         w: angular velocity command for robot
 
     Arm Action:
-        sh0_dq: shoulder joint 0 dq command
-        sh1_dq: shoulder joint 1 dq command
-        el0_dq: elbow joint 0 dq command
-        el1_dq: elbow joint 1 dq command
-        wr0_dq: wrist joint 0 dq command
-        wr1_dq: wrist joint 1 dq command
+        vx: x velocity command for hand
+        vy: velocity command for hand
+        vz: z velocity command for hand
     """
 
-    obs_shape = (19,)
-    action_shape = (9,)
+    obs_shape = (13,)
+    action_shape = (6,)
 
     def __init__(
         self,
@@ -377,18 +369,12 @@ class SpotJointPosEnv(SpotGym):
                     -MAX_SPEED,
                     -MAX_SPEED,
                     -MAX_ANGULAR_SPEED,
-                    SH0_POS_MIN,
-                    SH1_POS_MIN,
-                    EL0_POS_MIN,
-                    EL1_POS_MIN,
-                    WR0_POS_MIN,
-                    WR1_POS_MIN,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
+                    ARM_MIN_X,
+                    ARM_MIN_Y,
+                    ARM_MIN_HEIGHT,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_VERTICAL_VEL,
                 ]
             ),
             high=np.array(
@@ -400,18 +386,12 @@ class SpotJointPosEnv(SpotGym):
                     MAX_SPEED,
                     MAX_SPEED,
                     MAX_ANGULAR_SPEED,
-                    SH0_POS_MAX,
-                    SH1_POS_MAX,
-                    EL0_POS_MAX,
-                    EL1_POS_MAX,
-                    WR0_POS_MAX,
-                    WR1_POS_MAX,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
+                    ARM_MAX_X,
+                    ARM_MAX_Y,
+                    ARM_MAX_HEIGHT,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_VERTICAL_VEL,
                 ]
             ),
         )
@@ -423,12 +403,9 @@ class SpotJointPosEnv(SpotGym):
                     -MAX_SPEED,
                     -MAX_SPEED,
                     -MAX_ANGULAR_SPEED,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_VERTICAL_VEL,
                 ]
             ),
             high=np.array(
@@ -436,12 +413,9 @@ class SpotJointPosEnv(SpotGym):
                     MAX_SPEED,
                     MAX_SPEED,
                     MAX_ANGULAR_SPEED,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_VERTICAL_VEL,
                 ]
             ),
         )
@@ -469,18 +443,16 @@ class SpotJointPosEnv(SpotGym):
             Kinematic Observations:
                 [x, y, cos, sin, vx, vy, w] with the origin at the goal position and axis aligned to environment frame
             Arm Observations:
-                [joint_pos, joint_vel]
+                [x, y, z, vx, vy, vz] with the origin at the body frame
         """
-        return SpotJointPosEnv.get_obs_from_state_goal(state, self.__goal_frame)
+        return SpotEEVelEnv.get_obs_from_state_goal(state, self.__goal_frame)
 
     @staticmethod
     def get_obs_from_state_goal(state: SpotState, goal_frame: Frame2D) -> np.ndarray:
         """
         Returns
-            Kinematic observations corresponding to the kinematic state using as origin the goal position
-            with the x axis in the direction of the goal orientation.
-
-            Arm observations corresponding to the arm joint positions and velocities.
+            Kinematic observations corresponding to the kinematic state using as origin the goal position with the x axis in the direction of the goal orientation.
+            Arm observations corresponding to the manipulator state using as origin the body frame.
         """
         # kinematic observations
         x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
@@ -490,8 +462,8 @@ class SpotJointPosEnv(SpotGym):
         vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
 
         # arm observations
-        arm_joint_pos = state.arm_joint_positions
-        arm_joint_vel = state.arm_joint_velocities
+        x_hand, y_hand, z_hand, _, _, _, _ = state.pose_of_hand
+        vx_hand, vy_hand, vz_hand, _, _, _ = state.velocity_of_hand_in_body
 
         return np.array(
             [
@@ -502,8 +474,12 @@ class SpotJointPosEnv(SpotGym):
                 vx,
                 vy,
                 w,
-                *arm_joint_pos,
-                *arm_joint_vel,
+                x_hand,
+                y_hand,
+                z_hand,
+                vx_hand,
+                vy_hand,
+                vz_hand,
             ]
         )
 
@@ -520,29 +496,14 @@ class SpotJointPosEnv(SpotGym):
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            sh0_dq=action[3],
-            sh1_dq=action[4],
-            el0_dq=action[5],
-            el1_dq=action[6],
-            wr0_dq=action[7],
-            wr1_dq=action[8],
+            hand_vx=action[3],
+            hand_vy=action[4],
+            hand_vz=action[5],
         )
 
     @staticmethod
     def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
-        return np.array(
-            [
-                cmd.vx,
-                cmd.vy,
-                cmd.w,
-                cmd.sh0_dq,
-                cmd.sh1_dq,
-                cmd.el0_dq,
-                cmd.el1_dq,
-                cmd.wr0_dq,
-                cmd.wr1_dq,
-            ]
-        )
+        return np.array([cmd.vx, cmd.vy, cmd.w, cmd.hand_vx, cmd.hand_vy, cmd.hand_vz])
 
     def get_reward(self, action, next_obs):
         return self.reward.predict(next_obs, action)
@@ -658,7 +619,7 @@ class SpotJointPosEnv(SpotGym):
         return super().reset(seed=seed, options=options)
 
 
-class SpotJointPosEnvDone(SpotJointPosEnv):
+class SpotEEVelEnvDone(SpotEEVelEnv):
     """Stops the robot when close to goal pose with low velocity"""
 
     def __init__(self, dist_tol, ang_tol, vel_tol, *args, **kwargs) -> None:

@@ -9,7 +9,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from alrd.spot_gym.model.command import Command, CommandEnum
-from alrd.spot_gym.model.mobility_command_eevel import MobilityCommand
+from alrd.spot_gym.model.mobility_command_eevel_cyl import MobilityCommand
 from alrd.spot_gym.envs.record import Session
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.envs.spotgym import SpotGym
@@ -22,15 +22,15 @@ from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
     MAX_ANGULAR_SPEED,
     MAX_SPEED,
-    MIN_HEIGHT,
-    MAX_HEIGHT,
-    MIN_AZIMUTHAL,
-    MAX_AZIMUTHAL,
-    MIN_RADIAL_POS,
-    MAX_RADIAL_POS,
-    MAX_RADIAL_VEL,
-    MAX_VERTICAL_VEL,
-    MAX_AZIMUTHAL_VEL,
+    ARM_MIN_HEIGHT,
+    ARM_MAX_HEIGHT,
+    ARM_MIN_AZIMUTHAL,
+    ARM_MAX_AZIMUTHAL,
+    ARM_MIN_RADIAL,
+    ARM_MAX_RADIAL,
+    ARM_MAX_RADIAL_VEL,
+    ARM_MAX_VERTICAL_VEL,
+    ARM_MAX_AZIMUTHAL_VEL,
     SH0_POS_MIN,
     SH0_POS_MAX,
     SH1_POS_MIN,
@@ -45,7 +45,6 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MAX,
     MAX_ARM_JOINT_VEL,
 )
-
 
 from opax.models.reward_model import RewardModel
 from jdm_control.rewards import get_tolerance_fn
@@ -365,12 +364,12 @@ class SpotEEVelEnv(SpotGym):
                     -MAX_SPEED,
                     -MAX_SPEED,
                     -MAX_ANGULAR_SPEED,
-                    MIN_RADIAL_POS,
-                    MIN_AZIMUTHAL,
-                    MIN_HEIGHT,
-                    -MAX_RADIAL_VEL,
-                    -MAX_AZIMUTHAL_VEL,
-                    -MAX_VERTICAL_VEL,
+                    ARM_MIN_RADIAL,
+                    ARM_MIN_AZIMUTHAL,
+                    ARM_MIN_HEIGHT,
+                    -ARM_MAX_RADIAL_VEL,
+                    -ARM_MAX_AZIMUTHAL_VEL,
+                    -ARM_MAX_VERTICAL_VEL,
                 ]
             ),
             high=np.array(
@@ -382,12 +381,12 @@ class SpotEEVelEnv(SpotGym):
                     MAX_SPEED,
                     MAX_SPEED,
                     MAX_ANGULAR_SPEED,
-                    MAX_RADIAL_POS,
-                    MAX_AZIMUTHAL,
-                    MAX_HEIGHT,
-                    MAX_RADIAL_VEL,
-                    MAX_AZIMUTHAL_VEL,
-                    MAX_VERTICAL_VEL,
+                    ARM_MAX_RADIAL,
+                    ARM_MAX_AZIMUTHAL,
+                    ARM_MAX_HEIGHT,
+                    ARM_MAX_RADIAL_VEL,
+                    ARM_MAX_AZIMUTHAL_VEL,
+                    ARM_MAX_VERTICAL_VEL,
                 ]
             ),
         )
@@ -399,9 +398,9 @@ class SpotEEVelEnv(SpotGym):
                     -MAX_SPEED,
                     -MAX_SPEED,
                     -MAX_ANGULAR_SPEED,
-                    -MAX_RADIAL_VEL,
-                    -MAX_AZIMUTHAL_VEL,
-                    -MAX_VERTICAL_VEL,
+                    -ARM_MAX_RADIAL_VEL,
+                    -ARM_MAX_AZIMUTHAL_VEL,
+                    -ARM_MAX_VERTICAL_VEL,
                 ]
             ),
             high=np.array(
@@ -409,9 +408,9 @@ class SpotEEVelEnv(SpotGym):
                     MAX_SPEED,
                     MAX_SPEED,
                     MAX_ANGULAR_SPEED,
-                    MAX_RADIAL_VEL,
-                    MAX_AZIMUTHAL_VEL,
-                    MAX_VERTICAL_VEL,
+                    ARM_MAX_RADIAL_VEL,
+                    ARM_MAX_AZIMUTHAL_VEL,
+                    ARM_MAX_VERTICAL_VEL,
                 ]
             ),
         )

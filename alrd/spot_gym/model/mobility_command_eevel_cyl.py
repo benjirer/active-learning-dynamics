@@ -33,6 +33,10 @@ logger = logging.getLogger(__file__)
 
 @dataclass
 class MobilityCommand(Command):
+    """
+    This MobilityCommand class provides mapping between SpotEEVelEnv action and robot command for body velocity and end effector cylindrical velocity commands.
+    """
+
     # previous robot state
     prev_state: SpotState
 

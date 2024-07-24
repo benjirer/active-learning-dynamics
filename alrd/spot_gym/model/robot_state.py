@@ -4,8 +4,11 @@ from bosdyn.client.frame_helpers import (
     get_a_tform_b,
     get_vision_tform_body,
     get_odom_tform_body,
+    express_se3_velocity_in_new_frame,
     BODY_FRAME_NAME,
     HAND_FRAME_NAME,
+    VISION_FRAME_NAME,
+    ODOM_FRAME_NAME,
 )
 from dataclasses import dataclass
 from typing import List
@@ -233,6 +236,7 @@ class ManipulatorState:
     estimated_end_effector_force_in_hand: Vector3D
     velocity_of_hand_in_vision: SE3Velocity
     velocity_of_hand_in_odom: SE3Velocity
+    velocity_of_hand_in_body: SE3Velocity
     pose_of_hand: SE3Pose
 
     def __array__(self, dtype=None) -> np.ndarray:
@@ -243,6 +247,7 @@ class ManipulatorState:
                 np.array(self.estimated_end_effector_force_in_hand, dtype=dtype),
                 np.array(self.velocity_of_hand_in_vision, dtype=dtype),
                 np.array(self.velocity_of_hand_in_odom, dtype=dtype),
+                np.array(self.velocity_of_hand_in_body, dtype=dtype),
                 np.array(self.pose_of_hand, dtype=dtype),
             ]
         )
@@ -269,6 +274,9 @@ class ManipulatorState:
             Vector3D(linear_velocity.x, linear_velocity.y, linear_velocity.z),
             Vector3D(angular_velocity.x, angular_velocity.y, angular_velocity.z),
         )
+        velocity_of_hand_in_body = express_se3_velocity_in_new_frame(
+            velocity_of_hand_in_odom, ODOM_FRAME_NAME, BODY_FRAME_NAME
+        )
         pose_of_hand_in_body = get_a_tform_b(
             robot_state.kinematic_state.transforms_snapshot,
             BODY_FRAME_NAME,
@@ -293,6 +301,7 @@ class ManipulatorState:
             estimated_end_effector_force_in_hand,
             velocity_of_hand_in_vision,
             velocity_of_hand_in_odom,
+            velocity_of_hand_in_body,
             pose_of_hand,
         )
 
@@ -304,7 +313,8 @@ class ManipulatorState:
             Vector3D.fromarray(arr[2:5]),
             SE3Velocity.fromarray(arr[5:11]),
             SE3Velocity.fromarray(arr[11:17]),
-            SE3Pose.fromarray(arr[17:24]),
+            SE3Velocity.fromarray(arr[17:23]),
+            SE3Pose.fromarray(arr[23:30]),
         )
 
     def to_str(self) -> str:
@@ -321,6 +331,10 @@ class ManipulatorState:
 
         s += "velocity_of_hand_in_odom {\n"
         s += str(self.velocity_of_hand_in_odom)
+        s += "}\n"
+
+        s += "velocity_of_hand_in_body {\n"
+        s += str(self.velocity_of_hand_in_body)
         s += "}\n"
 
         s += "pose_of_hand {\n"
@@ -414,6 +428,19 @@ class SpotState:
     def velocity_of_hand_in_odom(self):
         linear_velocity = self.manipulator_state.velocity_of_hand_in_odom.linear
         angular_velocity = self.manipulator_state.velocity_of_hand_in_odom.angular
+        return (
+            linear_velocity.x,
+            linear_velocity.y,
+            linear_velocity.z,
+            angular_velocity.x,
+            angular_velocity.y,
+            angular_velocity.z,
+        )
+
+    @property
+    def velocity_of_hand_in_body(self):
+        linear_velocity = self.manipulator_state.velocity_of_hand_in_body.linear
+        angular_velocity = self.manipulator_state.velocity_of_hand_in_body.angular
         return (
             linear_velocity.x,
             linear_velocity.y,

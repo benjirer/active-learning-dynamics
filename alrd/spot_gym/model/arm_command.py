@@ -12,7 +12,7 @@ import numpy as np
 
 from dataclasses import dataclass
 
-ARM_MAX_LINEAR_VELOCITY = 0.5
+ARM_MAX_LINEAR_VEL = 0.5
 
 
 @dataclass
@@ -26,7 +26,7 @@ class ArmCylindricalVelocityCommand(Command):
         )
         cylindrical_vel = arm_command_pb2.ArmVelocityCommand.CylindricalVelocity(
             linear_velocity=cylindrical_coord,
-            max_linear_velocity=wrappers_pb2.DoubleValue(value=ARM_MAX_LINEAR_VELOCITY),
+            max_linear_velocity=wrappers_pb2.DoubleValue(value=ARM_MAX_LINEAR_VEL),
         )
         arm_vel_cmd = arm_command_pb2.ArmVelocityCommand.Request(
             cylindrical_velocity=cylindrical_vel
