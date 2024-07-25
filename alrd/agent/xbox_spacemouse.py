@@ -30,18 +30,38 @@ class SpotXboxSpacemouse(AgentReset):
         sm_forward_backward,
         sm_left_right,
         sm_up_down,
+        sm_roll,
+        sm_pitch,
+        sm_yaw,
+        sm_button_1,
+        sm_button_2,
     ):
-        # base velocity control
+        # set all to 0
+        v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6 = 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+        # base linear velocity control
         v_y = -left_x * self.base_speed
         v_x = left_y * self.base_speed
+
+        # base angular velocity control
         v_rot = -right_x * self.base_angular
 
-        # ee velocity control
-        v_1 = sm_forward_backward * self.ee_speed
-        v_2 = sm_left_right * self.ee_speed
-        v_3 = sm_up_down * self.ee_speed
+        # ee linear velocity control
+        # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
+        # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
+        if not sm_button_1:
+            v_1 = sm_forward_backward * self.ee_speed
+            v_2 = sm_left_right * self.ee_speed
+            v_3 = sm_up_down * self.ee_speed
 
-        return np.array([v_x, v_y, v_rot, v_1, v_2, v_3])
+        # ee angular velocity control
+        # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
+        if sm_button_1:
+            v_4 = sm_roll * self.ee_speed
+            v_5 = sm_pitch * self.ee_speed
+            v_6 = sm_yaw * self.ee_speed
+
+        return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
 
     def description(self):
         return """
@@ -57,6 +77,9 @@ class SpotXboxSpacemouse(AgentReset):
             Forward-Backward    -> End effector velocity radial for cylindrical or x for cartesian depending on MobilityCommand class used
             Left-Right          -> End effector velocity azimuthal for cylindrical or y for cartesian depending on MobilityCommand class used
             Up-Down             -> End effector vertical velocity
+            button_1 + roll     -> End effector x angular velocity
+            button_1 + pitch    -> End effector y angular velocity
+            button_1 + yaw      -> End effector z angular velocity
         """
 
     def act(self, obs: np.ndarray) -> Optional[np.ndarray]:
@@ -74,6 +97,9 @@ class SpotXboxSpacemouse(AgentReset):
             Forward-Backward    -> End effector velocity radial for cylindrical or x for cartesian depending on MobilityCommand class used
             Left-Right          -> End effector velocity azimuthal for cylindrical or y for cartesian depending on MobilityCommand class used
             Up-Down             -> End effector vertical velocity
+            button_1 + roll     -> End effector x angular velocity
+            button_1 + pitch    -> End effector y angular velocity
+            button_1 + yaw      -> End effector z angular velocity
 
         Args:
             obs: Observation from the environment.
@@ -94,8 +120,13 @@ class SpotXboxSpacemouse(AgentReset):
 
         # spacemouse end effector control
         sm_forward_backward = spacemouse_actions[0]
-        sm_left_right = spacemouse_actions[5]
+        sm_left_right = spacemouse_actions[1]
         sm_up_down = spacemouse_actions[2]
+        sm_roll = spacemouse_actions[3]
+        sm_pitch = spacemouse_actions[4]
+        sm_yaw = spacemouse_actions[5]
+        sm_button_1 = spacemouse_buttons[0]
+        sm_button_2 = spacemouse_buttons[1]
 
         # exit
         if self.joy.left_bumper() and self.joy.right_bumper() and self.joy.B():
@@ -109,4 +140,9 @@ class SpotXboxSpacemouse(AgentReset):
             sm_forward_backward,
             sm_left_right,
             sm_up_down,
+            sm_roll,
+            sm_pitch,
+            sm_yaw,
+            sm_button_1,
+            sm_button_2,
         )
