@@ -101,6 +101,7 @@ class KinematicState:
     pose_of_body_in_vision: SE3Pose
     pose_of_body_in_odom: SE3Pose
     joint_states: List[JointState]
+    transform_snapshot: None
 
     def __array__(self, dtype=None) -> np.ndarray:
         joint_states = np.empty((len(JOINT_NAMES) * 4), dtype=dtype)
@@ -115,6 +116,7 @@ class KinematicState:
                 np.array(self.pose_of_body_in_vision, dtype=dtype),
                 np.array(self.pose_of_body_in_odom, dtype=dtype),
                 joint_states,
+                self.transform_snapshot,
             ),
             dtype=dtype,
         )
@@ -177,6 +179,8 @@ class KinematicState:
                     joint_state.load.value,
                 )
             )
+
+        transform_snapshot = kinematic_state.transforms_snapshot
         return KinematicState(
             time,
             velocity_of_body_in_vision,
@@ -184,6 +188,7 @@ class KinematicState:
             pose_of_body_in_vision,
             pose_of_body_in_odom,
             joint_states,
+            transform_snapshot,
         )
 
     @staticmethod
@@ -226,6 +231,9 @@ class KinematicState:
         s += "vision_tform_body {\n"
         s += str(self.pose_of_body_in_vision)
         s += "}"
+
+        s += "transforms_snapshot: {}".format(self.transform_snapshot)
+
         return s
 
 
@@ -237,7 +245,9 @@ class ManipulatorState:
     velocity_of_hand_in_vision: SE3Velocity
     velocity_of_hand_in_odom: SE3Velocity
     velocity_of_hand_in_body: SE3Velocity
-    pose_of_hand: SE3Pose
+    pose_of_hand_in_vision: SE3Pose
+    pose_of_hand_in_odom: SE3Pose
+    pose_of_hand_in_body: SE3Pose
 
     def __array__(self, dtype=None) -> np.ndarray:
         return np.concatenate(
@@ -248,7 +258,9 @@ class ManipulatorState:
                 np.array(self.velocity_of_hand_in_vision, dtype=dtype),
                 np.array(self.velocity_of_hand_in_odom, dtype=dtype),
                 np.array(self.velocity_of_hand_in_body, dtype=dtype),
-                np.array(self.pose_of_hand, dtype=dtype),
+                np.array(self.pose_of_hand_in_vision, dtype=dtype),
+                np.array(self.pose_of_hand_in_odom, dtype=dtype),
+                np.array(self.pose_of_hand_in_body, dtype=dtype),
             ]
         )
 
@@ -292,22 +304,58 @@ class ManipulatorState:
                 velocity_of_hand_in_body_pre.angular.z,
             ),
         )
-        pose_of_hand_in_body = get_a_tform_b(
+        pose_of_hand_in_vision_pre = get_a_tform_b(
+            robot_state.kinematic_state.transforms_snapshot,
+            VISION_FRAME_NAME,
+            HAND_FRAME_NAME,
+        )
+        pose_of_hand_in_vision = SE3Pose(
+            Vector3D(
+                pose_of_hand_in_vision_pre.position.x,
+                pose_of_hand_in_vision_pre.position.y,
+                pose_of_hand_in_vision_pre.position.z,
+            ),
+            Quaternion(
+                pose_of_hand_in_vision_pre.rotation.w,
+                pose_of_hand_in_vision_pre.rotation.x,
+                pose_of_hand_in_vision_pre.rotation.y,
+                pose_of_hand_in_vision_pre.rotation.z,
+            ),
+        )
+        pose_of_hand_in_odom_pre = get_a_tform_b(
+            robot_state.kinematic_state.transforms_snapshot,
+            ODOM_FRAME_NAME,
+            HAND_FRAME_NAME,
+        )
+        pose_of_hand_in_odom = SE3Pose(
+            Vector3D(
+                pose_of_hand_in_odom_pre.position.x,
+                pose_of_hand_in_odom_pre.position.y,
+                pose_of_hand_in_odom_pre.position.z,
+            ),
+            Quaternion(
+                pose_of_hand_in_odom_pre.rotation.w,
+                pose_of_hand_in_odom_pre.rotation.x,
+                pose_of_hand_in_odom_pre.rotation.y,
+                pose_of_hand_in_odom_pre.rotation.z,
+            ),
+        )
+        pose_of_hand_in_body_pre = get_a_tform_b(
             robot_state.kinematic_state.transforms_snapshot,
             BODY_FRAME_NAME,
             HAND_FRAME_NAME,
         )
-        pose_of_hand = SE3Pose(
+        pose_of_hand_in_body = SE3Pose(
             Vector3D(
-                pose_of_hand_in_body.position.x,
-                pose_of_hand_in_body.position.y,
-                pose_of_hand_in_body.position.z,
+                pose_of_hand_in_body_pre.position.x,
+                pose_of_hand_in_body_pre.position.y,
+                pose_of_hand_in_body_pre.position.z,
             ),
             Quaternion(
-                pose_of_hand_in_body.rotation.w,
-                pose_of_hand_in_body.rotation.x,
-                pose_of_hand_in_body.rotation.y,
-                pose_of_hand_in_body.rotation.z,
+                pose_of_hand_in_body_pre.rotation.w,
+                pose_of_hand_in_body_pre.rotation.x,
+                pose_of_hand_in_body_pre.rotation.y,
+                pose_of_hand_in_body_pre.rotation.z,
             ),
         )
         return ManipulatorState(
@@ -317,7 +365,9 @@ class ManipulatorState:
             velocity_of_hand_in_vision,
             velocity_of_hand_in_odom,
             velocity_of_hand_in_body,
-            pose_of_hand,
+            pose_of_hand_in_vision,
+            pose_of_hand_in_odom,
+            pose_of_hand_in_body,
         )
 
     @staticmethod
@@ -330,6 +380,8 @@ class ManipulatorState:
             SE3Velocity.fromarray(arr[11:17]),
             SE3Velocity.fromarray(arr[17:23]),
             SE3Pose.fromarray(arr[23:30]),
+            SE3Pose.fromarray(arr[30:37]),
+            SE3Pose.fromarray(arr[37:44]),
         )
 
     def to_str(self) -> str:
@@ -352,8 +404,16 @@ class ManipulatorState:
         s += str(self.velocity_of_hand_in_body)
         s += "}\n"
 
-        s += "pose_of_hand {\n"
-        s += str(self.pose_of_hand)
+        s += "pose_of_hand_in_vision {\n"
+        s += str(self.pose_of_hand_in_vision)
+        s += "}\n"
+
+        s += "pose_of_hand_in_odom {\n"
+        s += str(self.pose_of_hand_in_odom)
+        s += "}\n"
+
+        s += "pose_of_hand_in_body {\n"
+        s += str(self.pose_of_hand_in_body)
         s += "}"
         return s
 
@@ -363,6 +423,7 @@ class SpotState:
 
     kinematic_state: KinematicState
     manipulator_state: ManipulatorState
+
     """Interface for easily accessing relevant bosdyn RobotState fields"""
 
     @staticmethod
@@ -466,16 +527,42 @@ class SpotState:
         )
 
     @property
-    def pose_of_hand(self):
-        pose_of_hand = self.manipulator_state.pose_of_hand
+    def pose_of_hand_in_vision(self):
+        pose_of_hand_in_vision = self.manipulator_state.pose_of_hand_in_vision
         return (
-            pose_of_hand.position.x,
-            pose_of_hand.position.y,
-            pose_of_hand.position.z,
-            pose_of_hand.rotation.x,
-            pose_of_hand.rotation.y,
-            pose_of_hand.rotation.z,
-            pose_of_hand.rotation.w,
+            pose_of_hand_in_vision.position.x,
+            pose_of_hand_in_vision.position.y,
+            pose_of_hand_in_vision.position.z,
+            pose_of_hand_in_vision.rotation.x,
+            pose_of_hand_in_vision.rotation.y,
+            pose_of_hand_in_vision.rotation.z,
+            pose_of_hand_in_vision.rotation.w,
+        )
+
+    @property
+    def pose_of_hand_in_odom(self):
+        pose_of_hand_in_odom = self.manipulator_state.pose_of_hand_in_odom
+        return (
+            pose_of_hand_in_odom.position.x,
+            pose_of_hand_in_odom.position.y,
+            pose_of_hand_in_odom.position.z,
+            pose_of_hand_in_odom.rotation.x,
+            pose_of_hand_in_odom.rotation.y,
+            pose_of_hand_in_odom.rotation.z,
+            pose_of_hand_in_odom.rotation.w,
+        )
+
+    @property
+    def pose_of_hand_in_body(self):
+        pose_of_hand_in_body = self.manipulator_state.pose_of_hand_in_body
+        return (
+            pose_of_hand_in_body.position.x,
+            pose_of_hand_in_body.position.y,
+            pose_of_hand_in_body.position.z,
+            pose_of_hand_in_body.rotation.x,
+            pose_of_hand_in_body.rotation.y,
+            pose_of_hand_in_body.rotation.z,
+            pose_of_hand_in_body.rotation.w,
         )
 
     @property
@@ -510,6 +597,10 @@ class SpotState:
             joint_velocities["arm0.wr0"],
             joint_velocities["arm0.wr1"],
         )
+
+    @property
+    def transform_snapshot(self):
+        return self.kinematic_state.transform_snapshot
 
     def to_str(self) -> str:
         s = self.kinematic_state.to_str()

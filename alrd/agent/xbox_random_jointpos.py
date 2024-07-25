@@ -3,7 +3,7 @@ from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 from typing import Optional
 import numpy as np
 from opax.optimizers.icem_trajectory_optimizer import powerlaw_psd_gaussian_numpy
-from alrd.spot_gym.utils.utils import MAX_ARM_JOINT_VEL
+from alrd.spot_gym.utils.utils import ARM_MAX_JOINT_VEL
 
 
 class SpotXboxRandomJointPos(AgentReset):
@@ -37,7 +37,7 @@ class SpotXboxRandomJointPos(AgentReset):
         )
         # scale samples to MAX_JOINT_DQ
         safety_factor = 0.1
-        MAX_JOINT_DQ = safety_factor * MAX_ARM_JOINT_VEL / cmd_freq
+        MAX_JOINT_DQ = safety_factor * ARM_MAX_JOINT_VEL / cmd_freq
         max_sample_value = np.max(np.abs(arm_joint_dq_series_pre))
         self.arm_joint_dq_series = (
             arm_joint_dq_series_pre * MAX_JOINT_DQ / max_sample_value

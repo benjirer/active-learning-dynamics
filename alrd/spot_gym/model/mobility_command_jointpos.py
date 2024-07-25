@@ -8,7 +8,7 @@ from bosdyn.client.robot_command import RobotCommandBuilder
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
 from alrd.spot_gym.utils.utils import (
-    MAX_ARM_JOINT_VEL,
+    ARM_MAX_JOINT_VEL,
     SH0_POS_MIN,
     SH0_POS_MAX,
     SH1_POS_MIN,
@@ -140,7 +140,7 @@ class MobilityCommand(Command):
             joint_positions_new = joint_positions_new_pre
 
             # # 2. check if end effector height is at least 0.1m
-            # if self.prev_state.pose_of_hand[2] <= 0.1:
+            # if self.prev_state.pose_of_hand_in_body[2] <= 0.1:
             #     joint_positions_new = joint_positions_prev
             #     self.safety_check_infringed = True
             #     logger.info(
@@ -171,7 +171,7 @@ class MobilityCommand(Command):
                 wr0=joint_positions_new[4],
                 wr1=joint_positions_new[5],
                 # max joint velocity is passed as safety
-                max_vel=MAX_ARM_JOINT_VEL,
+                max_vel=ARM_MAX_JOINT_VEL,
             )
 
             # make synchro velocity command with arm as build_on_command

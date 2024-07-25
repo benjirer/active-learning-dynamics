@@ -9,7 +9,11 @@ class SpotXboxSpacemouse(AgentReset):
     """SpotXboxSpacemouse class provides mapping between xbox controller commands and actions for base and spacemouse commands and actions for end effector of SpotEEVelEnv."""
 
     def __init__(
-        self, base_speed: float = 1.0, base_angular: float = 1.0, ee_speed: float = 0.5
+        self,
+        base_speed: float = 1.0,
+        base_angular: float = 1.0,
+        ee_speed: float = 0.5,
+        ee_angular: float = 0.5,
     ):
         super().__init__()
 
@@ -20,6 +24,7 @@ class SpotXboxSpacemouse(AgentReset):
         self.base_speed = base_speed
         self.base_angular = base_angular
         self.ee_speed = ee_speed
+        self.ee_angular = ee_angular
 
     def _move(
         self,
@@ -50,16 +55,16 @@ class SpotXboxSpacemouse(AgentReset):
         # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
         # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
         if not sm_button_1:
-            v_1 = sm_forward_backward * self.ee_speed
-            v_2 = sm_left_right * self.ee_speed
+            v_1 = -sm_left_right * self.ee_speed
+            v_2 = -sm_forward_backward * self.ee_speed
             v_3 = sm_up_down * self.ee_speed
 
         # ee angular velocity control
         # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
         if sm_button_1:
-            v_4 = sm_roll * self.ee_speed
-            v_5 = sm_pitch * self.ee_speed
-            v_6 = sm_yaw * self.ee_speed
+            v_4 = sm_roll * self.ee_angular
+            v_5 = sm_pitch * self.ee_angular
+            v_6 = sm_yaw * self.ee_angular
 
         return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
 
@@ -122,15 +127,15 @@ class SpotXboxSpacemouse(AgentReset):
         sm_forward_backward = spacemouse_actions[0]
         sm_left_right = spacemouse_actions[1]
         sm_up_down = spacemouse_actions[2]
-        sm_roll = spacemouse_actions[3]
+        sm_roll = spacemouse_actions[5]
         sm_pitch = spacemouse_actions[4]
-        sm_yaw = spacemouse_actions[5]
+        sm_yaw = spacemouse_actions[3]
         sm_button_1 = spacemouse_buttons[0]
         sm_button_2 = spacemouse_buttons[1]
 
-        # exit
-        if self.joy.left_bumper() and self.joy.right_bumper() and self.joy.B():
-            return None
+        # # exit
+        # if self.joy.left_bumper() and self.joy.right_bumper() and self.joy.B():
+        #     return None
 
         return self._move(
             xbox_left_x,

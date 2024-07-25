@@ -20,8 +20,8 @@ from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
-    MAX_ANGULAR_SPEED,
-    MAX_SPEED,
+    BODY_MAX_ANGULAR_VEL,
+    BODY_MAX_VEL,
     ARM_MIN_HEIGHT,
     ARM_MAX_HEIGHT,
     ARM_MIN_AZIMUTHAL,
@@ -43,7 +43,7 @@ from alrd.spot_gym.utils.utils import (
     WR0_POS_MAX,
     WR1_POS_MIN,
     WR1_POS_MAX,
-    MAX_ARM_JOINT_VEL,
+    ARM_MAX_JOINT_VEL,
 )
 
 from opax.models.reward_model import RewardModel
@@ -161,7 +161,7 @@ class LinearVelCost(RewardModel):
     def predict(self, obs, action, next_obs=None, rng=None):
         # vel_norm = jnp.linalg.norm(obs[..., 4:6], axis=-1)
         vel_norm = norm(obs[..., 4:6], axis=-1)
-        return self.tolerance_fn(vel_norm / MAX_SPEED)
+        return self.tolerance_fn(vel_norm / BODY_MAX_VEL)
 
 
 @struct.dataclass
@@ -175,7 +175,7 @@ class AngularVelCost(RewardModel):
 
     @jit
     def predict(self, obs, action, next_obs=None, rng=None):
-        return self.tolerance_fn(obs[..., 6] / MAX_ANGULAR_SPEED)
+        return self.tolerance_fn(obs[..., 6] / BODY_MAX_ANGULAR_VEL)
 
 
 @struct.dataclass
@@ -361,9 +361,9 @@ class SpotEEVelEnv(SpotGym):
                     MIN_Y,
                     -1,
                     -1,
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_ANGULAR_VEL,
                     ARM_MIN_RADIAL,
                     ARM_MIN_AZIMUTHAL,
                     ARM_MIN_HEIGHT,
@@ -378,9 +378,9 @@ class SpotEEVelEnv(SpotGym):
                     MAX_Y,
                     1,
                     1,
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
+                    BODY_MAX_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_ANGULAR_VEL,
                     ARM_MAX_RADIAL,
                     ARM_MAX_AZIMUTHAL,
                     ARM_MAX_HEIGHT,
@@ -395,9 +395,9 @@ class SpotEEVelEnv(SpotGym):
         self.action_space = spaces.Box(
             low=np.array(
                 [
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_ANGULAR_VEL,
                     -ARM_MAX_RADIAL_VEL,
                     -ARM_MAX_AZIMUTHAL_VEL,
                     -ARM_MAX_VERTICAL_VEL,
@@ -405,9 +405,9 @@ class SpotEEVelEnv(SpotGym):
             ),
             high=np.array(
                 [
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
+                    BODY_MAX_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_ANGULAR_VEL,
                     ARM_MAX_RADIAL_VEL,
                     ARM_MAX_AZIMUTHAL_VEL,
                     ARM_MAX_VERTICAL_VEL,
@@ -458,7 +458,7 @@ class SpotEEVelEnv(SpotGym):
         vx, vy, _, _, _, w = state.velocity_of_body_in_vision
         vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
 
-        x_hand, y_hand, z_hand, _, _, _, _ = state.pose_of_hand
+        x_hand, y_hand, z_hand, _, _, _, _ = state.pose_of_hand_in_body
         vx_hand, vy_hand, vz_hand, _, _, _ = state.velocity_of_hand_in_vision
 
         # arm observations

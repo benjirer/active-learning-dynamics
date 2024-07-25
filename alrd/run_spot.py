@@ -23,6 +23,11 @@ from alrd.spot_gym.envs.spotgym import SpotGym
 # additionals
 from gym.wrappers.rescale_action import RescaleAction
 from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.utils.utils import (
+    BODY_MAX_VEL,
+    BODY_MAX_ANGULAR_VEL,
+    ARM_MAX_LINEAR_VEL,
+)
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -213,7 +218,9 @@ def start_experiment():
         # create agent
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
-        agent = SpotXboxSpacemouse(base_speed=1.0, base_angular=1.0, ee_speed=0.5)
+        agent = SpotXboxSpacemouse(
+            base_speed=1.0, base_angular=1.0, ee_speed=0.5, ee_angular=0.2
+        )
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
         #     base_angular=1.0,
@@ -226,7 +233,7 @@ def start_experiment():
         # start env
         env.start()
         logger.info("env: %s. obs: %s" % (type(env), env.observation_space.shape))
-        env = RescaleAction(env, min_action=-1, max_action=1)
+        # env = RescaleAction(env, min_action=-1, max_action=1)
 
         # run episode
         try:

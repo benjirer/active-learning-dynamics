@@ -8,7 +8,7 @@ from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.spot_gym.envs.spot_jointpos import Spot2DReward, MIN_X, MIN_Y, MAX_X, MAX_Y
 from alrd.utils.utils import Frame2D
 import math
-from alrd.spot_gym.utils.utils import MAX_SPEED, MAX_ANGULAR_SPEED, get_hitbox
+from alrd.spot_gym.utils.utils import BODY_MAX_VEL, BODY_MAX_ANGULAR_VEL, get_hitbox
 from abc import ABC, abstractmethod
 from opax.models.dynamics_model import DynamicsModel
 
@@ -34,15 +34,31 @@ class Spot2DBaseSim(gym.Env, ABC):
         self.body_start_frame = Frame2D(0, 0, 0)
         self.observation_space = spaces.Box(
             low=np.array(
-                [MIN_X, MIN_Y, -1, -1, -MAX_SPEED, -MAX_SPEED, -MAX_ANGULAR_SPEED]
+                [
+                    MIN_X,
+                    MIN_Y,
+                    -1,
+                    -1,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_ANGULAR_VEL,
+                ]
             ),
             high=np.array(
-                [MAX_X, MAX_Y, 1, 1, MAX_SPEED, MAX_SPEED, MAX_ANGULAR_SPEED]
+                [
+                    MAX_X,
+                    MAX_Y,
+                    1,
+                    1,
+                    BODY_MAX_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_ANGULAR_VEL,
+                ]
             ),
         )
         self.action_space = spaces.Box(
-            low=np.array([-MAX_SPEED, -MAX_SPEED, -MAX_ANGULAR_SPEED]),
-            high=np.array([MAX_SPEED, MAX_SPEED, MAX_ANGULAR_SPEED]),
+            low=np.array([-BODY_MAX_VEL, -BODY_MAX_VEL, -BODY_MAX_ANGULAR_VEL]),
+            high=np.array([BODY_MAX_VEL, BODY_MAX_VEL, BODY_MAX_ANGULAR_VEL]),
         )
         self.reset()
 

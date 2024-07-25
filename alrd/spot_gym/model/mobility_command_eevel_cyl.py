@@ -8,7 +8,7 @@ from bosdyn.client.robot_command import RobotCommandBuilder
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
 from alrd.spot_gym.utils.utils import (
-    MAX_ARM_JOINT_VEL,
+    ARM_MAX_JOINT_VEL,
     SH0_POS_MIN,
     SH0_POS_MAX,
     SH1_POS_MIN,

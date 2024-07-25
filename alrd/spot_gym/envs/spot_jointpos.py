@@ -20,8 +20,8 @@ from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
-    MAX_ANGULAR_SPEED,
-    MAX_SPEED,
+    BODY_MAX_ANGULAR_VEL,
+    BODY_MAX_VEL,
     ARM_MIN_HEIGHT,
     ARM_MAX_HEIGHT,
     ARM_MIN_AZIMUTHAL,
@@ -43,7 +43,7 @@ from alrd.spot_gym.utils.utils import (
     WR0_POS_MAX,
     WR1_POS_MIN,
     WR1_POS_MAX,
-    MAX_ARM_JOINT_VEL,
+    ARM_MAX_JOINT_VEL,
 )
 
 
@@ -162,7 +162,7 @@ class LinearVelCost(RewardModel):
     def predict(self, obs, action, next_obs=None, rng=None):
         # vel_norm = jnp.linalg.norm(obs[..., 4:6], axis=-1)
         vel_norm = norm(obs[..., 4:6], axis=-1)
-        return self.tolerance_fn(vel_norm / MAX_SPEED)
+        return self.tolerance_fn(vel_norm / BODY_MAX_VEL)
 
 
 @struct.dataclass
@@ -176,7 +176,7 @@ class AngularVelCost(RewardModel):
 
     @jit
     def predict(self, obs, action, next_obs=None, rng=None):
-        return self.tolerance_fn(obs[..., 6] / MAX_ANGULAR_SPEED)
+        return self.tolerance_fn(obs[..., 6] / BODY_MAX_ANGULAR_VEL)
 
 
 @struct.dataclass
@@ -374,21 +374,21 @@ class SpotJointPosEnv(SpotGym):
                     MIN_Y,
                     -1,
                     -1,
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_ANGULAR_VEL,
                     SH0_POS_MIN,
                     SH1_POS_MIN,
                     EL0_POS_MIN,
                     EL1_POS_MIN,
                     WR0_POS_MIN,
                     WR1_POS_MIN,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -397,21 +397,21 @@ class SpotJointPosEnv(SpotGym):
                     MAX_Y,
                     1,
                     1,
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
+                    BODY_MAX_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_ANGULAR_VEL,
                     SH0_POS_MAX,
                     SH1_POS_MAX,
                     EL0_POS_MAX,
                     EL1_POS_MAX,
                     WR0_POS_MAX,
                     WR1_POS_MAX,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
@@ -420,28 +420,28 @@ class SpotJointPosEnv(SpotGym):
         self.action_space = spaces.Box(
             low=np.array(
                 [
-                    -MAX_SPEED,
-                    -MAX_SPEED,
-                    -MAX_ANGULAR_SPEED,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
-                    -MAX_ARM_JOINT_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_VEL,
+                    -BODY_MAX_ANGULAR_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
                 [
-                    MAX_SPEED,
-                    MAX_SPEED,
-                    MAX_ANGULAR_SPEED,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
-                    MAX_ARM_JOINT_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_VEL,
+                    BODY_MAX_ANGULAR_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )

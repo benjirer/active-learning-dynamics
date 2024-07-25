@@ -17,7 +17,7 @@ import bosdyn.client.util
 import numpy as np
 from alrd.spot_gym.model.command import Command
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.utils.utils import MAX_SPEED, get_hitbox
+from alrd.spot_gym.utils.utils import BODY_MAX_VEL, get_hitbox
 from alrd.spot_gym.utils.utils import Vector3D
 from alrd.utils.utils import change_frame_2d, Frame2D
 from bosdyn.api import estop_pb2
@@ -63,9 +63,9 @@ class SpotEnvironmentConfig(yaml.YAMLObject):
 
 
 ##### Fixed environment parameters #####
-MARGIN = 0.20  # Margin to the walls within which the robot is stopped (m)
+MARGIN = 0.1  # Margin to the walls within which the robot is stopped (m)
 CHECK_TIMEOUT = (
-    MARGIN / MAX_SPEED
+    MARGIN / BODY_MAX_VEL
 )  # Maximum time the boundary check will wait for state reading (s)
 STAND_TIMEOUT = 10.0  # Maximum time to wait for the robot to stand up (s)
 POSE_TIMEOUT = 10.0  # Maximum time to wait for the robot to reach a pose (s)
@@ -738,7 +738,7 @@ class SpotBaseStateMachine(SpotBaseModel):
             self.config.max_y - max_y,
         )
         dist = max(0, dist - MARGIN)
-        return dist / MAX_SPEED + measured_time
+        return dist / BODY_MAX_VEL + measured_time
 
     def is_in_bounds(self, state: SpotState) -> bool:
         box = self._get_spot_hitbox(state)

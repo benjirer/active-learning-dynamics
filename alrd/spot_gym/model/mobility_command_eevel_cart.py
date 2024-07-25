@@ -5,25 +5,14 @@ import logging
 from alrd.spot_gym.model.command import Command, CommandEnum, LocomotionHint
 from alrd.spot_gym.model.robot_state import SpotState
 from bosdyn.client.robot_command import RobotCommandBuilder
-from bosdyn.client.frame_helpers import BODY_FRAME_NAME
+from bosdyn.client.frame_helpers import (
+    BODY_FRAME_NAME,
+    ODOM_FRAME_NAME,
+    express_se3_velocity_in_new_frame,
+)
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
 from bosdyn.api.geometry_pb2 import Vec3
-from alrd.spot_gym.utils.utils import (
-    MAX_ARM_JOINT_VEL,
-    SH0_POS_MIN,
-    SH0_POS_MAX,
-    SH1_POS_MIN,
-    SH1_POS_MAX,
-    EL0_POS_MIN,
-    EL0_POS_MAX,
-    EL1_POS_MIN,
-    EL1_POS_MAX,
-    WR0_POS_MIN,
-    WR0_POS_MAX,
-    WR1_POS_MIN,
-    WR1_POS_MAX,
-)
 from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
 from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
@@ -85,16 +74,33 @@ class MobilityCommand(Command):
 
         # make arm command
         # only if ee vel commands are not zero
-        if self.hand_vx != 0 or self.hand_vy != 0 or self.hand_vz != 0:
+        if (
+            self.hand_vx != 0
+            or self.hand_vy != 0
+            or self.hand_vz != 0
+            or self.hand_vrx != 0
+            or self.hand_vry != 0
+            or self.hand_vrz != 0
+        ):
+
+            # convert hand velocity from body to odom frame
+            hand_vel_in_odom = express_se3_velocity_in_new_frame(
+                self.prev_state.kinematic_state.transforms_snapshot,
+                ODOM_FRAME_NAME,
+                BODY_FRAME_NAME,
+                Vec3(x=self.hand_vx, y=self.hand_vy, z=self.hand_vz),
+            )
             # arm cartesian velocity command
             cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
-            cartesian_velocity.frame_name = BODY_FRAME_NAME
-            cartesian_velocity.velocity_in_frame_name.x = self.hand_vx
+            cartesian_velocity.frame_name = ODOM_FRAME_NAME
+            cartesian_velocity.velocity_in_frame_name.x = 
             cartesian_velocity.velocity_in_frame_name.y = self.hand_vy
             cartesian_velocity.velocity_in_frame_name.z = self.hand_vz
 
             # arm angular velocity command
-            hand_angular_velocity = Vec3(x=0.0, y=0.0, z=0.0)
+            hand_angular_velocity = Vec3(
+                x=self.hand_vrx, y=self.hand_vry, z=self.hand_vrz
+            )
 
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
                 cartesian_velocity=cartesian_velocity,
