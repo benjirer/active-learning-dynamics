@@ -101,7 +101,7 @@ class KinematicState:
     pose_of_body_in_vision: SE3Pose
     pose_of_body_in_odom: SE3Pose
     joint_states: List[JointState]
-    transform_snapshot: None
+    transforms_snapshot: None
 
     def __array__(self, dtype=None) -> np.ndarray:
         joint_states = np.empty((len(JOINT_NAMES) * 4), dtype=dtype)
@@ -116,7 +116,7 @@ class KinematicState:
                 np.array(self.pose_of_body_in_vision, dtype=dtype),
                 np.array(self.pose_of_body_in_odom, dtype=dtype),
                 joint_states,
-                self.transform_snapshot,
+                self.transforms_snapshot,
             ),
             dtype=dtype,
         )
@@ -180,7 +180,7 @@ class KinematicState:
                 )
             )
 
-        transform_snapshot = kinematic_state.transforms_snapshot
+        transforms_snapshot = kinematic_state.transforms_snapshot
         return KinematicState(
             time,
             velocity_of_body_in_vision,
@@ -188,7 +188,7 @@ class KinematicState:
             pose_of_body_in_vision,
             pose_of_body_in_odom,
             joint_states,
-            transform_snapshot,
+            transforms_snapshot,
         )
 
     @staticmethod
@@ -232,7 +232,7 @@ class KinematicState:
         s += str(self.pose_of_body_in_vision)
         s += "}"
 
-        s += "transforms_snapshot: {}".format(self.transform_snapshot)
+        s += "transforms_snapshot: {}".format(self.transforms_snapshot)
 
         return s
 
@@ -599,8 +599,8 @@ class SpotState:
         )
 
     @property
-    def transform_snapshot(self):
-        return self.kinematic_state.transform_snapshot
+    def transforms_snapshot(self):
+        return self.kinematic_state.transforms_snapshot
 
     def to_str(self) -> str:
         s = self.kinematic_state.to_str()

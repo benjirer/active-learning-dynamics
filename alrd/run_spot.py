@@ -5,6 +5,7 @@ import yaml
 import pickle
 import os
 import numpy as np
+import cv2
 
 # agents
 from alrd.agent.absagent import Agent
@@ -222,7 +223,11 @@ def start_experiment():
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
         agent = SpotXboxSpacemouse(
-            base_speed=1.0, base_angular=1.0, ee_speed=0.5, ee_angular=0.2
+            base_speed=1.0,
+            base_angular=1.0,
+            ee_speed=0.5,
+            ee_angular=0.2,
+            ee_control_mode="cartesian",
         )
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
@@ -236,7 +241,7 @@ def start_experiment():
         # start env
         env.start()
         logger.info("env: %s. obs: %s" % (type(env), env.observation_space.shape))
-        # env = RescaleAction(env, min_action=-1, max_action=1)
+        env = RescaleAction(env, min_action=-1, max_action=1)
 
         # run episode
         try:

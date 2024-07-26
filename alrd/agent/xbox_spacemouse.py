@@ -2,7 +2,7 @@ from alrd.agent.absagent import AgentReset
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 from alrd.utils.xbox_spacemouse import XboxSpaceMouse
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.utils.utils import (
+from bosdyn.client.frame_helpers import (
     express_se3_velocity_in_new_frame,
     ODOM_FRAME_NAME,
     BODY_FRAME_NAME,
@@ -33,6 +33,9 @@ class SpotXboxSpacemouse(AgentReset):
         self.base_angular = base_angular
         self.ee_speed = ee_speed
         self.ee_angular = ee_angular
+
+        # end effector control mode
+        self.ee_control_mode = ee_control_mode
 
     def _move(
         self,
@@ -85,13 +88,13 @@ class SpotXboxSpacemouse(AgentReset):
             )
 
             hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
-                last_state.kinematic_state.transforms_snapshot,
+                last_state.transforms_snapshot,
                 ODOM_FRAME_NAME,
                 BODY_FRAME_NAME,
                 hand_vel_in_body.to_proto(),
             )
 
-            hand_vel_in_odom = SE3Velocity.to_vector(hand_vel_in_odom_proto)
+            hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
 
             return np.array(
                 [
@@ -196,3 +199,8 @@ class SpotXboxSpacemouse(AgentReset):
             sm_button_2,
             last_state,
         )
+
+
+if __name__ == "__main__":
+    agent = SpotXboxSpacemouse()
+    print(agent.description())
