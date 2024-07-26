@@ -1,6 +1,13 @@
 from alrd.agent.absagent import AgentReset
 from alrd.utils.xbox.xbox_joystick_factory import XboxJoystickFactory
 from alrd.utils.xbox_spacemouse import XboxSpaceMouse
+from alrd.spot_gym.model.robot_state import SpotState
+from alrd.spot_gym.utils.utils import (
+    express_se3_velocity_in_new_frame,
+    ODOM_FRAME_NAME,
+    BODY_FRAME_NAME,
+)
+from bosdyn.client.math_helpers import SE3Velocity
 from typing import Optional
 import numpy as np
 
@@ -14,6 +21,7 @@ class SpotXboxSpacemouse(AgentReset):
         base_angular: float = 1.0,
         ee_speed: float = 0.5,
         ee_angular: float = 0.5,
+        ee_control_mode: str = "cartesian",
     ):
         super().__init__()
 
@@ -40,6 +48,7 @@ class SpotXboxSpacemouse(AgentReset):
         sm_yaw,
         sm_button_1,
         sm_button_2,
+        last_state,
     ):
         # set all to 0
         v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6 = 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -66,7 +75,41 @@ class SpotXboxSpacemouse(AgentReset):
             v_5 = sm_pitch * self.ee_angular
             v_6 = sm_yaw * self.ee_angular
 
-        return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
+        # if cylindrical: return without converting hand velocity
+        if self.ee_control_mode == "cylindrical":
+            return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
+        # if cartesian: convert hand velocity from body to odom frame
+        elif self.ee_control_mode == "cartesian":
+            hand_vel_in_body = SE3Velocity(
+                lin_x=v_1, lin_y=v_2, lin_z=v_3, ang_x=v_4, ang_y=v_5, ang_z=v_6
+            )
+
+            hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+                last_state.kinematic_state.transforms_snapshot,
+                ODOM_FRAME_NAME,
+                BODY_FRAME_NAME,
+                hand_vel_in_body.to_proto(),
+            )
+
+            hand_vel_in_odom = SE3Velocity.to_vector(hand_vel_in_odom_proto)
+
+            return np.array(
+                [
+                    v_x,
+                    v_y,
+                    v_rot,
+                    hand_vel_in_odom[0],
+                    hand_vel_in_odom[1],
+                    hand_vel_in_odom[2],
+                    hand_vel_in_odom[3],
+                    hand_vel_in_odom[4],
+                    hand_vel_in_odom[5],
+                ]
+            )
+        else:
+            raise NotImplementedError(
+                f"End effector control mode {self.ee_control_mode} not implemented."
+            )
 
     def description(self):
         return """
@@ -87,7 +130,7 @@ class SpotXboxSpacemouse(AgentReset):
             button_1 + yaw      -> End effector z angular velocity
         """
 
-    def act(self, obs: np.ndarray) -> Optional[np.ndarray]:
+    def act(self, obs: np.ndarray, last_state: SpotState) -> Optional[np.ndarray]:
         """Controls robot base from an xbox controller and end effector from a spacemouse.
 
         Mapping
@@ -108,6 +151,7 @@ class SpotXboxSpacemouse(AgentReset):
 
         Args:
             obs: Observation from the environment.
+            last_state: Latest state of the robot.
         """
 
         # get controller state
@@ -150,4 +194,5 @@ class SpotXboxSpacemouse(AgentReset):
             sm_yaw,
             sm_button_1,
             sm_button_2,
+            last_state,
         )

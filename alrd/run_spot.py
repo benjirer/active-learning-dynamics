@@ -88,6 +88,7 @@ def run(
 
     started = False
     step = 0
+    last_state = None
 
     while step < num_steps:
         logger.info("Step %s" % step)
@@ -101,15 +102,17 @@ def run(
             if obs is None:
                 return
             agent.reset()
+            last_state = info["last_state"]
             started = True
 
         # get action from agent
-        action = agent.act(obs)
+        action = agent.act(obs, last_state)
         logger.info("Action %s" % action)
 
         # step the environment
         if action is not None:
             next_obs, reward, terminated, truncated, info = env.step(action)
+            last_state = info["last_state"]
             if collect_data:
                 data_buffer.observations.append(next_obs)
                 data_buffer.transitions.append(

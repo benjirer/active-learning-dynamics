@@ -250,7 +250,7 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         ), "Pose must be an array of size 3: (x, y, angle)"
         result = self._reset(pose)
         state, read_time = result
-        info = {"read_time": read_time}
+        info = {"last_state": state, "read_time": read_time}
         obs = self.get_obs_from_state(state)
         self.logger.info("Resetting with initial observation {}".format(obs))
         return obs, info

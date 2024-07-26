@@ -82,18 +82,10 @@ class MobilityCommand(Command):
             or self.hand_vry != 0
             or self.hand_vrz != 0
         ):
-
-            # convert hand velocity from body to odom frame
-            hand_vel_in_odom = express_se3_velocity_in_new_frame(
-                self.prev_state.kinematic_state.transforms_snapshot,
-                ODOM_FRAME_NAME,
-                BODY_FRAME_NAME,
-                Vec3(x=self.hand_vx, y=self.hand_vy, z=self.hand_vz),
-            )
             # arm cartesian velocity command
             cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
             cartesian_velocity.frame_name = ODOM_FRAME_NAME
-            cartesian_velocity.velocity_in_frame_name.x = 
+            cartesian_velocity.velocity_in_frame_name.x = self.hand_vx
             cartesian_velocity.velocity_in_frame_name.y = self.hand_vy
             cartesian_velocity.velocity_in_frame_name.z = self.hand_vz
 
