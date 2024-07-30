@@ -10,6 +10,7 @@ from bosdyn.client.frame_helpers import (
     ODOM_FRAME_NAME,
     express_se3_velocity_in_new_frame,
 )
+from bosdyn.client.math_helpers import SE3Velocity
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
 from bosdyn.api.geometry_pb2 import Vec3
@@ -84,14 +85,35 @@ class MobilityCommand(Command):
         ):
             # arm cartesian velocity command
             cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
-            cartesian_velocity.frame_name = ODOM_FRAME_NAME
+            cartesian_velocity.frame_name = BODY_FRAME_NAME
             cartesian_velocity.velocity_in_frame_name.x = self.hand_vx
             cartesian_velocity.velocity_in_frame_name.y = self.hand_vy
             cartesian_velocity.velocity_in_frame_name.z = self.hand_vz
 
             # arm angular velocity command
+            # convert from body to odom frame
+            hand_vel_in_body = SE3Velocity(
+                lin_x=self.hand_vx,
+                lin_y=self.hand_vy,
+                lin_z=self.hand_vz,
+                ang_x=self.hand_vrx,
+                ang_y=self.hand_vry,
+                ang_z=self.hand_vrz,
+            )
+
+            hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+                self.prev_state.transforms_snapshot,
+                ODOM_FRAME_NAME,
+                BODY_FRAME_NAME,
+                hand_vel_in_body.to_proto(),
+            )
+
+            hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
+
             hand_angular_velocity = Vec3(
-                x=self.hand_vrx, y=self.hand_vry, z=self.hand_vrz
+                x=hand_vel_in_odom[3],
+                y=hand_vel_in_odom[4],
+                z=hand_vel_in_odom[5],
             )
 
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(

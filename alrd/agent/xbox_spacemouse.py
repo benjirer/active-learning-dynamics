@@ -83,32 +83,35 @@ class SpotXboxSpacemouse(AgentReset):
             return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
         # if cartesian: convert hand velocity from body to odom frame
         elif self.ee_control_mode == "cartesian":
-            hand_vel_in_body = SE3Velocity(
-                lin_x=v_1, lin_y=v_2, lin_z=v_3, ang_x=v_4, ang_y=v_5, ang_z=v_6
-            )
+            return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
 
-            hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
-                last_state.transforms_snapshot,
-                ODOM_FRAME_NAME,
-                BODY_FRAME_NAME,
-                hand_vel_in_body.to_proto(),
-            )
+            # for testing: convert hand velocity from body to odom frame, now being handled in MobilityCommand class
+            # hand_vel_in_body = SE3Velocity(
+            #     lin_x=v_1, lin_y=v_2, lin_z=v_3, ang_x=v_4, ang_y=v_5, ang_z=v_6
+            # )
 
-            hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
+            # hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+            #     last_state.transforms_snapshot,
+            #     ODOM_FRAME_NAME,
+            #     BODY_FRAME_NAME,
+            #     hand_vel_in_body.to_proto(),
+            # )
 
-            return np.array(
-                [
-                    v_x,
-                    v_y,
-                    v_rot,
-                    hand_vel_in_odom[0],
-                    hand_vel_in_odom[1],
-                    hand_vel_in_odom[2],
-                    hand_vel_in_odom[3],
-                    hand_vel_in_odom[4],
-                    hand_vel_in_odom[5],
-                ]
-            )
+            # hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
+
+            # return np.array(
+            #     [
+            #         v_x,
+            #         v_y,
+            #         v_rot,
+            #         hand_vel_in_odom[0],
+            #         hand_vel_in_odom[1],
+            #         hand_vel_in_odom[2],
+            #         hand_vel_in_odom[3],
+            #         hand_vel_in_odom[4],
+            #         hand_vel_in_odom[5],
+            #     ]
+            # )
         else:
             raise NotImplementedError(
                 f"End effector control mode {self.ee_control_mode} not implemented."
