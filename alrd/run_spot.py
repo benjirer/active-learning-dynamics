@@ -15,7 +15,7 @@ from alrd.agent.xbox_spacemouse import SpotXboxSpacemouse
 from alrd.agent.xbox_random_jointpos import SpotXboxRandomJointPos
 
 # environments
-from alrd.spot_gym.envs.spot_eevel_cart import SpotEEVelEnv
+from alrd.spot_gym.envs.spot_eevel_cart_body import SpotEEVelEnv
 
 # from alrd.spot_gym.envs.spot_eevel_cyl import SpotEEVelEnv
 from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
@@ -29,6 +29,7 @@ from alrd.spot_gym.utils.utils import (
     BODY_MAX_ANGULAR_VEL,
     ARM_MAX_LINEAR_VEL,
 )
+from alrd.spot_gym.model.command import Command
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -38,23 +39,59 @@ logger = logging.getLogger(__file__)
 # data collection classes
 # class to store individual transitions
 class TransitionData:
-    def __init__(self, step, obs, action, cmd, reward, next_obs, terminated, truncated):
+    def __init__(
+        self,
+        step: int,
+        last_obs: np.ndarray,
+        action: np.ndarray,
+        cmd: Command,
+        reward,
+        next_obs: np.ndarray,
+        terminated: bool,
+        truncated: bool,
+        reset: bool = False,
+    ):
         self.step = step
-        self.obs = obs
+        self.last_obs = last_obs
         self.action = action
         self.cmd = cmd
         self.reward = reward
         self.next_obs = next_obs
         self.terminated = terminated
         self.truncated = truncated
+        self.reset = reset
 
 
-# class to store individual states
+# class to store individual states, action and delta_t
 class StateData:
-    def __init__(self, step: int, last_state: SpotState, next_state: SpotState):
+    def __init__(
+        self,
+        step: int,
+        last_state: SpotState,
+        next_state: SpotState,
+        action: np.ndarray,
+        delta_t: float = 0,
+    ):
         self.step = step
         self.last_state = last_state
         self.next_state = next_state
+        self.action = action
+        self.delta_t = delta_t
+
+
+# temporary: times of processes
+class TimeData:
+    def __init__(
+        self,
+        step: int,
+        agent_time: float,
+        step_time: float,
+        save_time: float,
+    ):
+        self.step = step
+        self.agent_time = agent_time
+        self.step_time = step_time
+        self.save_time = save_time
 
 
 # class to store all data vectors for an episode
@@ -64,10 +101,12 @@ class DataBuffer:
         states: list[StateData] = [],
         observations: list[np.ndarray] = [],
         transitions: list[TransitionData] = [],
+        times: list[TimeData] = [],
     ):
         self.states = states
         self.observations = observations
         self.transitions = transitions
+        self.times = times
 
 
 # class to store all DataBuffers for a session
@@ -89,31 +128,73 @@ def run(
 
     started = False
     step = 0
-    last_state = None
+    recent_state = None
+    delta_t = 0
+    start_t = time.time()
 
     while step < num_steps:
-        logger.info("Step %s" % step)
+        # logger.info("Step %s" % step)
         # if not started, reset the environment
         if not started:
             logger.info("Agent description: %s" % agent.description())
             count = 0
             obs, info = env.reset()
+            delta_t = start_t - time.time()
+            start_t = time.time()
             if collect_data:
                 data_buffer.observations.append(obs)
+                data_buffer.states.append(
+                    StateData(
+                        step,
+                        None,
+                        info["next_state"],
+                        None,
+                        delta_t,
+                    )
+                )
+                data_buffer.transitions.append(
+                    TransitionData(
+                        step,
+                        None,
+                        None,
+                        None,
+                        0,
+                        obs,
+                        False,
+                        False,
+                        True,
+                    )
+                )
+                data_buffer.times.append(
+                    TimeData(
+                        step,
+                        0,
+                        0,
+                        0,
+                    )
+                )
             if obs is None:
                 return
             agent.reset()
-            last_state = info["last_state"]
+            recent_state = info["next_state"]
             started = True
 
         # get action from agent
-        action = agent.act(obs, last_state)
-        logger.info("Action %s" % action)
+        agent_time = time.time()
+        action = agent.act(obs, recent_state)
+        delta_t_agent = agent_time - time.time()
+        # logger.info("Action %s" % action)
 
         # step the environment
         if action is not None:
+            step_time = time.time()
             next_obs, reward, terminated, truncated, info = env.step(action)
-            last_state = info["last_state"]
+            delta_t_step = time.time() - step_time
+
+            delta_t = start_t - time.time()
+            start_t = time.time()
+            recent_state = info["next_state"]
+            save_time = time.time()
             if collect_data:
                 data_buffer.observations.append(next_obs)
                 data_buffer.transitions.append(
@@ -126,6 +207,7 @@ def run(
                         next_obs,
                         terminated,
                         truncated,
+                        False,
                     )
                 )
                 data_buffer.states.append(
@@ -133,6 +215,17 @@ def run(
                         step,
                         info["last_state"],
                         info["next_state"],
+                        action,
+                        delta_t,
+                    )
+                )
+                delta_t_save = time.time() - save_time
+                data_buffer.times.append(
+                    TimeData(
+                        step,
+                        delta_t_agent,
+                        delta_t_step,
+                        delta_t_save,
                     )
                 )
             if next_obs is not None:
@@ -226,7 +319,7 @@ def start_experiment():
             base_speed=1.0,
             base_angular=1.0,
             ee_speed=0.5,
-            ee_angular=0.2,
+            ee_angular=0.5,
             ee_control_mode="cartesian",
         )
         # agent = SpotXboxRandomJointPos(
@@ -241,7 +334,7 @@ def start_experiment():
         # start env
         env.start()
         logger.info("env: %s. obs: %s" % (type(env), env.observation_space.shape))
-        env = RescaleAction(env, min_action=-1, max_action=1)
+        # env = RescaleAction(env, min_action=-1, max_action=1)
 
         # run episode
         try:

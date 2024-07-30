@@ -763,7 +763,7 @@ class SpotBaseStateMachine(SpotBaseModel):
                     self.get_bounds_timeout(last_state, measured_time) - time.time()
                 )
                 self.logger.debug(f"Checking bounds... timeout {timeout}")
-                new_state = self._read_robot_state(timeout=timeout)
+                new_state = self._read_robot_state(timeout=2.5)
                 self.__check_bounds.clear()
                 if new_state is None:
                     self.logger.info(f"Bounds srv: timed out after {timeout}")

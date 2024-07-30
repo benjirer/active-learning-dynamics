@@ -174,8 +174,8 @@ class SpotXboxSpacemouse(AgentReset):
         xbox_right_trigger = xbox_actions[5]
 
         # spacemouse end effector control
-        sm_forward_backward = spacemouse_actions[0]
-        sm_left_right = spacemouse_actions[1]
+        sm_left_right = spacemouse_actions[0]
+        sm_forward_backward = spacemouse_actions[1]
         sm_up_down = spacemouse_actions[2]
         sm_roll = spacemouse_actions[5]
         sm_pitch = spacemouse_actions[4]

@@ -10,10 +10,9 @@ from bosdyn.client.frame_helpers import (
     ODOM_FRAME_NAME,
     express_se3_velocity_in_new_frame,
 )
-from bosdyn.client.math_helpers import SE3Velocity
+from bosdyn.client.math_helpers import SE3Velocity, Vec3
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
-from bosdyn.api.geometry_pb2 import Vec3
 from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
 from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
@@ -101,24 +100,22 @@ class MobilityCommand(Command):
                 ang_z=self.hand_vrz,
             )
 
-            hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+            hand_vel_in_odom = express_se3_velocity_in_new_frame(
                 self.prev_state.transforms_snapshot,
-                ODOM_FRAME_NAME,
                 BODY_FRAME_NAME,
+                ODOM_FRAME_NAME,
                 hand_vel_in_body.to_proto(),
             )
 
-            hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
-
             hand_angular_velocity = Vec3(
-                x=hand_vel_in_odom[3],
-                y=hand_vel_in_odom[4],
-                z=hand_vel_in_odom[5],
+                x=hand_vel_in_odom.angular_velocity_x,
+                y=hand_vel_in_odom.angular_velocity_y,
+                z=hand_vel_in_odom.angular_velocity_z,
             )
 
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
                 cartesian_velocity=cartesian_velocity,
-                angular_velocity_of_hand_rt_odom_in_hand=hand_angular_velocity,
+                angular_velocity_of_hand_rt_odom_in_hand=hand_angular_velocity.to_proto(),
             )
 
             robot_command = robot_command_pb2.RobotCommand()

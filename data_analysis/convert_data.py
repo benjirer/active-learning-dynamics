@@ -7,31 +7,13 @@ import json
 from scipy.spatial.transform import Rotation as R
 
 
-def z_up_to_y_up_pose(pose):
-    x, y, z, qw, qx, qz, qy = pose
-    R_z_to_y = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
-    R_z_90 = R.from_euler("z", 90, degrees=True).as_matrix()
-
-    position_zup = np.array([x, y, z])
-    position_yup = R_z_to_y @ position_zup
-
-    quaternion_zup = [qw, qx, qy, qz]
-    r_yup = R.from_matrix(
-        R_z_90 @ (R_z_to_y @ R.from_quat(quaternion_zup).as_matrix() @ R_z_to_y.T)
-    )
-    quaternion_yup = r_yup.as_quat()
-
-    return np.concatenate(
-        (
-            position_yup,
-            [
-                quaternion_yup[3],
-                quaternion_yup[0],
-                quaternion_yup[2],
-                quaternion_yup[1],
-            ],
-        )
-    )
+def convert_quat(quat):
+    x, y, z, w = quat
+    q = R.from_quat([x, y, z, w])
+    q_rot = R.from_euler("x", -np.pi / 2, degrees=False)
+    q_new = q * q_rot
+    x_new, y_new, z_new, w_new = q_new.as_quat()
+    return [x_new, y_new, z_new, w_new]
 
 
 def convert_data(file_path):
@@ -49,16 +31,19 @@ def convert_data(file_path):
     # extract states
     states = []
     for state in states_data:
-        last_state = state.last_state
-        base_pose = z_up_to_y_up_pose(last_state.pose_of_body_in_odom)
-        arm_joint_positions = last_state.arm_joint_positions
+        next_state = state.next_state
+        # base_pose = convert_pose(last_state.pose_of_body_in_odom)
+        base_pose = next_state.pose_of_body_in_vision
+        quat = base_pose[3:]
+        # quat = convert_quat(quat_pre)
+        arm_joint_positions = next_state.arm_joint_positions
         state = {
-            "basePosition": {"x": base_pose[0], "y": base_pose[1], "z": base_pose[2]},
+            "basePosition": {"x": base_pose[0], "y": base_pose[2], "z": -base_pose[1]},
             "baseOrientation": {
-                "w": base_pose[3],
-                "x": base_pose[4],
-                "y": base_pose[5],
-                "z": base_pose[6],
+                "w": quat[3],
+                "x": quat[0],
+                "y": quat[1],
+                "z": quat[2],
             },
             "jointStates": [
                 {
@@ -126,7 +111,7 @@ def convert_data(file_path):
     return states
 
 
-file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240725-170625/session_buffer.pickle"
+file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-154452/session_buffer.pickle"
 states = convert_data(file_path)
 states_json = json.dumps(states, indent=4)
 with open(
