@@ -76,7 +76,7 @@ class SpotSimulator:
 if __name__ == "__main__":
     # Load transition parameter b
     b = np.load(
-        "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
+        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
     )
 
     # Initialize simulator

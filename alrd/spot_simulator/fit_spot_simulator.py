@@ -199,14 +199,14 @@ def train_model(previous_states, actions, next_states) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    file_path = "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
+    file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
     previous_states, actions, next_states = load_data(file_path)
     b = train_model(previous_states, actions, next_states)
 
     # Save transition parameter b
     timestamp = pd.Timestamp.now().strftime("%Y%m%d-%H%M%S")
     np.save(
-        "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_"
+        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_"
         + timestamp,
         b,
     )

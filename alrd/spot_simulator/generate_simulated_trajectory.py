@@ -104,12 +104,12 @@ def load_data(file_path: str):
 if __name__ == "__main__":
     # Load transition parameter b
     b = np.load(
-        "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
+        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
     )
 
     # Actions and initial state
     initial_state, actions = load_data(
-        "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
+        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
     )
 
     # Generate trajectory
