@@ -42,7 +42,7 @@ num_joints = 19
 states = generate_random_states(num_states, num_joints)
 states_json = json.dumps(states, indent=4)
 with open(
-    "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/states.json",
+    "/home/bhoffman/Documents/MT_FS24/spot_visualizer/data/collected data/states.json",
     "w",
 ) as file:
     file.write(states_json)

@@ -159,8 +159,13 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         """
         Converts the action to a robot command, applies it and returns the next state as a numpy array
         """
+        cmd_time = time.time()
         cmd = self.get_cmd_from_action(action, self.__last_robot_state)
+        delta_t_cmd = time.time() - cmd_time
+        inner_step_time = time.time()
         next_state, cmd_time, read_time, oob = self._step(cmd)
+        delta_t_inner_step = time.time() - inner_step_time
+        additional_time = time.time()
         info = {
             "cmd": cmd,
             "last_state": self.__last_robot_state,
@@ -188,6 +193,12 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
             self._end_episode()
         if done:
             self.stop_robot()
+
+        delta_t_additional_time = time.time() - additional_time
+
+        info["delta_t_cmd"] = delta_t_cmd
+        info["delta_t_inner_step"] = delta_t_inner_step
+        info["delta_t_additional_time"] = delta_t_additional_time
         return obs, reward, done, truncate, info
 
     def _reset(self, pose: np.ndarray) -> Tuple[SpotState, float]:

@@ -87,11 +87,17 @@ class TimeData:
         agent_time: float,
         step_time: float,
         save_time: float,
+        cmd_time: float,
+        inner_step_time: float,
+        additional_time: float,
     ):
         self.step = step
         self.agent_time = agent_time
         self.step_time = step_time
         self.save_time = save_time
+        self.cmd_time = cmd_time
+        self.inner_step_time = inner_step_time
+        self.additional_time = additional_time
 
 
 # class to store all data vectors for an episode
@@ -171,6 +177,9 @@ def run(
                         0,
                         0,
                         0,
+                        0,
+                        0,
+                        0,
                     )
                 )
             if obs is None:
@@ -226,6 +235,9 @@ def run(
                         delta_t_agent,
                         delta_t_step,
                         delta_t_save,
+                        info["cmd_time"],
+                        info["inner_step_time"],
+                        info["additional_time"],
                     )
                 )
             if next_obs is not None:
@@ -262,7 +274,7 @@ def start_experiment():
     # import real world config
     config = yaml.load(
         open(
-            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/config/test.yaml",
+            "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/config/test.yaml",
             "r",
         ),
         Loader=yaml.Loader,
@@ -276,7 +288,7 @@ def start_experiment():
         session_buffer = SessionBuffer()
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S")
         session_dir = (
-            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
+            "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/collected_data/"
             + experiment_id
         )
         experiment_settings = [
