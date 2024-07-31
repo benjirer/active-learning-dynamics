@@ -8,7 +8,7 @@ from urdf2casadi import urdfparser as u2c
 class SpotArmFK:
     def __init__(
         self,
-        urdf_path: str = "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/alrd/spot_gym/model/spot_urdf_model/spot_with_arm.urdf",
+        urdf_path: str = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_gym/model/spot_urdf_model/spot_with_arm.urdf",
         links: list = [
             "base",
             "arm0.link_sh0",

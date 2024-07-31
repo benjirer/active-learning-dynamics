@@ -274,7 +274,7 @@ def start_experiment():
     # import real world config
     config = yaml.load(
         open(
-            "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/config/test.yaml",
+            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/config/test.yaml",
             "r",
         ),
         Loader=yaml.Loader,
@@ -288,7 +288,7 @@ def start_experiment():
         session_buffer = SessionBuffer()
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S")
         session_dir = (
-            "/home/bhoffman/Documents/MT_FS24/active-learning-dynamics/collected_data/"
+            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
         )
         experiment_settings = [
