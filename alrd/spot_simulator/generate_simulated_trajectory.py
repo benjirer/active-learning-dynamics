@@ -6,7 +6,7 @@ from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, 
 from alrd.spot_gym.model.robot_state import SpotState
 
 
-def generate_trajectory(b: np.ndarray, actions, initial_state):
+def generate_trajectory(b: np.ndarray, actions, initial_state, steps: int = 100):
     """
     Generates a simulated trajectory using SpotSimulator class.
 
@@ -21,14 +21,16 @@ def generate_trajectory(b: np.ndarray, actions, initial_state):
 
     # Initialize the simulator
     simulator = SpotSimulator(b)
+    actions = actions[:steps]
 
     # Initialize the trajectory
     trajectory = [initial_state]
 
     # Simulate the trajectory
-    for action in actions:
+    for step, action in enumerate(actions, start=1):
         next_state = simulator.step(trajectory[-1], action)
         trajectory.append(next_state)
+        print("Step:", step)
 
     return trajectory
 
@@ -113,7 +115,8 @@ if __name__ == "__main__":
     )
 
     # Generate trajectory
-    trajectory = generate_trajectory(b, actions, initial_state)
+    steps = 100
+    trajectory = generate_trajectory(b, actions, initial_state, steps)
 
     # Save trajectory
     with open("trajectory.pickle", "wb") as file:
