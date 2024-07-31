@@ -235,9 +235,9 @@ def run(
                         delta_t_agent,
                         delta_t_step,
                         delta_t_save,
-                        info["cmd_time"],
-                        info["inner_step_time"],
-                        info["additional_time"],
+                        info["delta_t_cmd"],
+                        info["delta_t_inner_step"],
+                        info["delta_t_additional_time"],
                     )
                 )
             if next_obs is not None:
