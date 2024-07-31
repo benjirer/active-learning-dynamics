@@ -9,11 +9,7 @@ from scipy.spatial.transform import Rotation as R
 
 def convert_quat(quat):
     x, y, z, w = quat
-    q = R.from_quat([x, y, z, w])
-    q_rot = R.from_euler("x", -np.pi / 2, degrees=False)
-    q_new = q * q_rot
-    x_new, y_new, z_new, w_new = q_new.as_quat()
-    return [x_new, y_new, z_new, w_new]
+    return [y, z, x, w]
 
 
 def convert_data(file_path):
@@ -32,13 +28,13 @@ def convert_data(file_path):
     states = []
     for state in states_data:
         next_state = state.next_state
-        # base_pose = convert_pose(last_state.pose_of_body_in_odom)
+        # base_pose = convert_quat(next_state.pose_of_body_in_vision)
         base_pose = next_state.pose_of_body_in_vision
-        quat = base_pose[3:]
-        # quat = convert_quat(quat_pre)
+        quat_pre = base_pose[3:]
+        quat = convert_quat(quat_pre)
         arm_joint_positions = next_state.arm_joint_positions
         state = {
-            "basePosition": {"x": base_pose[0], "y": base_pose[2], "z": -base_pose[1]},
+            "basePosition": {"x": base_pose[0], "y": base_pose[2], "z": base_pose[1]},
             "baseOrientation": {
                 "w": quat[3],
                 "x": quat[0],
