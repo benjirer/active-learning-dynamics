@@ -90,6 +90,8 @@ class TimeData:
         cmd_time: float,
         inner_step_time: float,
         additional_time: float,
+        inner_cmd_time: float,
+        inner_read_time: float,
     ):
         self.step = step
         self.agent_time = agent_time
@@ -98,6 +100,8 @@ class TimeData:
         self.cmd_time = cmd_time
         self.inner_step_time = inner_step_time
         self.additional_time = additional_time
+        self.inner_cmd_time = inner_cmd_time
+        self.inner_read_time = inner_read_time
 
 
 # class to store all data vectors for an episode
@@ -180,6 +184,8 @@ def run(
                         0,
                         0,
                         0,
+                        0,
+                        0,
                     )
                 )
             if obs is None:
@@ -238,6 +244,8 @@ def run(
                         info["delta_t_cmd"],
                         info["delta_t_inner_step"],
                         info["delta_t_additional_time"],
+                        info["delta_t_inner_cmd_time"],
+                        info["delta_t_inner_read_time"],
                     )
                 )
             if next_obs is not None:

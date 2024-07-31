@@ -199,6 +199,8 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         info["delta_t_cmd"] = delta_t_cmd
         info["delta_t_inner_step"] = delta_t_inner_step
         info["delta_t_additional_time"] = delta_t_additional_time
+        info["delta_t_inner_cmd_time"] = cmd_time
+        info["delta_t_inner_read_time"] = read_time
         return obs, reward, done, truncate, info
 
     def _reset(self, pose: np.ndarray) -> Tuple[SpotState, float]:
