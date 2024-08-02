@@ -161,10 +161,12 @@ def train_model(previous_states, actions, next_states) -> np.ndarray:
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     # Loss function
-    def compute_loss(prev_state, action, next_state, b, horizon=1):
+    def compute_loss(prev_state, actions, next_states, b, horizon=1):
         loss = 0
-        current_state = prev_state
+        current_state = prev_state[0:1]
         for step in range(horizon):
+            next_state = next_states[step : step + 1]
+            action = actions[step : step + 1]
             predicted_next_state = current_state + tf.matmul(
                 action, b, transpose_b=True
             )
@@ -174,17 +176,17 @@ def train_model(previous_states, actions, next_states) -> np.ndarray:
 
     # Training loop
     for epoch in range(epochs):
-        for i in range(len(previous_states)):
+        for i in range(len(previous_states) - multistep_horizon):
             idx = np.random.randint(0, len(previous_states))
             prev_state_sample = previous_states[idx : idx + 1]
-            action_sample = actions[idx : idx + 1]
-            next_state_sample = next_states[idx : idx + 1]
+            action_samples = actions[idx : idx + multistep_horizon]
+            next_state_samples = next_states[idx : idx + multistep_horizon]
 
             with tf.GradientTape() as tape:
                 loss = compute_loss(
                     prev_state_sample,
-                    action_sample,
-                    next_state_sample,
+                    action_samples,
+                    next_state_samples,
                     b,
                     horizon=multistep_horizon,
                 )

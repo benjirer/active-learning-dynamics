@@ -1,32 +1,33 @@
 import numpy as np
-from alrd.spot_simulator.spot_simulator import SpotSimulator
+import pandas as pd
+from typing import Tuple, List
 import pickle
 from scipy.spatial.transform import Rotation as R
+
+from alrd.spot_simulator.spot_simulator import SpotSimulator
 from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
 from alrd.spot_gym.model.robot_state import SpotState
 
 
-def generate_trajectory(b: np.ndarray, actions, initial_state, steps: int = 100):
+def generate_trajectory(b: np.ndarray, actions, initial_state, steps: int = 100) -> List[np.ndarray]:
     """
     Generates a simulated trajectory using SpotSimulator class.
 
     Args:
         b (np.ndarray): The transition parameter.
-        actions: The actions taken (loaded from collected data).
+        actions (): The actions taken (loaded from collected data).
         initial_state: The initial state of the robot (loaded from collected data).
 
     Returns:
-        List[np.ndarray]: The simulated trajectory.
+        List[np.ndarray]: The simulated trajectory as a list of states.
     """
 
-    # Initialize the simulator
+    # initialize
     simulator = SpotSimulator(b)
     actions = actions[:steps]
-
-    # Initialize the trajectory
     trajectory = [initial_state]
 
-    # Simulate the trajectory
+    # simulate trajectory
     for step, action in enumerate(actions, start=1):
         next_state = simulator.step(trajectory[-1], action)
         trajectory.append(next_state)
@@ -35,12 +36,12 @@ def generate_trajectory(b: np.ndarray, actions, initial_state, steps: int = 100)
     return trajectory
 
 
-def load_data(file_path: str):
+def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load and parse data from a pickle file to get initial state and actions.
+    Load and parse data from session pickle file to get initial state and actions.
 
     Args:
-        file_path (str): The path to pickle file.
+        file_path (str): The path to the session pickle file.
 
     Returns:
         Tuple of numpy arrays for initial state and actions.
@@ -104,20 +105,18 @@ def load_data(file_path: str):
 
 
 if __name__ == "__main__":
-    # Load transition parameter b
-    b = np.load(
-        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
-    )
+    
+    # file paths
+    b_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-162044.npy"
+    session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
+    output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime("%Y%m%d-%H%M%S")}.pickle"
 
-    # Actions and initial state
-    initial_state, actions = load_data(
-        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
-    )
-
-    # Generate trajectory
+    # parameters and data
     steps = 100
-    trajectory = generate_trajectory(b, actions, initial_state, steps)
+    b = np.load(b_path)
+    initial_state, actions = load_data(session_path)
 
-    # Save trajectory
-    with open("trajectory.pickle", "wb") as file:
+    # generate and save trajectory
+    trajectory = generate_trajectory(b, actions, initial_state, steps)
+    with open(output_path, "wb") as file:
         pickle.dump(trajectory, file)
