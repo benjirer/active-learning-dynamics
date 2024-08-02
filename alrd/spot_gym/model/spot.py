@@ -350,18 +350,38 @@ class SpotBaseModel(object):
         state = None
         while state is None and (timeout is None or endtime > current):
             try:
-                # Here we wait till the future is done (Method: Check-until-done) or timeout passes.
-                check_until_done_future = (
-                    self.robot_state_client.get_robot_state_async()
+                # # Here we wait till the future is done (Method: Check-until-done) or timeout passes.
+                # read_state_time = time.time()
+                # check_until_done_future = (
+                #     self.robot_state_client.get_robot_state_async()
+                # )
+                # while not check_until_done_future.done() and (
+                #     timeout is None or endtime > time.time()
+                # ):
+                #     time.sleep(READ_STATE_SLEEP_PERIOD)
+                # if check_until_done_future.done():
+                #     self.logger.info(
+                #         f"Time to get RobotState: {time.time() - read_state_time}"
+                #     )
+                #     spot_state_time = time.time()
+                #     state = SpotState.from_robot_state(
+                #         time.time(), check_until_done_future.result()
+                #     )
+                #     # self.logger.info(
+                #     #     f"Time to get SpotState: {time.time() - spot_state_time}"
+                #     # )
+
+                # non async version
+                read_state_time = time.time()
+                state_result = self.robot_state_client.get_robot_state()
+                self.logger.info(
+                    f"Time to get RobotState: {time.time() - read_state_time}"
                 )
-                while not check_until_done_future.done() and (
-                    timeout is None or endtime > time.time()
-                ):
-                    time.sleep(READ_STATE_SLEEP_PERIOD)
-                if check_until_done_future.done():
-                    state = SpotState.from_robot_state(
-                        time.time(), check_until_done_future.result()
-                    )
+                spot_state_time = time.time()
+                state = SpotState.from_robot_state(time.time(), state_result)
+                self.logger.info(
+                    f"Time to get SpotState: {time.time() - spot_state_time}"
+                )
             except:
                 if self.verbose == SpotVerbose.VERBOSE:
                     self.logger.warning(
