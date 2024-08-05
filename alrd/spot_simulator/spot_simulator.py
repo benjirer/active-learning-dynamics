@@ -1,20 +1,17 @@
 import numpy as np
-from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 
 
 class SpotSimulator:
     def __init__(self, b: np.ndarray):
         """
         Args:
-            b (np.ndarray): The transition parameter.
+            b (np.ndarray): The fitted transition parameters.
         """
         self.b = np.array(b, dtype=np.float32)
-        self.spot_arm_ik = SpotArmIK()
 
     def step(self, current_state: np.ndarray, action: np.ndarray) -> np.ndarray:
         """
         Predict the next state given the current state and action.
-        Use IK to calulculate joint positions from end effector positions for each state.
 
         Args:
             current_state (np.ndarray): The current state of the system.
@@ -27,19 +24,12 @@ class SpotSimulator:
             base_vx             - frame: vision
             base_vy             - frame: vision
             base_vrot           - frame: vision
-            ee_x                - frame: body
-            ee_y                - frame: body
-            ee_z                - frame: body
-            ee_rx               - frame: body
-            ee_ry               - frame: body
-            ee_rz               - frame: body
-            ee_vx               - frame: body
-            ee_vy               - frame: body
-            ee_vz               - frame: body
-            ee_vrx              - frame: body
-            ee_vry              - frame: body
-            ee_vrz              - frame: body
-            arm_joint_positions - frame: none
+            ee_x                - frame: vision
+            ee_y                - frame: vision
+            ee_z                - frame: vision
+            ee_vx               - frame: vision
+            ee_vy               - frame: vision
+            ee_vz               - frame: vision
 
         Action space:
             base_vx             - frame: body
@@ -48,42 +38,115 @@ class SpotSimulator:
             ee_vx               - frame: body
             ee_vy               - frame: body
             ee_vz               - frame: body
-            ee_vrx              - frame: body
-            ee_vry              - frame: body
-            ee_vrz              - frame: body
 
 
         Returns:
             np.ndarray: The predicted next state.
         """
         current_state = np.array(current_state, dtype=np.float32)
-        current_state_no_joints = current_state[:18]
         action = np.array(action, dtype=np.float32)
 
-        next_state_no_joints = current_state_no_joints + np.dot(action, self.b.T)
+        theta_t = current_state[2]
 
-        # Calculate joint positions from end effector positions
-        ee_x, ee_y, ee_z = next_state_no_joints[6:9]
-        ee_target = np.array([ee_x, ee_y, ee_z])
+        base_vx_scale = self.b.get("base_vx_scale", 1.0)
+        base_vy_scale = self.b.get("base_vy_scale", 1.0)
+        vtheta_scale = self.b.get("vtheta_scale", 1.0)
+        ee_vx_scale = self.b.get("ee_vx_scale", 1.0)
+        ee_vy_scale = self.b.get("ee_vy_scale", 1.0)
+        ee_vz_scale = self.b.get("ee_vz_scale", 1.0)
+        delta_t = self.b.get("delta_t", 0.1)
 
-        joint_positions = self.spot_arm_ik.calculate_ik(ee_target, current_state[18:])
+        A = np.array(
+            [
+                [1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
+        )
 
-        next_state = np.concatenate((next_state_no_joints, joint_positions))
+        B = np.array(
+            [
+                [
+                    delta_t / 2 * np.cos(theta_t) * base_vx_scale,
+                    -delta_t / 2 * np.sin(theta_t) * base_vy_scale,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+                [
+                    delta_t / 2 * np.sin(theta_t) * base_vx_scale,
+                    delta_t / 2 * np.cos(theta_t) * base_vy_scale,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+                [0, 0, delta_t / 2 * vtheta_scale, 0, 0, 0],
+                [
+                    np.cos(theta_t) * base_vx_scale,
+                    -np.sin(theta_t) * base_vy_scale,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+                [
+                    np.sin(theta_t) * base_vx_scale,
+                    np.cos(theta_t) * base_vy_scale,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+                [0, 0, vtheta_scale, 0, 0, 0],
+                [
+                    0,
+                    0,
+                    0,
+                    delta_t / 2 * np.cos(theta_t) * ee_vx_scale,
+                    -delta_t / 2 * np.sin(theta_t) * ee_vy_scale,
+                    0,
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    delta_t / 2 * np.sin(theta_t) * ee_vx_scale,
+                    delta_t / 2 * np.cos(theta_t) * ee_vy_scale,
+                    0,
+                ],
+                [0, 0, 0, 0, 0, delta_t / 2 * ee_vz_scale],
+                [
+                    0,
+                    0,
+                    0,
+                    np.cos(theta_t) * ee_vx_scale,
+                    -np.sin(theta_t) * ee_vy_scale,
+                    0,
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    np.sin(theta_t) * ee_vx_scale,
+                    np.cos(theta_t) * ee_vy_scale,
+                    0,
+                ],
+                [0, 0, 0, 0, 0, ee_vz_scale],
+            ]
+        )
+
+        # Compute the next state
+        next_state = A @ current_state + B @ action
 
         return next_state
-
-
-if __name__ == "__main__":
-    # Load transition parameter b
-    b = np.load(
-        "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-113113.npy"
-    )
-
-    # Initialize simulator
-    simulator = SpotSimulator(b)
-
-    # Predict next state
-    current_state = np.random.rand(1, 10)
-    action = np.random.rand(1, 3)
-    next_state = simulator.step(current_state, action)
-    print("Predicted next state:", next_state)
