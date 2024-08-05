@@ -4,9 +4,10 @@ from typing import Tuple, List
 import pickle
 from scipy.spatial.transform import Rotation as R
 
-from alrd.spot_simulator.spot_simulator import SpotSimulator
 from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
 from alrd.spot_gym.model.robot_state import SpotState
+
+from spot_simulator_no_base import SpotSimulatorNoBase
 
 
 def generate_trajectory(
@@ -25,7 +26,7 @@ def generate_trajectory(
     """
 
     # initialize
-    simulator = SpotSimulator(b)
+    simulator = SpotSimulatorNoBase(b)
     actions = actions[:steps]
     trajectory = [initial_state]
 
@@ -38,7 +39,9 @@ def generate_trajectory(
     return trajectory
 
 
-def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_data(
+    file_path: str, start_idx: int, end_idx: int
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Load and parse data from session pickle file to get initial state and actions.
 
@@ -54,7 +57,7 @@ def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
     states_data = data.data_buffers[0].states
 
     # parse initial state
-    initial_state_data = states_data[0]
+    initial_state_data = states_data[start_idx]
     initial_state_pre = initial_state_data.next_state
     x, y, _, qx, qy, qz, qw = initial_state_pre.pose_of_body_in_vision
     angle = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
@@ -73,12 +76,6 @@ def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
     sh0, sh1, el0, el1, wr0, wr1 = initial_state_pre.arm_joint_positions
 
     initial_state_list = [
-        x,
-        y,
-        angle,
-        vx,
-        vy,
-        w,
         hand_x,
         hand_y,
         hand_z,
@@ -102,6 +99,7 @@ def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
 
     # parse actions (skip first state)
     actions = [np.array(s.action, dtype=np.float32) for s in states_data[1:]]
+    actions = actions[start_idx:end_idx]
 
     return initial_state, actions
 
@@ -109,14 +107,16 @@ def load_data(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
 if __name__ == "__main__":
 
     # file paths
-    b_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240731-162044.npy"
+    b_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/transition_parameters/b_20240802-134714.npy"
     session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-174534/session_buffer.pickle"
     output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
 
     # parameters and data
     steps = 100
+    start_idx = 600
+    end_idx = start_idx + steps
     b = np.load(b_path)
-    initial_state, actions = load_data(session_path)
+    initial_state, actions = load_data(session_path, start_idx, end_idx)
 
     # generate and save trajectory
     trajectory = generate_trajectory(b, actions, initial_state, steps)

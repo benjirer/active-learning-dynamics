@@ -1,0 +1,148 @@
+\documentclass{article}
+\usepackage{amsmath}
+\setcounter{MaxMatrixCols}{20}
+
+\begin{document}
+
+\section*{Spot Kinematic Simulator}
+\subsection*{State Update Equation:}
+
+\[
+s_{t+1} = A s_t + B a_t
+\] 
+
+\paragraph{State Vector:}
+
+\[
+s_t = \begin{pmatrix}
+x^W(t) \\
+y^W(t) \\
+\theta^W(t) \\
+v_x^W(t) \\
+v_y^W(t) \\
+v_\theta^W(t) \\
+\\
+x_{ee}^W(t) \\
+y_{ee}^W(t) \\
+z_{ee}^W(t) \\
+v_{x,ee}^W(t) \\
+v_{y,ee}^W(t) \\
+v_{z,ee}^W(t)
+\end{pmatrix}
+\]
+
+\paragraph{Action Vector:}
+
+\[
+a_t = \begin{pmatrix}
+v_{x,\text{cmd}}^B(t) \\
+v_{y,\text{cmd}}^B(t) \\
+v_{\theta,\text{cmd}}^B(t) \\
+\\
+v_{x,ee,\text{cmd}}^B(t) \\
+v_{y,ee,\text{cmd}}^B(t) \\
+v_{z,ee,\text{cmd}}^B(t)
+\end{pmatrix}
+\]
+
+\paragraph{Matrix \(A\):}
+
+\[
+A = \begin{pmatrix}
+1 & 0 & 0 & \frac{\Delta t}{2} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & \frac{\Delta t}{2} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & \frac{\Delta t}{2} & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & \frac{\Delta t}{2} & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & \frac{\Delta t}{2} & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & \frac{\Delta t}{2} \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+\end{pmatrix}
+\]
+
+\paragraph{Matrix \(B\):}
+
+\[
+B = \begin{pmatrix}
+\frac{\Delta t}{2} \cos(\theta^W(t)) & -\frac{\Delta t}{2} \sin(\theta^W(t)) & 0 & 0 & 0 & 0 \\
+\frac{\Delta t}{2} \sin(\theta^W(t)) & \frac{\Delta t}{2} \cos(\theta^W(t)) & 0 & 0 & 0 & 0 \\
+0 & 0 & \frac{\Delta t}{2} & 0 & 0 & 0 \\
+\cos(\theta^W(t)) & -\sin(\theta^W(t)) & 0 & 0 & 0 & 0 \\
+\sin(\theta^W(t)) & \cos(\theta^W(t)) & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & \frac{\Delta t}{2} \cos(\theta^W(t))& -\frac{\Delta t}{2} \sin(\theta^W(t)) & 0 \\
+0 & 0 & 0 & \frac{\Delta t}{2} \sin(\theta^W(t)) & \frac{\Delta t}{2} \cos(\theta^W(t)) & 0 \\
+0 & 0 & 0 & 0 & 0 & \frac{\Delta t}{2} \\
+0 & 0 & 0 & \cos(\theta^W(t)) & -\sin(\theta^W(t)) & 0 \\
+0 & 0 & 0 & \sin(\theta^W(t)) & \cos(\theta^W(t)) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix}
+\]
+
+\pagebreak
+\subsection*{Detailed Equations:}
+
+\paragraph{Base Position Updates:}
+
+\[
+x^W(t+1) = x^W(t) + \frac{ v_x^W(t) + v_{x,\text{cmd}}^B(t) \cos(\theta^W(t)) - v_{y,\text{cmd}}^B(t) \sin(\theta^W(t))}{2} \Delta t
+\]
+
+\[
+y^W(t+1) = y^W(t) + \frac{v_y^W(t) + v_{x,\text{cmd}}^B(t) \sin(\theta^W(t)) + v_{y,\text{cmd}}^B(t) \cos(\theta^W(t))}{2} \Delta t
+\]
+
+\paragraph{Base Orientation Update:}
+
+\[
+\theta^W(t+1) = \theta^W(t) + \left( \frac{v_\theta^W(t) + v_{\theta,\text{cmd}}^B(t)}{2} \right) \Delta t
+\]
+
+\paragraph{Base Velocity Updates:}
+
+\[
+v_x^W(t+1) = v_{x,\text{cmd}}^B(t) \cos(\theta^W(t)) - v_{y,\text{cmd}}^B(t) \sin(\theta^W(t))
+\]
+
+\[
+v_y^W(t+1) = v_{x,\text{cmd}}^B(t) \sin(\theta^W(t)) + v_{y,\text{cmd}}^B(t) \cos(\theta^W(t))
+\]
+
+\[
+v_\theta^W(t+1) = v_{\theta,\text{cmd}}^B(t)
+\]
+
+\paragraph{End Effector Position Updates:}
+
+\[
+x_{ee}^W(t+1) = x_{ee}^W(t) + \left( \frac{v_{x,ee}^W(t) + v_{x,ee,\text{cmd}}^B(t) \cos(\theta^W(t)) - v_{y,ee,\text{cmd}}^B(t) \sin(\theta^W(t))}{2} \right) \Delta t
+\]
+
+\[
+y_{ee}^W(t+1) = y_{ee}^W(t) + \left( \frac{v_{y,ee}^W(t) + v_{x,ee,\text{cmd}}^B(t) \sin(\theta^W(t)) + v_{y,ee,\text{cmd}}^B(t) \cos(\theta^W(t))}{2} \right) \Delta t
+\]
+
+\[
+z_{ee}^W(t+1) = z_{ee}^W(t) + \left( \frac{v_{z,ee}^W(t) + v_{z,ee,\text{cmd}}^B(t)}{2} \right) \Delta t
+\]
+
+\paragraph{End Effector Velocity Updates:}
+
+\[
+v_{x,ee}^W(t+1) = v_{x,ee,\text{cmd}}^B(t) \cos(\theta^W(t)) - v_{y,ee,\text{cmd}}^B(t) \sin(\theta^W(t))
+\]
+
+\[
+v_{y,ee}^W(t+1) = v_{x,ee,\text{cmd}}^B(t) \sin(\theta^W(t)) + v_{y,ee,\text{cmd}}^B(t) \cos(\theta^W(t))
+\]
+
+\[
+v_{z,ee}^W(t+1) = v_{z,ee,\text{cmd}}^B(t)
+\]
+
+
+\end{document}
