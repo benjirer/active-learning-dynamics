@@ -21,7 +21,7 @@ class SpotXboxSpacemouse(AgentReset):
         base_angular: float = 1.0,
         ee_speed: float = 0.5,
         ee_angular: float = 0.5,
-        ee_control_mode: str = "cartesian",
+        ee_control_mode: str = "basic",
     ):
         super().__init__()
 
@@ -54,7 +54,14 @@ class SpotXboxSpacemouse(AgentReset):
         last_state,
     ):
         # set all to 0
-        v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6 = 0, 0, 0, 0, 0, 0, 0, 0, 0
+        if self.ee_control_mode == "basic":
+            v_x, v_y, v_rot, v_1, v_2, v_3 = 0, 0, 0, 0, 0, 0
+        elif self.ee_control_mode == "augmented":
+            v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6 = 0, 0, 0, 0, 0, 0, 0, 0, 0
+        else:
+            raise NotImplementedError(
+                f"End effector control mode {self.ee_control_mode} not implemented."
+            )
 
         # base linear velocity control
         v_y = -left_x * self.base_speed
@@ -66,56 +73,24 @@ class SpotXboxSpacemouse(AgentReset):
         # ee linear velocity control
         # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
         # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
-        if not sm_button_1:
+        if not sm_button_1 or self.ee_control_mode == "basic":
             v_1 = -sm_left_right * self.ee_speed
             v_2 = -sm_forward_backward * self.ee_speed
             v_3 = sm_up_down * self.ee_speed
 
         # ee angular velocity control
         # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
-        if sm_button_1:
+        if sm_button_1 and self.ee_control_mode == "augmented":
             v_4 = sm_roll * self.ee_angular
             v_5 = sm_pitch * self.ee_angular
             v_6 = sm_yaw * self.ee_angular
 
-        # if cylindrical: return without converting hand velocity
-        if self.ee_control_mode == "cylindrical":
+        # if basic: return only linear velocities for ee
+        if self.ee_control_mode == "basic":
+            return np.array([v_x, v_y, v_rot, v_1, v_2, v_3])
+        # if augmented: return both linear and angular velocities for ee
+        elif self.ee_control_mode == "augmented":
             return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
-        # if cartesian: convert hand velocity from body to odom frame
-        elif self.ee_control_mode == "cartesian":
-            return np.array([v_x, v_y, v_rot, v_1, v_2, v_3, v_4, v_5, v_6])
-
-            # for testing: convert hand velocity from body to odom frame, now being handled in MobilityCommand class
-            # hand_vel_in_body = SE3Velocity(
-            #     lin_x=v_1, lin_y=v_2, lin_z=v_3, ang_x=v_4, ang_y=v_5, ang_z=v_6
-            # )
-
-            # hand_vel_in_odom_proto = express_se3_velocity_in_new_frame(
-            #     last_state.transforms_snapshot,
-            #     ODOM_FRAME_NAME,
-            #     BODY_FRAME_NAME,
-            #     hand_vel_in_body.to_proto(),
-            # )
-
-            # hand_vel_in_odom = hand_vel_in_odom_proto.to_vector()
-
-            # return np.array(
-            #     [
-            #         v_x,
-            #         v_y,
-            #         v_rot,
-            #         hand_vel_in_odom[0],
-            #         hand_vel_in_odom[1],
-            #         hand_vel_in_odom[2],
-            #         hand_vel_in_odom[3],
-            #         hand_vel_in_odom[4],
-            #         hand_vel_in_odom[5],
-            #     ]
-            # )
-        else:
-            raise NotImplementedError(
-                f"End effector control mode {self.ee_control_mode} not implemented."
-            )
 
     def description(self):
         return """
@@ -131,9 +106,9 @@ class SpotXboxSpacemouse(AgentReset):
             Forward-Backward    -> End effector velocity radial for cylindrical or x for cartesian depending on MobilityCommand class used
             Left-Right          -> End effector velocity azimuthal for cylindrical or y for cartesian depending on MobilityCommand class used
             Up-Down             -> End effector vertical velocity
-            button_1 + roll     -> End effector x angular velocity
-            button_1 + pitch    -> End effector y angular velocity
-            button_1 + yaw      -> End effector z angular velocity
+            button_1 + roll     -> End effector x angular velocity (only in augmented mode)
+            button_1 + pitch    -> End effector y angular velocity (only in augmented mode)
+            button_1 + yaw      -> End effector z angular velocity (only in augmented mode)
         """
 
     def act(self, obs: np.ndarray, last_state: SpotState) -> Optional[np.ndarray]:
@@ -151,9 +126,9 @@ class SpotXboxSpacemouse(AgentReset):
             Forward-Backward    -> End effector velocity radial for cylindrical or x for cartesian depending on MobilityCommand class used
             Left-Right          -> End effector velocity azimuthal for cylindrical or y for cartesian depending on MobilityCommand class used
             Up-Down             -> End effector vertical velocity
-            button_1 + roll     -> End effector x angular velocity
-            button_1 + pitch    -> End effector y angular velocity
-            button_1 + yaw      -> End effector z angular velocity
+            button_1 + roll     -> End effector x angular velocity (only in augmented mode)
+            button_1 + pitch    -> End effector y angular velocity (only in augmented mode)
+            button_1 + yaw      -> End effector z angular velocity (only in augmented mode)
 
         Args:
             obs: Observation from the environment.

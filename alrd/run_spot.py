@@ -19,6 +19,7 @@ from alrd.spot_gym.envs.spot_eevel_cart_body import SpotEEVelEnv
 
 # from alrd.spot_gym.envs.spot_eevel_cyl import SpotEEVelEnv
 from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
+from alrd.spot_gym.envs.spot_basic import SpotBasicEnv
 from alrd.spot_gym.envs.spotgym import SpotGym
 
 # additionals
@@ -320,17 +321,20 @@ def start_experiment():
 
         # note: make sure env and agent are compatible
         # create env
-        env = SpotEEVelEnv(
-            config,
-            cmd_freq=cmd_freq,
-            log_str=False,
-        )
-
+        # env = SpotEEVelEnv(
+        #     config,
+        #     cmd_freq=cmd_freq,
+        #     log_str=False,
+        # )
         # env = SpotJointPosEnv(
         #     config,
         #     cmd_freq=cmd_freq,
         #     log_str=False,
         # )
+        env = SpotBasicEnv(
+            config,
+            cmd_freq=cmd_freq,
+        )
 
         # create agent
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
@@ -339,8 +343,7 @@ def start_experiment():
             base_speed=1.0,
             base_angular=1.0,
             ee_speed=0.5,
-            ee_angular=0.5,
-            ee_control_mode="cartesian",
+            ee_control_mode="basic",
         )
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,

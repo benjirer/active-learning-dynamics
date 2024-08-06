@@ -1,24 +1,27 @@
-from __future__ import annotations
-
 import textwrap
 from pathlib import Path
 from typing import Any, Optional, Tuple, Callable
-
+from __future__ import annotations
 from jax import jit
 import jax
 import jax.numpy as jnp
 import numpy as np
+from gym import spaces
+from scipy.spatial.transform import Rotation as R
+from flax import struct
+
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from opax.models.reward_model import RewardModel
+from jdm_control.rewards import get_tolerance_fn
+
 from alrd.spot_gym.model.command import Command, CommandEnum
-from alrd.spot_gym.model.mobility_command_eevel_cart import MobilityCommand
+from alrd.spot_gym.model.mobility_command_basic import MobilityCommandBasic
 from alrd.spot_gym.envs.record import Session
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.envs.spotgym import SpotGym
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent
-from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
-from gym import spaces
-from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
     MIN_X,
     MAX_X,
@@ -51,10 +54,6 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MAX,
     ARM_MAX_JOINT_VEL,
 )
-
-from opax.models.reward_model import RewardModel
-from jdm_control.rewards import get_tolerance_fn
-from flax import struct
 
 
 def norm(x: jax.Array, axis: int):
@@ -293,70 +292,52 @@ class Spot2DReward(RewardModel):
         )
 
 
-class SpotEEVelEnv(SpotGym):
+class SpotBasicEnv(SpotGym):
     """
-    Kinematic Observation:
-        x: x position of the robot in the goal frame
-        y: y position of the robot in the goal frame
-        cos: cosine of the heading angle of the robot in the goal frame
-        sin: sine of the heading angle of the robot in the goal frame
-        vx: x velocity of the robot in the goal frame
-        vy: y velocity of the robot in the goal frame
-        w: angular velocity of the robot in the goal frame
+    Base State Observation:
+        x: x position of the base in global frame
+        y: y position of the base in global frame
+        cos(theta): cosine of the heading angle theta of the base global frame
+        sin(theta): sine of the heading angle theta of the base in global frame
+        vx: x velocity of the base in global frame
+        vy: y velocity of the base in global frame
+        vrz: yaw angular velocity of the base in global frame
 
-    Arm Observation:
-        x: position of hand in the odom frame
-        y: position of hand in the odom frame
-        z: position of hand in the odom frame
-        hand_rx: x rotation angle of hand in the odom frame
-        hand_ry: y rotation angle of hand in the odom frame
-        hand_rz: z rotation angle of hand in the odom frame
-        vx: x velocity of hand in the odom frame
-        vy: y velocity of hand in the odom frame
-        vz: z velocity of hand in the odom frame
-        vrx: x angular velocity of hand in the odom frame
-        vry: y angular velocity of hand in the odom frame
-        vrz: z angular velocity of hand in the odom frame
+    EE State Observation:
+        x: position of ee in global frame
+        y: position of ee in global frame
+        z: position of ee in global frame
+        vx: x velocity of ee in global frame
+        vy: y velocity of ee in global frame
+        vz: z velocity of ee in global frame
 
-    Kinematic Action:
-        vx: x velocity command for robot base
-        vy: y velocity command for robot base
-        w: angular velocity command for robot base
+    Base Action:
+        vx: x linear velocity command for robot base
+        vy: y linear velocity command for robot base
+        vrz: yaw angular velocity command for robot base
 
-    Arm Action:
-        vx: x velocity command for hand in odom frame
-        vy: velocity command for hand in odom frame
-        vz: z velocity command for hand in odom frame
-        vrx: x angular velocity command for hand in odom frame
-        vry: y angular velocity command for hand in odom frame
-        vrz: z angular velocity command for hand in odom frame
+    EE Action:
+        vx: x linear velocity command for ee in body frame
+        vy: y linear velocity command for ee in body frame
+        vz: z linear velocity command for ee in body frame
     """
 
-    obs_shape = (19,)
-    action_shape = (9,)
+    obs_shape = (13,)
+    action_shape = (6,)
 
     def __init__(
         self,
         config: SpotEnvironmentConfig,
         cmd_freq: float,
         monitor_freq: float = 30,
-        log_dir: str | Path | None = None,
         action_cost=0.0,
         velocity_cost=0.0,
         skip_ui: bool = False,
-        log_str=True,
     ):
-        if log_dir is None:
-            session = None
-        else:
-            session = Session(only_kinematic=True, cmd_type=CommandEnum.MOBILITY)
         super().__init__(
             config,
             cmd_freq,
             monitor_freq,
-            log_dir=log_dir,
-            session=session,
-            log_str=log_str,
         )
 
         # command frequency
@@ -373,18 +354,12 @@ class SpotEEVelEnv(SpotGym):
                     -BODY_MAX_VEL,
                     -BODY_MAX_VEL,
                     -BODY_MAX_ANGULAR_VEL,
-                    MIN_X,
-                    MIN_Y,
+                    -ARM_MAX_X,
+                    -ARM_MAX_Y,
                     ARM_MIN_HEIGHT,
-                    -np.pi,
-                    -np.pi / 2,
-                    -np.pi,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -396,18 +371,12 @@ class SpotEEVelEnv(SpotGym):
                     BODY_MAX_VEL,
                     BODY_MAX_VEL,
                     BODY_MAX_ANGULAR_VEL,
-                    np.pi,
-                    np.pi / 2,
-                    np.pi,
                     ARM_MAX_X,
                     ARM_MAX_Y,
                     ARM_MAX_HEIGHT,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
@@ -422,9 +391,6 @@ class SpotEEVelEnv(SpotGym):
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -435,15 +401,9 @@ class SpotEEVelEnv(SpotGym):
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
-
-        # check if transform needed
-        self.__goal_frame = None  # goal position in vision frame
 
         # reward model
         self.reward = Spot2DReward.create(
@@ -455,61 +415,41 @@ class SpotEEVelEnv(SpotGym):
     def start(self):
         super().start()
 
-    @property
-    def goal_frame(self) -> Frame2D:
-        return self.__goal_frame
-
     def get_obs_from_state(self, state: SpotState) -> np.ndarray:
-        return SpotEEVelEnv.get_obs_from_state_goal(state, self.__goal_frame)
+        # base state observations
+        x, y, z, qx, qy, qz, qw = state.pose_of_body_in_vision
+        theta = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
+        vx, vy, vz, vrx, vry, vrz = state.velocity_of_body_in_vision
 
-    @staticmethod
-    def get_obs_from_state_goal(state: SpotState, goal_frame: Frame2D) -> np.ndarray:
-        # kinematic observations
-        x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
-        angle = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
-        x, y, angle = goal_frame.transform_pose(x, y, angle)
-        vx, vy, _, _, _, w = state.velocity_of_body_in_vision
-        vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
-
-        # arm observations
-        hand_x, hand_y, hand_z, hand_qx, hand_qy, hand_qz, hand_qw = (
-            state.pose_of_hand_in_odom
+        # ee state observations
+        ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_vision
+        ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
+            "xyz", degrees=False
         )
-        hand_rx, hand_ry, hand_rz = R.from_quat(
-            [hand_qx, hand_qy, hand_qz, hand_qw]
-        ).as_euler("xyz", degrees=False)
-        hand_vx, hand_vy, hand_vz, hand_vrx, hand_vry, hand_vrz = (
-            state.velocity_of_hand_in_odom
-        )
+        ee_vx, ee_vy, ee_vz, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_vision
 
         return np.array(
             [
                 x,
                 y,
-                np.cos(angle),
-                np.sin(angle),
+                np.cos(theta),
+                np.sin(theta),
                 vx,
                 vy,
-                w,
-                hand_x,
-                hand_y,
-                hand_z,
-                hand_rx,
-                hand_ry,
-                hand_rz,
-                hand_vx,
-                hand_vy,
-                hand_vz,
-                hand_vrx,
-                hand_vry,
-                hand_vrz,
+                vrz,
+                ee_x,
+                ee_y,
+                ee_z,
+                ee_vx,
+                ee_vy,
+                ee_vz,
             ]
         )
 
     def get_cmd_from_action(
         self, action: np.ndarray, prev_state: np.ndarray
     ) -> Command:
-        return MobilityCommand(
+        return MobilityCommandBasic(
             prev_state=prev_state,
             cmd_freq=self._cmd_freq,
             vx=action[0],
@@ -519,27 +459,24 @@ class SpotEEVelEnv(SpotGym):
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            hand_vx=action[3],
-            hand_vy=action[4],
-            hand_vz=action[5],
-            hand_vrx=action[6],
-            hand_vry=action[7],
-            hand_vrz=action[8],
+            ee_vx=action[3],
+            ee_vy=action[4],
+            ee_vz=action[5],
         )
 
     @staticmethod
-    def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
+    def get_action_from_command(cmd: MobilityCommandBasic) -> np.ndarray:
         return np.array(
             [
                 cmd.vx,
                 cmd.vy,
                 cmd.w,
-                cmd.hand_vx,
-                cmd.hand_vy,
-                cmd.hand_vz,
-                cmd.hand_vrx,
-                cmd.hand_vry,
-                cmd.hand_vrz,
+                cmd.ee_vx,
+                cmd.ee_vy,
+                cmd.ee_vz,
+                cmd.ee_vrx,
+                cmd.ee_vry,
+                cmd.ee_vrz,
             ]
         )
 
@@ -657,7 +594,7 @@ class SpotEEVelEnv(SpotGym):
         return super().reset(seed=seed, options=options)
 
 
-class SpotEEVelEnvDone(SpotEEVelEnv):
+class SpotBasicEnvDone(SpotBasicEnv):
     """Stops the robot when close to goal pose with low velocity"""
 
     def __init__(self, dist_tol, ang_tol, vel_tol, *args, **kwargs) -> None:

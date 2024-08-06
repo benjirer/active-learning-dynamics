@@ -28,15 +28,10 @@ BODY_MAX_ANGULAR_VEL = 1.5  # Maximum angular velocity of the robot (rad/s)
 # arm limits
 ARM_MIN_HEIGHT = 0.0  # Minimum height of the arm (m) (relative to the world)
 ARM_MAX_HEIGHT = 1.82  # Maximum height of the arm (m) (relative to the world, in tall stand height mode)
-ARM_MIN_X = -ARM_FULL_LENGTH  # Minimum x position of the arm (m) (relative to the body)
 ARM_MAX_X = ARM_FULL_LENGTH  # Maximum x position of the arm (m) (relative to the body)
-ARM_MIN_Y = -ARM_FULL_LENGTH  # Minimum y position of the arm (m) (relative to the body)
 ARM_MAX_Y = ARM_FULL_LENGTH  # Maximum y position of the arm (m) (relative to the body)
 ARM_MIN_AZIMUTHAL = -(150 / 180) * np.pi  # Minimum azimuthal angle of the arm (rad)
 ARM_MAX_AZIMUTHAL = np.pi  # Maximum azimuthal angle of the arm (rad)
-ARM_MIN_RADIAL = (
-    -ARM_FULL_LENGTH
-)  # Minimum radial position of the arm (m) (relative to the body)
 ARM_MAX_RADIAL = (
     ARM_FULL_LENGTH  # Maximum radial position of the arm (m) (relative to the body)
 )

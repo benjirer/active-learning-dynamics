@@ -26,7 +26,6 @@ from alrd.spot_gym.utils.utils import (
     ARM_MAX_HEIGHT,
     ARM_MIN_AZIMUTHAL,
     ARM_MAX_AZIMUTHAL,
-    ARM_MIN_RADIAL,
     ARM_MAX_RADIAL,
     ARM_MAX_RADIAL_VEL,
     ARM_MAX_VERTICAL_VEL,
