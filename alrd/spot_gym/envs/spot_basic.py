@@ -1,7 +1,7 @@
+from __future__ import annotations
 import textwrap
 from pathlib import Path
 from typing import Any, Optional, Tuple, Callable
-from __future__ import annotations
 from jax import jit
 import jax
 import jax.numpy as jnp
@@ -454,7 +454,7 @@ class SpotBasicEnv(SpotGym):
             cmd_freq=self._cmd_freq,
             vx=action[0],
             vy=action[1],
-            w=action[2],
+            vrz=action[2],
             height=0.0,
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
@@ -470,13 +470,10 @@ class SpotBasicEnv(SpotGym):
             [
                 cmd.vx,
                 cmd.vy,
-                cmd.w,
+                cmd.vrz,
                 cmd.ee_vx,
                 cmd.ee_vy,
                 cmd.ee_vz,
-                cmd.ee_vrx,
-                cmd.ee_vry,
-                cmd.ee_vrz,
             ]
         )
 

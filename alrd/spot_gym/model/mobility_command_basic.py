@@ -67,14 +67,7 @@ class MobilityCommandBasic(Command):
 
         # make ee command
         # only if ee velocity commands are not zero
-        if (
-            self.ee_vx != 0
-            or self.ee_vy != 0
-            or self.ee_vz != 0
-            or self.ee_vrx != 0
-            or self.ee_vry != 0
-            or self.ee_vrz != 0
-        ):
+        if self.ee_vx != 0 or self.ee_vy != 0 or self.ee_vz != 0:
             # ee cartesian linear velocity command
             cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
             cartesian_velocity.frame_name = BODY_FRAME_NAME

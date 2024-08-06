@@ -2,12 +2,23 @@ import numpy as np
 
 
 class SpotSimulator:
-    def __init__(self, b: np.ndarray):
+    def __init__(self, b: dict = None):
         """
         Args:
-            b (np.ndarray): The fitted transition parameters.
+            b (dict): The fitted transition parameters.
         """
-        self.b = np.array(b, dtype=np.float32)
+        if b is not None:
+            self.b = b
+        else:
+            self.b = {
+                "base_vx_scale": 1.0,
+                "base_vy_scale": 1.0,
+                "vtheta_scale": 1.0,
+                "ee_vx_scale": 1.0,
+                "ee_vy_scale": 1.0,
+                "ee_vz_scale": 1.0,
+                "delta_t": 0.1,
+            }
 
     def step(self, current_state: np.ndarray, action: np.ndarray) -> np.ndarray:
         """
