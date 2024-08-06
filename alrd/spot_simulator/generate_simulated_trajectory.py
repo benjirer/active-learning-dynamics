@@ -25,7 +25,7 @@ def generate_trajectory(actions, initial_state, steps: int = 100) -> List[np.nda
 
     # initialize
     simulator = SpotSimulator()
-    actions = actions[:steps]
+    actions = actions
     trajectory = [initial_state]
 
     # simulate trajectory
@@ -44,12 +44,8 @@ if __name__ == "__main__":
     output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
 
     # parameters and data
-    steps = 500
-    start_idx = 400
-    end_idx = start_idx + steps
-    previous_states, actions, next_states = load_data_set(
-        session_path, start_idx, end_idx
-    )
+    previous_states, actions, next_states = load_data_set(file_path=session_path)
+    steps = len(actions)
 
     # generate and save trajectory
     trajectory = generate_trajectory(actions, previous_states[0], steps)

@@ -67,97 +67,197 @@ class SpotSimulator:
         ee_vz_scale = self.b.get("ee_vz_scale", 1.0)
         delta_t = self.b.get("delta_t", 0.1)
 
-        A = np.array(
-            [
-                [1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            ]
-        )
+        # A = np.array(
+        #     [
+        #         [1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     ]
+        # )
 
-        B = np.array(
-            [
-                [
-                    delta_t / 2 * np.cos(theta_t) * base_vx_scale,
-                    -delta_t / 2 * np.sin(theta_t) * base_vy_scale,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-                [
-                    delta_t / 2 * np.sin(theta_t) * base_vx_scale,
-                    delta_t / 2 * np.cos(theta_t) * base_vy_scale,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-                [0, 0, delta_t / 2 * vtheta_scale, 0, 0, 0],
-                [
-                    np.cos(theta_t) * base_vx_scale,
-                    -np.sin(theta_t) * base_vy_scale,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-                [
-                    np.sin(theta_t) * base_vx_scale,
-                    np.cos(theta_t) * base_vy_scale,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
-                [0, 0, vtheta_scale, 0, 0, 0],
-                [
-                    0,
-                    0,
-                    0,
-                    delta_t / 2 * np.cos(theta_t) * ee_vx_scale,
-                    -delta_t / 2 * np.sin(theta_t) * ee_vy_scale,
-                    0,
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    delta_t / 2 * np.sin(theta_t) * ee_vx_scale,
-                    delta_t / 2 * np.cos(theta_t) * ee_vy_scale,
-                    0,
-                ],
-                [0, 0, 0, 0, 0, delta_t / 2 * ee_vz_scale],
-                [
-                    0,
-                    0,
-                    0,
-                    np.cos(theta_t) * ee_vx_scale,
-                    -np.sin(theta_t) * ee_vy_scale,
-                    0,
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    np.sin(theta_t) * ee_vx_scale,
-                    np.cos(theta_t) * ee_vy_scale,
-                    0,
-                ],
-                [0, 0, 0, 0, 0, ee_vz_scale],
-            ]
-        )
+        # B = np.array(
+        #     [
+        #         [
+        #             delta_t / 2 * np.cos(theta_t) * base_vx_scale,
+        #             -delta_t / 2 * np.sin(theta_t) * base_vy_scale,
+        #             0,
+        #             0,
+        #             0,
+        #             0,
+        #         ],
+        #         [
+        #             delta_t / 2 * np.sin(theta_t) * base_vx_scale,
+        #             delta_t / 2 * np.cos(theta_t) * base_vy_scale,
+        #             0,
+        #             0,
+        #             0,
+        #             0,
+        #         ],
+        #         [0, 0, delta_t / 2 * vtheta_scale, 0, 0, 0],
+        #         [
+        #             np.cos(theta_t) * base_vx_scale,
+        #             -np.sin(theta_t) * base_vy_scale,
+        #             0,
+        #             0,
+        #             0,
+        #             0,
+        #         ],
+        #         [
+        #             np.sin(theta_t) * base_vx_scale,
+        #             np.cos(theta_t) * base_vy_scale,
+        #             0,
+        #             0,
+        #             0,
+        #             0,
+        #         ],
+        #         [0, 0, vtheta_scale, 0, 0, 0],
+        #         [
+        #             0,
+        #             0,
+        #             0,
+        #             delta_t / 2 * np.cos(theta_t) * ee_vx_scale,
+        #             -delta_t / 2 * np.sin(theta_t) * ee_vy_scale,
+        #             0,
+        #         ],
+        #         [
+        #             0,
+        #             0,
+        #             0,
+        #             delta_t / 2 * np.sin(theta_t) * ee_vx_scale,
+        #             delta_t / 2 * np.cos(theta_t) * ee_vy_scale,
+        #             0,
+        #         ],
+        #         [0, 0, 0, 0, 0, delta_t / 2 * ee_vz_scale],
+        #         [
+        #             0,
+        #             0,
+        #             0,
+        #             np.cos(theta_t) * ee_vx_scale,
+        #             -np.sin(theta_t) * ee_vy_scale,
+        #             0,
+        #         ],
+        #         [
+        #             0,
+        #             0,
+        #             0,
+        #             np.sin(theta_t) * ee_vx_scale,
+        #             np.cos(theta_t) * ee_vy_scale,
+        #             0,
+        #         ],
+        #         [0, 0, 0, 0, 0, ee_vz_scale],
+        #     ]
+        # )
 
         # Compute the next state
-        next_state = A @ current_state + B @ action
+        # next_state = A @ current_state + B @ action
+
+        # use normal update equations instead of the matrix multiplication
+        # next_state = np.zeros_like(current_state)
+        # next_state[0] = current_state[0] + delta_t / 2 * (
+        #     current_state[3]
+        #     + base_vx_scale * np.cos(theta_t) * action[0]
+        #     - base_vy_scale * np.sin(theta_t) * action[1]
+        # )
+        # next_state[1] = current_state[1] + delta_t / 2 * (
+        #     current_state[4]
+        #     + base_vx_scale * np.sin(theta_t) * action[0]
+        #     + base_vy_scale * np.cos(theta_t) * action[1]
+        # )
+        # next_state[2] = current_state[2] + delta_t / 2 * (
+        #     current_state[5] + vtheta_scale * action[2]
+        # )
+
+        # next_state[3] = (
+        #     base_vx_scale * np.cos(theta_t) * action[0]
+        #     - base_vy_scale * np.sin(theta_t) * action[1]
+        # )
+        # next_state[4] = (
+        #     base_vx_scale * np.sin(theta_t) * action[0]
+        #     + base_vy_scale * np.cos(theta_t) * action[1]
+        # )
+        # next_state[5] = vtheta_scale * action[2]
+
+        # next_state[6] = current_state[6] + delta_t / 2 * (
+        #     current_state[9]
+        #     + ee_vx_scale * np.cos(theta_t) * action[3]
+        #     - ee_vy_scale * np.sin(theta_t) * action[4]
+        # )
+        # next_state[7] = current_state[7] + delta_t / 2 * (
+        #     current_state[10]
+        #     + ee_vx_scale * np.sin(theta_t) * action[3]
+        #     + ee_vy_scale * np.cos(theta_t) * action[4]
+        # )
+        # next_state[8] = current_state[8] + delta_t / 2 * (
+        #     current_state[11] + ee_vz_scale * action[5]
+        # )
+
+        # next_state[9] = (
+        #     ee_vx_scale * np.cos(theta_t) * action[3]
+        #     - ee_vy_scale * np.sin(theta_t) * action[4]
+        # )
+        # next_state[10] = (
+        #     ee_vx_scale * np.sin(theta_t) * action[3]
+        #     + ee_vy_scale * np.cos(theta_t) * action[4]
+        # )
+        # next_state[11] = ee_vz_scale * action[5]
+
+        # use input velocity directly
+        next_state = np.zeros_like(current_state)
+        next_state[0] = current_state[0] + delta_t * (
+            base_vx_scale * np.cos(theta_t) * action[0]
+            - base_vy_scale * np.sin(theta_t) * action[1]
+        )
+
+        next_state[1] = current_state[1] + delta_t * (
+            base_vx_scale * np.sin(theta_t) * action[0]
+            + base_vy_scale * np.cos(theta_t) * action[1]
+        )
+
+        next_state[2] = current_state[2] + delta_t * vtheta_scale * action[2]
+
+        next_state[3] = (
+            base_vx_scale * np.cos(theta_t) * action[0]
+            - base_vy_scale * np.sin(theta_t) * action[1]
+        )
+
+        next_state[4] = (
+            base_vx_scale * np.sin(theta_t) * action[0]
+            + base_vy_scale * np.cos(theta_t) * action[1]
+        )
+
+        next_state[5] = vtheta_scale * action[2]
+
+        next_state[6] = current_state[6] + delta_t * (
+            ee_vx_scale * np.cos(theta_t) * action[3]
+            - ee_vy_scale * np.sin(theta_t) * action[4]
+        )
+
+        next_state[7] = current_state[7] + delta_t * (
+            ee_vx_scale * np.sin(theta_t) * action[3]
+            + ee_vy_scale * np.cos(theta_t) * action[4]
+        )
+
+        next_state[8] = current_state[8] + delta_t * ee_vz_scale * action[5]
+
+        next_state[9] = (
+            ee_vx_scale * np.cos(theta_t) * action[3]
+            - ee_vy_scale * np.sin(theta_t) * action[4]
+        )
+
+        next_state[10] = (
+            ee_vx_scale * np.sin(theta_t) * action[3]
+            + ee_vy_scale * np.cos(theta_t) * action[4]
+        )
+
+        next_state[11] = ee_vz_scale * action[5]
 
         return next_state

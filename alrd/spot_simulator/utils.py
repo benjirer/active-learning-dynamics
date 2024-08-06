@@ -26,8 +26,8 @@ def normalize_data(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray
 def load_data(
     file_path: str,
     which_data: str,
-    as_euler: bool = False,
-    with_wrist: bool = True,
+    as_euler: bool = True,
+    with_wrist: bool = False,
     with_joints: bool = False,
     skip_first: bool = True,
     start_idx: int = 0,
@@ -72,7 +72,7 @@ def load_data(
         elif which_data == "action":
             state_data = state.action
             state_vector.append(np.array(state_data, dtype=np.float32))
-            return np.stack(state_vector)
+            continue
         else:
             raise ValueError(
                 "which_data must be either 'previous_state', 'next_state', or 'action'."
