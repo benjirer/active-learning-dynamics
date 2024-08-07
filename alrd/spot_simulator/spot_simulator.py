@@ -2,25 +2,11 @@ import numpy as np
 
 
 class SpotSimulator:
-    def __init__(self, b: dict = None, method: str = "normal"):
+    def __init__(self, b: np.array = None):
         """
         Args:
-            b (dict): The fitted transition parameters.
+            b (np.array): The fitted transition parameters.
         """
-        if b is not None:
-            self.b = b
-        else:
-            self.b = {
-                "base_vx_scale": 1.0,
-                "base_vy_scale": 1.0,
-                "vtheta_scale": 1.0,
-                "ee_vx_scale": 1.0,
-                "ee_vy_scale": 1.0,
-                "ee_vz_scale": 1.0,
-                "delta_t": 0.1,
-            }
-
-        self.method = method
 
     def step(self, current_state: np.ndarray, action: np.ndarray) -> np.ndarray:
         """
@@ -60,257 +46,86 @@ class SpotSimulator:
         action = np.array(action, dtype=np.float32)
 
         theta_t = current_state[2]
+        cos_t = np.cos(theta_t)
+        sin_t = np.sin(theta_t)
 
-        base_vx_scale = self.b.get("base_vx_scale", 1.0)
-        base_vy_scale = self.b.get("base_vy_scale", 1.0)
-        vtheta_scale = self.b.get("vtheta_scale", 1.0)
-        ee_vx_scale = self.b.get("ee_vx_scale", 1.0)
-        ee_vy_scale = self.b.get("ee_vy_scale", 1.0)
-        ee_vz_scale = self.b.get("ee_vz_scale", 1.0)
-        delta_t = self.b.get("delta_t", 0.1)
+        delta_t = 1.0 / 10.0
 
-        # A = np.array(
-        #     [
-        #         [1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 1, 0, 0, delta_t / 2, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, delta_t / 2],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #     ]
-        # )
+        next_state = np.zeros_like(current_state)
 
-        # B = np.array(
-        #     [
-        #         [
-        #             delta_t / 2 * np.cos(theta_t) * base_vx_scale,
-        #             -delta_t / 2 * np.sin(theta_t) * base_vy_scale,
-        #             0,
-        #             0,
-        #             0,
-        #             0,
-        #         ],
-        #         [
-        #             delta_t / 2 * np.sin(theta_t) * base_vx_scale,
-        #             delta_t / 2 * np.cos(theta_t) * base_vy_scale,
-        #             0,
-        #             0,
-        #             0,
-        #             0,
-        #         ],
-        #         [0, 0, delta_t / 2 * vtheta_scale, 0, 0, 0],
-        #         [
-        #             np.cos(theta_t) * base_vx_scale,
-        #             -np.sin(theta_t) * base_vy_scale,
-        #             0,
-        #             0,
-        #             0,
-        #             0,
-        #         ],
-        #         [
-        #             np.sin(theta_t) * base_vx_scale,
-        #             np.cos(theta_t) * base_vy_scale,
-        #             0,
-        #             0,
-        #             0,
-        #             0,
-        #         ],
-        #         [0, 0, vtheta_scale, 0, 0, 0],
-        #         [
-        #             0,
-        #             0,
-        #             0,
-        #             delta_t / 2 * np.cos(theta_t) * ee_vx_scale,
-        #             -delta_t / 2 * np.sin(theta_t) * ee_vy_scale,
-        #             0,
-        #         ],
-        #         [
-        #             0,
-        #             0,
-        #             0,
-        #             delta_t / 2 * np.sin(theta_t) * ee_vx_scale,
-        #             delta_t / 2 * np.cos(theta_t) * ee_vy_scale,
-        #             0,
-        #         ],
-        #         [0, 0, 0, 0, 0, delta_t / 2 * ee_vz_scale],
-        #         [
-        #             0,
-        #             0,
-        #             0,
-        #             np.cos(theta_t) * ee_vx_scale,
-        #             -np.sin(theta_t) * ee_vy_scale,
-        #             0,
-        #         ],
-        #         [
-        #             0,
-        #             0,
-        #             0,
-        #             np.sin(theta_t) * ee_vx_scale,
-        #             np.cos(theta_t) * ee_vy_scale,
-        #             0,
-        #         ],
-        #         [0, 0, 0, 0, 0, ee_vz_scale],
-        #     ]
-        # )
+        self.b = np.zeros_like(action)
 
-        # Compute the next state
-        # next_state = A @ current_state + B @ action
+        """
+        Base
+        """
 
-        # average velocities from previous and input
-        if self.method == "averaged":
-            next_state = np.zeros_like(current_state)
-            next_state[0] = current_state[0] + delta_t / 2 * (
-                current_state[3]
-                + base_vx_scale * np.cos(theta_t) * action[0]
-                - base_vy_scale * np.sin(theta_t) * action[1]
-            )
-            next_state[1] = current_state[1] + delta_t / 2 * (
-                current_state[4]
-                + base_vx_scale * np.sin(theta_t) * action[0]
-                + base_vy_scale * np.cos(theta_t) * action[1]
-            )
-            next_state[2] = current_state[2] + delta_t / 2 * (
-                current_state[5] + vtheta_scale * action[2]
-            )
-            # normalize to be within -pi to pi
-            next_state[2] = (next_state[2] + np.pi) % (2 * np.pi) - np.pi
+        # base actions in world frame
+        base_vx_action_world = cos_t * action[0] - sin_t * action[1]
+        base_vy_action_world = sin_t * action[0] + cos_t * action[1]
+        vtheta_action_world = action[2]
 
-            next_state[3] = (
-                base_vx_scale * np.cos(theta_t) * action[0]
-                - base_vy_scale * np.sin(theta_t) * action[1]
-            )
-            next_state[4] = (
-                base_vx_scale * np.sin(theta_t) * action[0]
-                + base_vy_scale * np.cos(theta_t) * action[1]
-            )
-            next_state[5] = vtheta_scale * action[2]
+        # add weighted velocities
+        base_vx_action_world = (
+            self.b[0] * current_state[3] + (1 - self.b[0]) * base_vx_action_world
+        )
+        base_vy_action_world = (
+            self.b[1] * current_state[4] + (1 - self.b[1]) * base_vy_action_world
+        )
 
-            next_state[6] = current_state[6] + delta_t / 2 * (
-                current_state[9]
-                + ee_vx_scale * np.cos(theta_t) * action[3]
-                - ee_vy_scale * np.sin(theta_t) * action[4]
-            )
-            next_state[7] = current_state[7] + delta_t / 2 * (
-                current_state[10]
-                + ee_vx_scale * np.sin(theta_t) * action[3]
-                + ee_vy_scale * np.cos(theta_t) * action[4]
-            )
-            next_state[8] = current_state[8] + delta_t / 2 * (
-                current_state[11] + ee_vz_scale * action[5]
-            )
+        vtheta_action_world = (
+            self.b[2] * current_state[5] + (1 - self.b[2]) * vtheta_action_world
+        )
 
-            next_state[9] = (
-                ee_vx_scale * np.cos(theta_t) * action[3]
-                - ee_vy_scale * np.sin(theta_t) * action[4]
-            )
-            next_state[10] = (
-                ee_vx_scale * np.sin(theta_t) * action[3]
-                + ee_vy_scale * np.cos(theta_t) * action[4]
-            )
-            next_state[11] = ee_vz_scale * action[5]
+        # base velocities
+        next_state[3] = base_vx_action_world
+        next_state[4] = base_vy_action_world
+        next_state[5] = vtheta_action_world
 
-        # use input velocity only
-        elif self.method == "normal":
-            next_state = np.zeros_like(current_state)
+        # base positions
+        next_state[0] = current_state[0] + delta_t * next_state[3]
+        next_state[1] = current_state[1] + delta_t * next_state[4]
+        next_state[2] = (current_state[2] + delta_t * next_state[5] + np.pi) % (
+            2 * np.pi
+        ) - np.pi
 
-            # BASE
-            # base x position
-            next_state[0] = current_state[0] + delta_t * (
-                base_vx_scale * np.cos(theta_t) * action[0]
-                - base_vy_scale * np.sin(theta_t) * action[1]
-            )
+        """
+        End effector
+        """
+        # end effector actions in world frame
+        ee_vx_action_world = cos_t * action[3] - sin_t * action[4]
+        ee_vy_action_world = sin_t * action[3] + cos_t * action[4]
+        ee_vz_action_world = action[5]
 
-            # base y position
-            next_state[1] = current_state[1] + delta_t * (
-                base_vx_scale * np.sin(theta_t) * action[0]
-                + base_vy_scale * np.cos(theta_t) * action[1]
-            )
+        # add weighted velocities
+        ee_vx_action_world = (
+            self.b[3] * current_state[9] + (1 - self.b[3]) * ee_vx_action_world
+        )
+        ee_vy_action_world = (
+            self.b[4] * current_state[10] + (1 - self.b[4]) * ee_vy_action_world
+        )
+        ee_vz_action_world = (
+            self.b[5] * current_state[11] + (1 - self.b[5]) * ee_vz_action_world
+        )
 
-            # base heading angle (yaw)
-            next_state[2] = current_state[2] + delta_t * vtheta_scale * action[2]
-            # normalize to be within -pi to pi
-            next_state[2] = (next_state[2] + np.pi) % (2 * np.pi) - np.pi
+        # base angular velocity induces linear velocity at end effector
+        base_xy_world = np.array([current_state[0], current_state[1]])
+        ee_xy_world = np.array([current_state[6], current_state[7]])
+        distance_ee_base = np.linalg.norm(ee_xy_world - base_xy_world)
+        vel_ee_from_rot_magnitude = distance_ee_base * next_state[5]
+        alpha = np.arctan2(
+            ee_xy_world[0] - base_xy_world[0], ee_xy_world[1] - base_xy_world[1]
+        )
+        vel_ee_from_rot_x_world = -vel_ee_from_rot_magnitude * np.cos(alpha)
+        vel_ee_from_rot_y_world = vel_ee_from_rot_magnitude * np.sin(alpha)
 
-            # base x velocity
-            next_state[3] = (
-                base_vx_scale * np.cos(theta_t) * action[0]
-                - base_vy_scale * np.sin(theta_t) * action[1]
-            )
+        # end effector velocities
+        next_state[9] = ee_vx_action_world + next_state[3] + vel_ee_from_rot_x_world
+        next_state[10] = ee_vy_action_world + next_state[4] + vel_ee_from_rot_y_world
+        next_state[11] = ee_vz_action_world
 
-            # base y velocity
-            next_state[4] = (
-                base_vx_scale * np.sin(theta_t) * action[0]
-                + base_vy_scale * np.cos(theta_t) * action[1]
-            )
-
-            # base heading (yaw) angular velocity
-            next_state[5] = vtheta_scale * action[2]
-
-            # END EFFECTOR
-            # end effector x position
-            next_state[6] = (
-                current_state[6]
-                + delta_t
-                * (
-                    ee_vx_scale * np.cos(theta_t) * action[3]
-                    - ee_vy_scale * np.sin(theta_t) * action[4]
-                )
-                + delta_t * next_state[3]
-            )
-
-            # end effector y position
-            next_state[7] = (
-                current_state[7]
-                + delta_t
-                * (
-                    ee_vx_scale * np.sin(theta_t) * action[3]
-                    + ee_vy_scale * np.cos(theta_t) * action[4]
-                )
-                + delta_t * next_state[4]
-            )
-
-            # end effector z position
-            next_state[8] = current_state[8] + delta_t * ee_vz_scale * action[5]
-
-            # velocity components of body rotation
-            body_xyz_w = np.array([current_state[0], current_state[1], 0])
-            ee_xyz_w = np.array([current_state[6], current_state[7], 0])
-            r_xyz_w = ee_xyz_w - body_xyz_w
-            rot_xyz_w = np.array([0, 0, action[2]])
-            vel_ee_from_rot = np.cross(rot_xyz_w, r_xyz_w)
-            vel_ee_from_rot_x = vel_ee_from_rot[0]
-            vel_ee_from_rot_y = vel_ee_from_rot[1]
-
-            # end effector x velocity
-            next_state[9] = (
-                (
-                    ee_vx_scale * np.cos(theta_t) * action[3]
-                    - ee_vy_scale * np.sin(theta_t) * action[4]
-                )
-                + next_state[3]
-                + vel_ee_from_rot_x
-            )
-
-            # end effector y velocity
-            next_state[10] = (
-                (
-                    ee_vx_scale * np.sin(theta_t) * action[3]
-                    + ee_vy_scale * np.cos(theta_t) * action[4]
-                )
-                + next_state[4]
-                + vel_ee_from_rot_y
-            )
-
-            # end effector z velocity
-            next_state[11] = ee_vz_scale * action[5]
-
-        else:
-            raise ValueError("Invalid method. Must be either 'normal' or 'averaged'.")
+        # end effector positions
+        next_state[6] = current_state[6] + delta_t * next_state[9]
+        next_state[7] = current_state[7] + delta_t * next_state[10]
+        next_state[8] = max(current_state[8] + delta_t * next_state[11], 0.0)
 
         return next_state

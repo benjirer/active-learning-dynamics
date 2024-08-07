@@ -12,7 +12,9 @@ from alrd.spot_simulator.utils import load_data, load_data_set
 
 
 def generate_trajectory(
-    actions, initial_state, steps: int = 100, method: str = "normal"
+    actions,
+    initial_state,
+    steps: int = 100,
 ) -> List[np.ndarray]:
     """
     Generates a simulated trajectory using SpotSimulator class.
@@ -26,7 +28,7 @@ def generate_trajectory(
     """
 
     # initialize
-    simulator = SpotSimulator(method=method)
+    simulator = SpotSimulator()
     actions = actions
     trajectory = [initial_state]
 
@@ -41,18 +43,14 @@ def generate_trajectory(
 
 if __name__ == "__main__":
 
-    # params
-    methods = ["normal", "averaged"]
-
     # load data
     session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
     previous_states, actions, next_states = load_data_set(file_path=session_path)
     steps = len(actions)
 
-    for method in methods:
-        # generate and save trajectory
-        trajectory = generate_trajectory(actions, previous_states[0], steps, method)
-        output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{method}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
-        with open(output_path, "wb") as file:
-            pickle.dump(trajectory, file)
-        print(f"Trajectory saved to {output_path}")
+    # generate and save trajectory
+    trajectory = generate_trajectory(actions, previous_states[0], steps)
+    output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+    with open(output_path, "wb") as file:
+        pickle.dump(trajectory, file)
+    print(f"Trajectory saved to {output_path}")
