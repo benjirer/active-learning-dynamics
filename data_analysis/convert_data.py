@@ -34,7 +34,7 @@ def convert_data(file_path):
         quat = convert_quat(quat_pre)
         arm_joint_positions = next_state.arm_joint_positions
         state = {
-            "basePosition": {"x": base_pose[0], "y": base_pose[2], "z": base_pose[1]},
+            "basePosition": {"x": base_pose[1], "y": base_pose[2], "z": base_pose[0]},
             "baseOrientation": {
                 "w": quat[3],
                 "x": quat[0],
@@ -107,7 +107,7 @@ def convert_data(file_path):
     return states
 
 
-file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
 states = convert_data(file_path)
 states_json = json.dumps(states, indent=4)
 with open(
