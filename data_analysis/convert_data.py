@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData
+from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
 from alrd.spot_gym.model.robot_state import SpotState
 import json
 from scipy.spatial.transform import Rotation as R
@@ -107,7 +107,7 @@ def convert_data(file_path):
     return states
 
 
-file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240730-154452/session_buffer.pickle"
+file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
 states = convert_data(file_path)
 states_json = json.dumps(states, indent=4)
 with open(

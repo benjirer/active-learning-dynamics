@@ -11,7 +11,9 @@ from alrd.spot_simulator.spot_simulator import SpotSimulator
 from alrd.spot_simulator.utils import load_data, load_data_set
 
 
-def generate_trajectory(actions, initial_state, steps: int = 100) -> List[np.ndarray]:
+def generate_trajectory(
+    actions, initial_state, steps: int = 100, method: str = "normal"
+) -> List[np.ndarray]:
     """
     Generates a simulated trajectory using SpotSimulator class.
 
@@ -24,7 +26,7 @@ def generate_trajectory(actions, initial_state, steps: int = 100) -> List[np.nda
     """
 
     # initialize
-    simulator = SpotSimulator()
+    simulator = SpotSimulator(method=method)
     actions = actions
     trajectory = [initial_state]
 
@@ -39,15 +41,18 @@ def generate_trajectory(actions, initial_state, steps: int = 100) -> List[np.nda
 
 if __name__ == "__main__":
 
-    # file paths
-    session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
-    output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+    # params
+    methods = ["normal", "averaged"]
 
-    # parameters and data
+    # load data
+    session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
     previous_states, actions, next_states = load_data_set(file_path=session_path)
     steps = len(actions)
 
-    # generate and save trajectory
-    trajectory = generate_trajectory(actions, previous_states[0], steps)
-    with open(output_path, "wb") as file:
-        pickle.dump(trajectory, file)
+    for method in methods:
+        # generate and save trajectory
+        trajectory = generate_trajectory(actions, previous_states[0], steps, method)
+        output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{method}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+        with open(output_path, "wb") as file:
+            pickle.dump(trajectory, file)
+        print(f"Trajectory saved to {output_path}")
