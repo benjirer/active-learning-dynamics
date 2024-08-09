@@ -34,7 +34,11 @@ def generate_trajectory(
 
     # simulate trajectory
     for step, action in enumerate(actions, start=1):
-        next_state = simulator.step(trajectory[-1], action)
+        next_state = simulator.step(
+            trajectory[-1],
+            action,
+            [0.84279954, 0.8125736, 0.052791923, 0.455076, 0.053945437, 0.31142652],
+        )
         trajectory.append(next_state)
         print("Step:", step)
 
@@ -47,6 +51,13 @@ if __name__ == "__main__":
     session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
     previous_states, actions, next_states = load_data_set(file_path=session_path)
     steps = len(actions)
+
+    # # load parameters from pickle file
+    # with open(
+    #     "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/learned_parameters/parameters_1723130964.053997.pickle",
+    #     "rb",
+    # ) as file:
+    #     b = pickle.load(file)
 
     # generate and save trajectory
     trajectory = generate_trajectory(actions, previous_states[0], steps)

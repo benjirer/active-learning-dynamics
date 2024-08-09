@@ -2,13 +2,10 @@ import numpy as np
 
 
 class SpotSimulator:
-    def __init__(self, b: np.array = None):
-        """
-        Args:
-            b (np.array): The fitted transition parameters.
-        """
 
-    def step(self, current_state: np.ndarray, action: np.ndarray) -> np.ndarray:
+    def step(
+        self, current_state: np.ndarray, action: np.ndarray, b: np.array
+    ) -> np.ndarray:
         """
         Predict the next state given the current state and action.
 
@@ -53,8 +50,6 @@ class SpotSimulator:
 
         next_state = np.zeros_like(current_state)
 
-        self.b = np.zeros_like(action)
-
         """
         Base
         """
@@ -66,15 +61,13 @@ class SpotSimulator:
 
         # add weighted velocities
         base_vx_action_world = (
-            self.b[0] * current_state[3] + (1 - self.b[0]) * base_vx_action_world
+            b[0] * current_state[3] + (1 - b[0]) * base_vx_action_world
         )
         base_vy_action_world = (
-            self.b[1] * current_state[4] + (1 - self.b[1]) * base_vy_action_world
+            b[1] * current_state[4] + (1 - b[1]) * base_vy_action_world
         )
 
-        vtheta_action_world = (
-            self.b[2] * current_state[5] + (1 - self.b[2]) * vtheta_action_world
-        )
+        vtheta_action_world = b[2] * current_state[5] + (1 - b[2]) * vtheta_action_world
 
         # base velocities
         next_state[3] = base_vx_action_world
@@ -97,15 +90,9 @@ class SpotSimulator:
         ee_vz_action_world = action[5]
 
         # add weighted velocities
-        ee_vx_action_world = (
-            self.b[3] * current_state[9] + (1 - self.b[3]) * ee_vx_action_world
-        )
-        ee_vy_action_world = (
-            self.b[4] * current_state[10] + (1 - self.b[4]) * ee_vy_action_world
-        )
-        ee_vz_action_world = (
-            self.b[5] * current_state[11] + (1 - self.b[5]) * ee_vz_action_world
-        )
+        ee_vx_action_world = b[3] * current_state[9] + (1 - b[3]) * ee_vx_action_world
+        ee_vy_action_world = b[4] * current_state[10] + (1 - b[4]) * ee_vy_action_world
+        ee_vz_action_world = b[5] * current_state[11] + (1 - b[5]) * ee_vz_action_world
 
         # base angular velocity induces linear velocity at end effector
         base_xy_world = np.array([current_state[0], current_state[1]])
