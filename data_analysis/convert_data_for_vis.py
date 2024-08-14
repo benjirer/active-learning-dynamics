@@ -7,15 +7,15 @@ import json
 from scipy.spatial.transform import Rotation as R
 
 
-def convert_quat(quat):
-    x, y, z, w = quat
-    return [y, z, x, w]
-
-
 def convert_data(file_path):
     """
     Converts data from pickel file to json file for the visualization.
     """
+
+    # convert to y-up helper
+    def convert_quat(quat):
+        x, y, z, w = quat
+        return [y, z, x, w]
 
     # load data
     with open(file_path, "rb") as file:
@@ -107,11 +107,12 @@ def convert_data(file_path):
     return states
 
 
-file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+# file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
 states = convert_data(file_path)
 states_json = json.dumps(states, indent=4)
 with open(
-    "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/states.json",
+    "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/states_two.json",
     "w",
 ) as file:
     file.write(states_json)

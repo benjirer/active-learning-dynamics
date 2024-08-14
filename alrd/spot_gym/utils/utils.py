@@ -9,8 +9,8 @@ from typing import Tuple
 # Room limits (make sure this matches the room and the config file)
 MIN_X = -2.0  # Minimum x position of the room (m)
 MAX_X = 4.0  # Maximum x position of the room (m)
-MIN_Y = -2  # Minimum y position of the room (m)
-MAX_Y = 2  # Maximum y position of the room (m)
+MIN_Y = -2.0  # Minimum y position of the room (m)
+MAX_Y = 2.0  # Maximum y position of the room (m)
 
 # body constants
 DIST_TO_FRONT = 0.55  # Distance from body frame origin to front of the robot (m)

@@ -8,7 +8,7 @@ from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, 
 from alrd.spot_gym.model.robot_state import SpotState
 
 from alrd.spot_simulator.spot_simulator import SpotSimulator
-from alrd.spot_simulator.utils import load_data, load_data_set
+from data_analysis.utils import load_data, load_data_set
 
 
 def generate_trajectory(
@@ -37,7 +37,9 @@ def generate_trajectory(
         next_state = simulator.step(
             trajectory[-1],
             action,
-            [0.84279954, 0.8125736, 0.052791923, 0.455076, 0.053945437, 0.31142652],
+            # [0.84279954, 0.8125736, 0.052791923, 0.455076, 0.053945437, 0.31142652],
+            # [0.6817563492785863, 0.6778495899839831, 0.6224323484049439, 0.0, 0.0, 0.3785519045980369], # scipy
+            [0.84279954, 0.8125736, 0.052791923, 0.455076, 0.053945437, 0.31142652],  # tf
         )
         trajectory.append(next_state)
         print("Step:", step)
@@ -61,7 +63,7 @@ if __name__ == "__main__":
 
     # generate and save trajectory
     trajectory = generate_trajectory(actions, previous_states[0], steps)
-    output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+    output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_tf_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
     with open(output_path, "wb") as file:
         pickle.dump(trajectory, file)
     print(f"Trajectory saved to {output_path}")
