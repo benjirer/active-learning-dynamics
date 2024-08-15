@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from alrd.spot_simulator.utils import load_data_set
+from alrd.utils.data_utils import load_data_set
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_simulator.spot_simulator import SpotSimulator
 

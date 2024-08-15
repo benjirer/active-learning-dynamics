@@ -184,54 +184,8 @@ def load_data_set(
         end_idx=end_idx,
     )
 
+    assert (
+        previous_states.shape[0] == actions.shape[0] == next_states.shape[0]
+    ), "Lengths of previous_states, actions, and next_states must be equal."
+
     return previous_states, actions, next_states
-
-def export_data_set(
-    file_path: str,
-    output_path: str = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/exported_data/data_set",
-    as_euler: bool = True,
-    with_wrist: bool = False,
-    with_joints: bool = False,
-    skip_first: bool = True,
-    start_idx: int = 0,
-    end_idx: int = None,
-):
-    """
-    Export a data set to pickle file.
-
-    Args:
-        file_path (str): The path to the pickle file.
-        as_euler (bool): Whether to return the orientation as Euler angles.
-        with_wrist (bool): Whether to include wrist positions and velocity in the state space.
-        with_joints (bool): Whether to include joint positions in the state space.
-        skip_first (bool): Whether to skip the first state.
-        start_idx (int): The index of the first state to include.
-        end_idx (int): The index of the last state to include.
-    """
-    data_set = load_data_set(
-        file_path,
-        as_euler=as_euler,
-        with_wrist=with_wrist,
-        with_joints=with_joints,
-        skip_first=skip_first,
-        start_idx=start_idx,
-        end_idx=end_idx,
-    )
-
-    output_path = f"{output_path}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
-    with open(output_path, "wb") as file:
-        pickle.dump(data_set, file)
-
-    print(f"Data set exported to {output_path}")
-
-
-if __name__ == "__main__":
-    export_data_set(
-        file_path="/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle",
-        as_euler=True,
-        with_wrist=False,
-        with_joints=False,
-        skip_first=True,
-        start_idx=0,
-        end_idx=None,
-    )

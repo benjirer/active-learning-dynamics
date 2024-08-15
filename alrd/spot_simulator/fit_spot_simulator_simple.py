@@ -1,5 +1,5 @@
 import numpy as np
-from alrd.spot_simulator.utils import load_data_set
+from alrd.utils.data_utils import load_data_set
 from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
 from alrd.spot_gym.model.robot_state import SpotState
 from scipy.optimize import minimize

@@ -1,15 +1,20 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
-from alrd.spot_gym.model.robot_state import SpotState
+import re
 import json
 from scipy.spatial.transform import Rotation as R
 
+from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
+from alrd.spot_gym.model.robot_state import SpotState
 
-def convert_data(file_path):
+
+def convert_for_vis(file_path):
     """
-    Converts data from pickel file to json file for the visualization.
+    Converts collected data from pickle file to json format for the visualization.
+
+    Args:
+        file_path (str): The path to the pickle file.
     """
 
     # convert to y-up helper
@@ -28,7 +33,6 @@ def convert_data(file_path):
     states = []
     for state in states_data:
         next_state = state.next_state
-        # base_pose = convert_quat(next_state.pose_of_body_in_vision)
         base_pose = next_state.pose_of_body_in_vision
         quat_pre = base_pose[3:]
         quat = convert_quat(quat_pre)
@@ -107,12 +111,15 @@ def convert_data(file_path):
     return states
 
 
-# file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
-file_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
-states = convert_data(file_path)
-states_json = json.dumps(states, indent=4)
-with open(
-    "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/states_two.json",
-    "w",
-) as file:
-    file.write(states_json)
+# load and convert data
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
+states = convert_for_vis(session_path)
+
+# export converted data
+output_path = "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/"
+timestamp = re.search(r"test(\d{8}-\d{6})/", session_path).group(1)
+output_path = f"{output_path}dataset_vis_{timestamp}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+with open(output_path, "w") as file:
+    file.write(json.dumps(states, indent=4))
+print(f"Data set exported to {output_path}")
