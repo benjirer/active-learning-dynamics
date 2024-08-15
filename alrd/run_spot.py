@@ -342,7 +342,7 @@ def start_experiment():
         agent = SpotXboxSpacemouse(
             base_speed=1.0,
             base_angular=1.0,
-            ee_speed=0.5,
+            ee_speed=1.0,
             ee_control_mode="basic",
         )
         # agent = SpotXboxRandomJointPos(
