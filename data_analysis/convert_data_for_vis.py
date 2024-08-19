@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 import json
+import pandas as pd
 from scipy.spatial.transform import Rotation as R
 
 from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
@@ -113,13 +114,14 @@ def convert_for_vis(file_path):
 
 # load and convert data
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240807-154634/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240815-151559/session_buffer.pickle"
 states = convert_for_vis(session_path)
 
 # export converted data
 output_path = "/home/bhoffman/Documents/MT FS24/spot_visualizer/data/collected data/"
 timestamp = re.search(r"test(\d{8}-\d{6})/", session_path).group(1)
-output_path = f"{output_path}dataset_vis_{timestamp}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+output_path = f"{output_path}dataset_vis_{timestamp}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.json"
 with open(output_path, "w") as file:
     file.write(json.dumps(states, indent=4))
 print(f"Data set exported to {output_path}")

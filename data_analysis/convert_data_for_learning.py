@@ -54,7 +54,9 @@ def convert_for_learning(
 
 
 # load and convert data
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240815-151559/session_buffer.pickle"
+
 format = "jax"
 data_set_converted = convert_for_learning(
     file_path=session_path,
@@ -62,8 +64,8 @@ data_set_converted = convert_for_learning(
     with_wrist=False,
     with_joints=False,
     skip_first=True,
-    start_idx=400,
-    end_idx=900,
+    start_idx=100,
+    end_idx=353,
     format=format,
 )
 

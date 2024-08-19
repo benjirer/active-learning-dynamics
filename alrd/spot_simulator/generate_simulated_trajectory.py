@@ -48,7 +48,7 @@ def generate_trajectory(
 
 
 # load data
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240815-151559/session_buffer.pickle"
 previous_states, actions, next_states = load_data_set(file_path=session_path)
 steps = len(actions)
 
@@ -62,19 +62,19 @@ steps = len(actions)
 #     0.0,
 #     0.3785519045980369,
 # ]  # scipy
-params = [
-    0.84279954,
-    0.8125736,
-    0.052791923,
-    0.455076,
-    0.053945437,
-    0.31142652,
-]  # tf
+# params = [
+#     0.84279954,
+#     0.8125736,
+#     0.052791923,
+#     0.455076,
+#     0.053945437,
+#     0.31142652,
+# ]  # tf
 
 # generate and save trajectory
 trajectory = generate_trajectory(actions, previous_states[0], steps)
 timestamp = re.search(r"test(\d{8}-\d{6})/", session_path).group(1)
-output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_tf_{timestamp}.pickle"
+output_path = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/spot_simulator/generated_trajectories/trajectory_{timestamp}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
 with open(output_path, "wb") as file:
     pickle.dump(trajectory, file)
 print(f"Trajectory saved to {output_path}")
