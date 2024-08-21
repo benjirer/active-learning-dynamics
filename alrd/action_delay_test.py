@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
 
 
-# data collection classes
+# data collection classes-
 # class to store individual transitions
 class TransitionData:
     def __init__(
@@ -198,6 +198,10 @@ def run(
         # get action from agent
         agent_time = time.time()
         action = agent.act(obs, recent_state)
+        if step == 1:
+            action = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        else:
+            action = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         delta_t_agent = agent_time - time.time()
         # logger.info("Action %s" % action)
 
@@ -295,8 +299,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "all_easy"
-        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
+        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_action_delay"
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
