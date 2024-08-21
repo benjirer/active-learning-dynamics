@@ -198,10 +198,11 @@ def run(
         # get action from agent
         agent_time = time.time()
         action = agent.act(obs, recent_state)
-        if step == 1:
-            action = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        if step < 5 and step > 0:
+            action = np.array([0.0, 0.0, 0.0, 1.0, 0.0, 0.0])
         else:
-            action = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+            if action is not None:
+                action = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         delta_t_agent = agent_time - time.time()
         # logger.info("Action %s" % action)
 
@@ -299,7 +300,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_action_delay"
+        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_action_delay_ee"
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
