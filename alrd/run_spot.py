@@ -295,7 +295,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "all_easy"
+        tag = "v1_2"
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
@@ -343,7 +343,7 @@ def start_experiment():
         agent = SpotXboxSpacemouse(
             base_speed=1.0,
             base_angular=1.0,
-            ee_speed=0.8,
+            ee_speed=1.0,
             ee_control_mode="basic",
         )
         # agent = SpotXboxRandomJointPos(
