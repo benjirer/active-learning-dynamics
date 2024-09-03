@@ -295,7 +295,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "v1_2"
+        tag = "v3_3"
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
