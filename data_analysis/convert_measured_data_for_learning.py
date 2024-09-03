@@ -55,9 +55,12 @@ def convert_for_learning(
 
 # load and convert data
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240806-135621/session_buffer.pickle"
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240815-151559/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240815-151559/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240819-141455all/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240819-142443all_easy/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-111841_v1_1/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-112105_v1_2/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-112255_v1_3/session_buffer.pickle"
 
 format = "jax"
 data_set_converted = convert_for_learning(
@@ -66,15 +69,13 @@ data_set_converted = convert_for_learning(
     with_wrist=False,
     with_joints=False,
     skip_first=True,
-    start_idx=100,
-    end_idx=353,
     format=format,
 )
 
 # export converted data
 output_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/data_analysis/learning_data/"
-timestamp = re.search(r"test(\d{8}-\d{6})", session_path).group(1)
-output_path = f"{output_path}dataset_learn_{format}_{timestamp}_{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.pickle"
+test_id = re.search(r"test\d{8}-\d{6}_v\d{1}_\d{1}", session_path).group(0)
+output_path = f"{output_path}dataset_learn_{format}_{test_id}.pickle"
 with open(output_path, "wb") as file:
     pickle.dump(data_set_converted, file)
 print(f"Data set exported to {output_path}")
