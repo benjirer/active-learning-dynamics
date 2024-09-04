@@ -59,8 +59,19 @@ def convert_for_learning(
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240819-141455all/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240819-142443all_easy/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-111841_v1_1/session_buffer.pickle"
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-112105_v1_2/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-112105_v1_2/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240830-112255_v1_3/session_buffer.pickle"
+
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240903-131900_v2_0/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240903-132044_v2_1/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240903-132303_v2_2/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240903-132514_v2_3/session_buffer.pickle"
+
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-153813_v3_1/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154043_v3_2/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154353_v3_3/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154852_v3_4/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-155015_v3_5/session_buffer.pickle"
 
 format = "jax"
 data_set_converted = convert_for_learning(
