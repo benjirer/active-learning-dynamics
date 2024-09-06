@@ -70,8 +70,7 @@ def convert_for_learning(
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-153813_v3_1/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154043_v3_2/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154353_v3_3/session_buffer.pickle"
-# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-154852_v3_4/session_buffer.pickle"
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-155015_v3_5/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240904-155015_v3_4/session_buffer.pickle"
 
 format = "jax"
 data_set_converted = convert_for_learning(
