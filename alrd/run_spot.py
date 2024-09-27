@@ -283,7 +283,7 @@ def start_experiment():
     # import real world config
     config = yaml.load(
         open(
-            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/config/test.yaml",
+            "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/config/crl_spot.yaml",
             "r",
         ),
         Loader=yaml.Loader,

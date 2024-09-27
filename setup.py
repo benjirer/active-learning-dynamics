@@ -11,7 +11,7 @@ required = [
     "netifaces >= 0.10",
     "myqr >= 2.3",
     "scikit-learn >= 1.0.2",
-    "scipy >= 1.7.3",
+    "scipy",
     "gym>=0.26.0",
     "bosdyn-client>=3.3.0",
     "bosdyn-mission>=3.3.0",
@@ -20,7 +20,7 @@ required = [
     "casadi >= 3.5.5",
     "opax @ git+https://github.com/benjirer/opax.git",
     "jdm_control @ git+http://github.com/idrave/jdm_control.git",
-    "urdf2casadi @ git+https://github.com/mahaarbo/urdf2casadi.git",
+    "sim_transfer @ git+https://github.com/benjirer/simulation_transfer.git",
 ]
 
 extras = {}

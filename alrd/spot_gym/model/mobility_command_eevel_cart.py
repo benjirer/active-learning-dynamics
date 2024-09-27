@@ -13,8 +13,6 @@ from bosdyn.client.frame_helpers import (
 from bosdyn.client.math_helpers import SE3Velocity, Vec3
 from bosdyn.geometry import EulerZXY
 from bosdyn.api import arm_command_pb2, robot_command_pb2
-from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
-from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
 
 # logging
@@ -43,7 +41,7 @@ class MobilityCommand(Command):
     locomotion_hint: LocomotionHint
     stair_hint: bool
 
-    # hand commands
+    # hand commands d
     hand_vx: float
     hand_vy: float
     hand_vz: float
@@ -53,10 +51,6 @@ class MobilityCommand(Command):
 
     # command type
     cmd_type = CommandEnum.MOBILITY
-
-    # forward and inverse kinematics
-    spot_arm_fk: SpotArmFK = SpotArmFK()
-    spot_arm_ik: SpotArmIK = SpotArmIK()
 
     # safety check infringed
     safety_check_infringed: bool = False

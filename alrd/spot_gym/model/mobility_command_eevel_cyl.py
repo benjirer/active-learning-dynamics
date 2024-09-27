@@ -22,8 +22,6 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MIN,
     WR1_POS_MAX,
 )
-from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
-from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
 
 # logging
@@ -59,10 +57,6 @@ class MobilityCommand(Command):
 
     # command type
     cmd_type = CommandEnum.MOBILITY
-
-    # forward and inverse kinematics
-    spot_arm_fk: SpotArmFK = SpotArmFK()
-    spot_arm_ik: SpotArmIK = SpotArmIK()
 
     # safety check infringed
     safety_check_infringed: bool = False

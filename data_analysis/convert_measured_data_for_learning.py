@@ -76,10 +76,10 @@ def convert_for_learning(
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240906-171626_vonly_base_linear/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240906-171829_vonly_rotation/session_buffer.pickle"
 
-# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142029_v4_1/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142029_v4_1/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142230_v4_2/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142535_v4_3/session_buffer.pickle"
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142945_v4_4/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142945_v4_4/session_buffer.pickle"
 
 format = "jax"
 data_set_converted = convert_for_learning(

@@ -22,8 +22,6 @@ from alrd.spot_gym.utils.utils import (
     WR1_POS_MIN,
     WR1_POS_MAX,
 )
-from alrd.spot_gym.utils.spot_arm_fk import SpotArmFK
-from alrd.spot_gym.utils.spot_arm_ik import SpotArmIK
 from dataclasses import asdict, dataclass
 
 # logging
@@ -62,10 +60,6 @@ class MobilityCommand(Command):
 
     # command type
     cmd_type = CommandEnum.MOBILITY
-
-    # forward and inverse kinematics
-    spot_arm_fk: SpotArmFK = SpotArmFK()
-    spot_arm_ik: SpotArmIK = SpotArmIK()
 
     # safety check infringed
     safety_check_infringed: bool = False
@@ -107,11 +101,9 @@ class MobilityCommand(Command):
 
             joint_positions_new = [copy(joint_positions_prev[i]) for i in range(6)]
 
-            # perform three safety checks:
+            # perform two safety checks:
             # 1. check if joint limits are exceeded
             # 2. check if end effector height is at least 0.1m
-            # 3. use forward kinematics to check if end effector height is still at least 0.1m
-            # note: self collision is handled by the robot
 
             # # 1. check joint limits
             # joint_positions_new[0] = max(
@@ -145,19 +137,6 @@ class MobilityCommand(Command):
             #     self.safety_check_infringed = True
             #     logger.info(
             #         "Safety check infringed due to height. Joint position command reset to previous position."
-            #     )
-
-            # # 3. use forward kinematics to check if end effector height is still at least 0.1m
-            # # TODO: test this
-            # hand_pose_fk = self.spot_arm_fk.get_ee_position(joint_positions_new)
-            # if hand_pose_fk[2] <= 0.1:
-            #     joint_positions_new = self.spot_arm_ik.compute_ik(
-            #         current_arm_joint_states=joint_positions_prev,
-            #         ee_target=[hand_pose_fk[0], hand_pose_fk[1], 0.11],
-            #     )
-            #     self.safety_check_infringed = True
-            #     logger.info(
-            #         "Safety check infringed due to height. Joint position command reset using inverse kinematics."
             #     )
 
             # make arm joint command

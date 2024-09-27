@@ -24,6 +24,19 @@ def normalize_data(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray
     return (data - mean) / std, mean, std
 
 
+def project_angle(theta: np.array) -> np.array:
+    """
+    Project angles to the range [-pi, pi].
+
+    Args:
+        theta (np.ndarray): The angle to project.
+
+    Returns:
+        The projected angles.
+    """
+    return (theta + np.pi) % (2 * np.pi) - np.pi
+
+
 def load_data(
     file_path: str,
     which_data: str,
@@ -100,6 +113,7 @@ def load_data(
             body_heading = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[
                 2
             ]
+            body_heading = project_angle(body_heading)
             ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
                 "xyz", degrees=False
             )

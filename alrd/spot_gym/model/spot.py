@@ -63,7 +63,7 @@ class SpotEnvironmentConfig(yaml.YAMLObject):
 
 
 ##### Fixed environment parameters #####
-MARGIN = 0.1  # Margin to the walls within which the robot is stopped (m)
+MARGIN = 0.5  # Margin to the walls within which the robot is stopped (m)
 CHECK_TIMEOUT = (
     MARGIN / BODY_MAX_VEL
 )  # Maximum time the boundary check will wait for state reading (s)
@@ -371,17 +371,9 @@ class SpotBaseModel(object):
                 #     #     f"Time to get SpotState: {time.time() - spot_state_time}"
                 #     # )
 
-                # non async version
-                read_state_time = time.time()
+                # non async version to speed up
                 state_result = self.robot_state_client.get_robot_state()
-                self.logger.info(
-                    f"Time to get RobotState: {time.time() - read_state_time}"
-                )
-                spot_state_time = time.time()
                 state = SpotState.from_robot_state(time.time(), state_result)
-                self.logger.info(
-                    f"Time to get SpotState: {time.time() - spot_state_time}"
-                )
             except:
                 if self.verbose == SpotVerbose.VERBOSE:
                     self.logger.warning(
