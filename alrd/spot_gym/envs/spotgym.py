@@ -10,7 +10,6 @@ from typing import Tuple
 import gym
 import numpy as np
 from alrd.spot_gym.model.command import Command
-from alrd.spot_gym.envs.record import Session, Episode
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.model.spot import (
     SpotBaseStateMachine,
@@ -25,62 +24,30 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         config: SpotEnvironmentConfig,
         cmd_freq: float,
         monitor_freq: float = 30,
-        log_dir: str | Path | None = None,
-        session: Session | None = None,
-        log_str: bool = False,
     ):
         """
         Args:
             cmd_freq: Environment's action frequency. Commands will take at approximately 1/cmd_freq seconds to execute.
             monitor_freq: Environment's desired state monitoring frequency for checking position boundaries.
-            log_dir: Directory where to save environment logs.cmd
-            session: Session object to record episode data.
-            log_str: If True, command and state info is logged as a string to a file.
-        If log_dir is not None and session is not None, session data will be dumped after each episode.
         """
-        assert (
-            session is None or log_dir is not None
-        ), "If session is not None, log_dir must be specified"
-        assert (
-            not log_str or log_dir is not None
-        ), "If log_str is True, log_dir must be specified"
         super().__init__(config, monitor_freq=monitor_freq)
         self.__cmd_freq = cmd_freq
         self.__should_reset = True
         self.__last_robot_state = None
-        self.__current_episode = None
         self.__default_reset = np.array(
             (config.start_x, config.start_y, config.start_angle)
         )
-        self.log_dir = Path(log_dir) if log_dir is not None else None
-        self.log_file = None
-        self.session = session
-        self.log_str = log_str
-        if log_dir is not None:
-            self.logger.addHandler(
-                logging.FileHandler(self.log_dir / "spot_gym_with_arm.log")
-            )
 
     @property
     def default_reset(self):
         return self.__default_reset
 
     def start(self):
-        if self.log_dir is not None and not self.log_dir.is_dir():
-            self.log_dir.mkdir(exist_ok=False, parents=True)
         super().start()
 
     def close(self):
         super().close()
         self._end_episode()
-
-    def print_to_file(self, command: Command, state: SpotState, currentTime):
-        if self.log_file is None:
-            filepath = self.log_dir / ("session-" + get_timestamp_str() + ".txt")
-            self.log_file = open(filepath, "w")
-        self.log_file.write("time {{\n \tvalue: {:.5f} \n}}\n".format(currentTime))
-        self.log_file.write(command.to_str() + "\n")
-        self.log_file.write(state.to_str() + "\n")
 
     def stop_robot(self) -> bool:
         """Stops the robot and ends the current episode"""
@@ -97,20 +64,6 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
     def _end_episode(self):
         self.__should_reset = True
         self.__last_robot_state = None
-        if self.log_dir is not None:
-            if self.log_str and self.log_file is not None:
-                self.log_file.close()
-                self.log_file = None
-            if (
-                self.session is not None
-                and self.__current_episode is not None
-                and len(self.__current_episode) > 0
-            ):
-                self.session.add_episode(self.__current_episode)
-                self.__current_episode = None
-                pickle.dump(
-                    self.session.asdict(), open(self.log_dir / "record.pkl", "wb")
-                )
 
     def _step(
         self, cmd: Command
@@ -184,10 +137,6 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         obs = self.get_obs_from_state(next_state)
         reward = self.get_reward(action, obs)
         done = self.is_done(obs)
-        if self.session is not None:
-            self.__current_episode.add(cmd, next_state, reward, done)
-        if self.log_str:
-            self.print_to_file(cmd, self.__last_robot_state, time.time())
         self.__last_robot_state = next_state
         if truncate:
             self._end_episode()
@@ -238,8 +187,6 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         read_time = time.time() - start
         self.__should_reset = False
         self.__last_robot_state = new_state
-        if self.session is not None:
-            self.__current_episode = Episode(new_state)
         return new_state, read_time
 
     def reset(

@@ -1,3 +1,7 @@
+# ignore src
+src/
+# ignore build files
+build/
 # ignore large output files and wandb files
 output/
 # collected_data/

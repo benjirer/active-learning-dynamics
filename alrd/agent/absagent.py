@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Optional
 
+
 class Agent(ABC):
     def __init__(self) -> None:
         pass
@@ -12,6 +13,7 @@ class Agent(ABC):
 
     def reset(self):
         pass
+
 
 class AgentReset(ABC):
     def __init__(self) -> None:

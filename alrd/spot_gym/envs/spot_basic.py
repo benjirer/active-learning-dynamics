@@ -16,7 +16,6 @@ from jdm_control.rewards import get_tolerance_fn
 
 from alrd.spot_gym.model.command import Command, CommandEnum
 from alrd.spot_gym.model.mobility_command_basic import MobilityCommandBasic
-from alrd.spot_gym.envs.record import Session
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.envs.spotgym import SpotGym
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig

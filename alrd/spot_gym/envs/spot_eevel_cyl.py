@@ -10,7 +10,6 @@ import jax.numpy as jnp
 import numpy as np
 from alrd.spot_gym.model.command import Command, CommandEnum
 from alrd.spot_gym.model.mobility_command_eevel_cyl import MobilityCommand
-from alrd.spot_gym.envs.record import Session
 from alrd.spot_gym.model.robot_state import SpotState
 from alrd.spot_gym.envs.spotgym import SpotGym
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
@@ -330,23 +329,15 @@ class SpotEEVelEnv(SpotGym):
         config: SpotEnvironmentConfig,
         cmd_freq: float,
         monitor_freq: float = 30,
-        log_dir: str | Path | None = None,
         action_cost=0.0,
         velocity_cost=0.0,
         skip_ui: bool = False,
-        log_str=True,
     ):
-        if log_dir is None:
-            session = None
-        else:
-            session = Session(only_kinematic=True, cmd_type=CommandEnum.MOBILITY)
+
         super().__init__(
             config,
             cmd_freq,
             monitor_freq,
-            log_dir=log_dir,
-            session=session,
-            log_str=log_str,
         )
 
         # command frequency

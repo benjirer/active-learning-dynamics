@@ -6,6 +6,7 @@ import pickle
 import os
 import numpy as np
 import cv2
+import wandb
 
 # agents
 from alrd.agent.absagent import Agent
@@ -13,6 +14,7 @@ from alrd.agent.keyboard import KeyboardAgent
 from alrd.agent.xbox_eevel import SpotXboxEEVel
 from alrd.agent.xbox_spacemouse import SpotXboxSpacemouse
 from alrd.agent.xbox_random_jointpos import SpotXboxRandomJointPos
+from alrd.agent.offline_trained import OfflineTrainedAgent
 
 # environments
 from alrd.spot_gym.envs.spot_eevel_cart_body import SpotEEVelEnv
@@ -124,6 +126,88 @@ class DataBuffer:
 class SessionBuffer:
     def __init__(self, data_buffers: list[DataBuffer] = []):
         self.data_buffers = data_buffers
+
+
+# get offline trained agent
+def get_offline_trained_agent(
+    state_dim: int,
+    action_dim: int,
+    goal_dim: int,
+) -> Agent:
+
+    # fetch learned policy
+    wandb_api = wandb.Api()
+    project_name = "spot_offline_policy_v2"
+    run_id = "f3y07u3z"
+    local_dir = "saved_data"
+
+    if not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+
+    run = wandb_api.run(f"{project_name}/{run_id}")
+    run.file("models/parameters.pkl").download(
+        replace=True, root=os.path.join(local_dir)
+    )
+
+    # get reward config
+    reward_keys = [
+        "encode_angle",
+        "ctrl_cost_weight",
+        "margin_factor",
+        "ctrl_diff_weight",
+    ]
+    reward_config = {}
+    for key in reward_keys:
+        reward_config[key] = run.config[key]
+
+    # get policy params
+    policy_params = pickle.load(
+        open(os.path.join(local_dir, "models/parameters.pkl"), "rb")
+    )
+
+    # get SAC_KWARGS
+    NUM_ENV_STEPS_BETWEEN_UPDATES = 16
+    NUM_ENVS = 64
+    sac_num_env_steps = 1_000_000
+    horizon_len = 50
+    SAC_KWARGS = dict(
+        num_timesteps=sac_num_env_steps,
+        num_evals=20,
+        reward_scaling=10,
+        episode_length=horizon_len,
+        episode_length_eval=2 * horizon_len,
+        action_repeat=1,
+        discounting=0.99,
+        lr_policy=3e-4,
+        lr_alpha=3e-4,
+        lr_q=3e-4,
+        num_envs=NUM_ENVS,
+        batch_size=64,
+        grad_updates_per_step=NUM_ENV_STEPS_BETWEEN_UPDATES * NUM_ENVS,
+        num_env_steps_between_updates=NUM_ENV_STEPS_BETWEEN_UPDATES,
+        tau=0.005,
+        wd_policy=0,
+        wd_q=0,
+        wd_alpha=0,
+        num_eval_envs=2 * NUM_ENVS,
+        max_replay_size=5 * 10**4,
+        min_replay_size=2**11,
+        policy_hidden_layer_sizes=(64, 64),
+        critic_hidden_layer_sizes=(64, 64),
+        normalize_observations=True,
+        deterministic_eval=True,
+        wandb_logging=True,
+    )
+
+    agent = OfflineTrainedAgent(
+        policy_params=policy_params,
+        reward_config=reward_config,
+        state_dim=state_dim,
+        action_dim=action_dim,
+        goal_dim=goal_dim,
+        SAC_KWARGS=SAC_KWARGS,
+    )
+    return agent
 
 
 # run episode
@@ -270,9 +354,9 @@ def start_experiment():
 
     # experiment settings
     num_episodes = 1
-    num_steps = 1000
+    num_steps = 10
     cmd_freq = 10
-    collect_data = True
+    collect_data = False
     random_seed = 0
 
     # random seeds for noise sampling
@@ -320,8 +404,8 @@ def start_experiment():
         if collect_data:
             data_buffer = DataBuffer()
 
+        """create env"""
         # note: make sure env and agent are compatible
-        # create env
         # env = SpotEEVelEnv(
         #     config,
         #     cmd_freq=cmd_freq,
@@ -337,15 +421,15 @@ def start_experiment():
             cmd_freq=cmd_freq,
         )
 
-        # create agent
+        """create agent"""
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
-        agent = SpotXboxSpacemouse(
-            base_speed=1.0,
-            base_angular=1.0,
-            ee_speed=1.0,
-            ee_control_mode="basic",
-        )
+        # agent = SpotXboxSpacemouse(
+        #     base_speed=1.0,
+        #     base_angular=1.0,
+        #     ee_speed=1.0,
+        #     ee_control_mode="basic",
+        # )
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
         #     base_angular=1.0,
@@ -354,6 +438,11 @@ def start_experiment():
         #     steps=num_steps,
         #     random_seed=sampling_seeds[episode],
         # )
+        agent = get_offline_trained_agent(
+            state_dim=13,
+            action_dim=6,
+            goal_dim=3,
+        )
 
         # start env
         env.start()

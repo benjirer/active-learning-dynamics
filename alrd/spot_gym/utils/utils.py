@@ -22,8 +22,8 @@ SPOT_WIDTH = 0.5  # Width of the robot from left to right side (m)
 ARM_FULL_LENGTH = 0.985  # Full length of the arm (m)
 
 # body velocity limits
-BODY_MAX_VEL = 1.6  # Maximum linear velocity of the robot (m/s)
-BODY_MAX_ANGULAR_VEL = 1.5  # Maximum angular velocity of the robot (rad/s)
+BODY_MAX_VEL = 1.0  # Maximum linear velocity of the robot (m/s)
+BODY_MAX_ANGULAR_VEL = 1.0  # Maximum angular velocity of the robot (rad/s)
 
 # arm limits
 ARM_MIN_HEIGHT = 0.0  # Minimum height of the arm (m) (relative to the world)

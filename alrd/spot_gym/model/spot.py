@@ -63,7 +63,7 @@ class SpotEnvironmentConfig(yaml.YAMLObject):
 
 
 ##### Fixed environment parameters #####
-MARGIN = 0.5  # Margin to the walls within which the robot is stopped (m)
+MARGIN = 1.0  # Margin to the walls within which the robot is stopped (m)
 CHECK_TIMEOUT = (
     MARGIN / BODY_MAX_VEL
 )  # Maximum time the boundary check will wait for state reading (s)
