@@ -7,8 +7,8 @@ from typing import Tuple
 
 # room and robot constants/limits
 # Room limits (make sure this matches the room and the config file)
-MIN_X = -2.0  # Minimum x position of the room (m)
-MAX_X = 3.8  # Maximum x position of the room (m)
+MIN_X = -2.5  # Minimum x position of the room (m)
+MAX_X = 2.5  # Maximum x position of the room (m)
 MIN_Y = -2.0  # Minimum y position of the room (m)
 MAX_Y = 2.0  # Maximum y position of the room (m)
 

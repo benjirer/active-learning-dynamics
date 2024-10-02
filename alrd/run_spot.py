@@ -136,7 +136,7 @@ def get_offline_trained_agent(
 ) -> Agent:
 
     # fetch learned policy
-    wandb_api = wandb.Api()
+    # wandb_api = wandb.Api()
     project_name = "spot_offline_policy_v2"
     run_id = "f3y07u3z"
     local_dir = "saved_data"
@@ -144,10 +144,10 @@ def get_offline_trained_agent(
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
 
-    run = wandb_api.run(f"{project_name}/{run_id}")
-    run.file("models/parameters.pkl").download(
-        replace=True, root=os.path.join(local_dir)
-    )
+    # run = wandb_api.run(f"{project_name}/{run_id}")
+    # run.file("models/parameters.pkl").download(
+    #     replace=True, root=os.path.join(local_dir)
+    # )
 
     # get reward config
     reward_keys = [
@@ -156,13 +156,23 @@ def get_offline_trained_agent(
         "margin_factor",
         "ctrl_diff_weight",
     ]
-    reward_config = {}
-    for key in reward_keys:
-        reward_config[key] = run.config[key]
+    # reward_config = {}
+    # for key in reward_keys:
+    #     reward_config[key] = run.config[key]
+
+    # save reward config
+    # with open(os.path.join(local_dir, "reward_config.yaml"), "w") as file:
+    #     yaml.dump(reward_config, file)
 
     # get policy params
     policy_params = pickle.load(
         open(os.path.join(local_dir, "models/parameters.pkl"), "rb")
+    )
+
+    # get reward config
+    reward_config = yaml.load(
+        open(os.path.join(local_dir, "reward_config.yaml"), "r"),
+        Loader=yaml.Loader,
     )
 
     # get SAC_KWARGS
@@ -196,7 +206,7 @@ def get_offline_trained_agent(
         critic_hidden_layer_sizes=(64, 64),
         normalize_observations=True,
         deterministic_eval=True,
-        wandb_logging=True,
+        wandb_logging=False,
     )
 
     agent = OfflineTrainedAgent(
@@ -281,7 +291,13 @@ def run(
 
         # get action from agent
         agent_time = time.time()
-        action = agent.act(obs, recent_state)
+        # action = agent.act(obs, recent_state)
+        action = agent.act(obs)
+        # clip action
+        action[:3] = [0.0, 0.0, 0.0]
+        print(action)
+        action = np.clip(action, -0.2, 0.2)
+        print(action)
         delta_t_agent = agent_time - time.time()
         # logger.info("Action %s" % action)
 
@@ -354,7 +370,7 @@ def start_experiment():
 
     # experiment settings
     num_episodes = 1
-    num_steps = 10
+    num_steps = 100
     cmd_freq = 10
     collect_data = False
     random_seed = 0
@@ -379,7 +395,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "v4_4"
+        tag = "v5_0"
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
@@ -443,6 +459,27 @@ def start_experiment():
             action_dim=6,
             goal_dim=3,
         )
+
+        # # test agent
+        # for _ in range(10):
+        #     obs = [
+        #         0.0,  # base x
+        #         0.0,  # base y
+        #         0.0,  # sin theta
+        #         0.0,  # cos theta
+        #         0.0,  # base x vel
+        #         0.0,  # base y vel
+        #         0.0,  # base angular vel
+        #         2.0,  # ee x
+        #         0.0,  # ee y
+        #         0.7,  # ee z
+        #         0.0,  # ee x vel
+        #         0.0,  # ee y vel
+        #         0.0,  # ee z vel
+        #     ]
+        #     action = agent.act(np.array(obs))
+        #     print(action)
+        # return None
 
         # start env
         env.start()
