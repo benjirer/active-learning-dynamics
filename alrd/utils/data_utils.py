@@ -8,22 +8,6 @@ from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, 
 from alrd.spot_gym.model.robot_state import SpotState
 
 
-def normalize_data(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Normalize data by standardizing it.
-
-    Args:
-        data (np.ndarray): The data to normalize.
-
-    Returns:
-        Tuple of normalized data, mean, and standard deviation.
-    """
-
-    mean = np.mean(data, axis=0)
-    std = np.std(data, axis=0)
-    return (data - mean) / std, mean, std
-
-
 def project_angle(theta: np.array) -> np.array:
     """
     Project angles to the range [-pi, pi].
