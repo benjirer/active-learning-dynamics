@@ -291,12 +291,12 @@ def run(
 
         # get action from agent
         agent_time = time.time()
-        # action = agent.act(obs, recent_state)
-        action = agent.act(obs)
+        action = agent.act(obs, recent_state)
+        # action = agent.act(obs)
         # clip action
-        action[:3] = [0.0, 0.0, 0.0]
-        print(action)
-        action = np.clip(action, -0.2, 0.2)
+        # action[:3] = [0.0, 0.0, 0.0]
+        # print(action)
+        # action = np.clip(action, -0.2, 0.2)
         print(action)
         delta_t_agent = agent_time - time.time()
         # logger.info("Action %s" % action)
@@ -372,7 +372,7 @@ def start_experiment():
     num_episodes = 1
     num_steps = 100
     cmd_freq = 10
-    collect_data = False
+    collect_data = True
     random_seed = 0
 
     # random seeds for noise sampling
@@ -395,7 +395,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "v5_0"
+        tag = "vArm_z_down"
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
@@ -440,12 +440,12 @@ def start_experiment():
         """create agent"""
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
-        # agent = SpotXboxSpacemouse(
-        #     base_speed=1.0,
-        #     base_angular=1.0,
-        #     ee_speed=1.0,
-        #     ee_control_mode="basic",
-        # )
+        agent = SpotXboxSpacemouse(
+            base_speed=1.0,
+            base_angular=1.0,
+            ee_speed=1.0,
+            ee_control_mode="basic",
+        )
         # agent = SpotXboxRandomJointPos(
         #     base_speed=1.0,
         #     base_angular=1.0,
@@ -454,11 +454,11 @@ def start_experiment():
         #     steps=num_steps,
         #     random_seed=sampling_seeds[episode],
         # )
-        agent = get_offline_trained_agent(
-            state_dim=13,
-            action_dim=6,
-            goal_dim=3,
-        )
+        # agent = get_offline_trained_agent(
+        #     state_dim=13,
+        #     action_dim=6,
+        #     goal_dim=3,
+        # )
 
         # # test agent
         # for _ in range(10):
