@@ -138,8 +138,8 @@ def get_offline_trained_agent(
     # fetch learned policy
     # wandb_api = wandb.Api()
     project_name = "spot_offline_policy_v2"
-    run_id = "f3y07u3z"
-    local_dir = "saved_data"
+    run_id = "i3i1pin4"
+    local_dir = "badass_testing"
 
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)

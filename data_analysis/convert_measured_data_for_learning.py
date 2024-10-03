@@ -76,10 +76,12 @@ def convert_for_learning(
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240906-171626_vonly_base_linear/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240906-171829_vonly_rotation/session_buffer.pickle"
 
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142029_v4_1/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142029_v4_1/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142230_v4_2/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142535_v4_3/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142945_v4_4/session_buffer.pickle"
+
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241003-113919_vArm_rot_cw/session_buffer.pickle"
 
 format = "jax"
 data_set_converted = convert_for_learning(
@@ -93,7 +95,8 @@ data_set_converted = convert_for_learning(
 
 # export converted data
 output_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/data_analysis/learning_data/"
-test_id = re.search(r"test\d{8}-\d{6}_v\d{1}_\d{1}", session_path).group(0)
+# test_id = re.search(r"test\d{8}-\d{6}_v\d{1}_\d{1}", session_path).group(0)
+test_id = "vArm_rot_cw"
 output_path = f"{output_path}dataset_learn_{format}_{test_id}.pickle"
 with open(output_path, "wb") as file:
     pickle.dump(data_set_converted, file)
