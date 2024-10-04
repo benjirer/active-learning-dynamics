@@ -134,11 +134,11 @@ def get_offline_trained_agent(
     action_dim: int,
     goal_dim: int,
 ) -> Agent:
-    offline_mode = True
+    offline_mode = False
 
     project_name = "jitter_testing"
-    run_id = "7tfc6ohx"
-    local_dir = project_name
+    run_id = "p71lprz0"
+    local_dir = project_name + "_" + run_id
 
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
@@ -465,6 +465,8 @@ def start_experiment():
             action_dim=6,
             goal_dim=3,
         )
+
+        return None
 
         # # test agent
         # for _ in range(10):
