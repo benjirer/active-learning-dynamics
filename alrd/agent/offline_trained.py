@@ -23,16 +23,27 @@ class OfflineTrainedAgent(AgentReset):
             spot_reward_kwargs=reward_config,
         )
         self.policy = self.rl_from_offline_data.prepare_policy(params=policy_params)
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        self.goal_dim = goal_dim
+        self.reached = False
 
     def act(self, obs: np.ndarray) -> np.ndarray:
         # add goal to obs
-        goal = np.array([1.0, -0.04, 0.5])
+        goal = np.array([1.2, -0.8, 0.9])
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
+
         # print(f"obs_goal_distance: {obs_goal_distance}")
         obs = np.concatenate((obs, goal), axis=-1)
         print(f"obs: {obs}")
+        action = self.policy(obs)
 
-        return np.array(self.policy(obs))
+        print(obs_goal_distance)
+
+        if obs_goal_distance < 0.1 or self.reached:
+            self.reached = True
+            action = np.zeros(self.action_dim)
+        return np.array(action)
 
     def description(self):
         return """Using offline learned policy"""
