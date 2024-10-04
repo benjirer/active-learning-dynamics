@@ -418,6 +418,7 @@ class SpotBasicEnv(SpotGym):
         # base state observations
         x, y, z, qx, qy, qz, qw = state.pose_of_body_in_vision
         theta = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
+        theta = (theta + np.pi) % (2 * np.pi) - np.pi
         vx, vy, vz, vrx, vry, vrz = state.velocity_of_body_in_vision
 
         # ee state observations
@@ -431,8 +432,8 @@ class SpotBasicEnv(SpotGym):
             [
                 x,
                 y,
-                np.cos(theta),
                 np.sin(theta),
+                np.cos(theta),
                 vx,
                 vy,
                 vrz,
