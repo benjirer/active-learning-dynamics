@@ -136,9 +136,9 @@ def get_offline_trained_agent(
 ) -> Agent:
     offline_mode = True
 
-    project_name = "badass_testing"
-    run_id = "i3i1pin4"
-    local_dir = "badass_testing"
+    project_name = "jitter_testing"
+    run_id = "7tfc6ohx"
+    local_dir = project_name
 
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
@@ -438,10 +438,10 @@ def start_experiment():
         #     cmd_freq=cmd_freq,
         #     log_str=False,
         # )
-        env = SpotBasicEnv(
-            config,
-            cmd_freq=cmd_freq,
-        )
+        # env = SpotBasicEnv(
+        #     config,
+        #     cmd_freq=cmd_freq,
+        # )
 
         """create agent"""
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
