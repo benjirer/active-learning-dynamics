@@ -240,6 +240,7 @@ def run(
     collect_data: bool = False,
     data_buffer: DataBuffer = None,
     session_dir: str | None = None,
+    action_scale: float = 1.0,
 ):
 
     started = False
@@ -317,10 +318,11 @@ def run(
         action = agent.act(obs)
         # clip action
         # action[:3] = [0.0, 0.0, 0.0]
-        print(action)
+        # print(action)
         # action = np.clip(action, -0.2, 0.2)
-        action = 0.4 * action
-        print(action)
+        action = action_scale * action
+        # print(action)
+        action = np.clip(action, -1.0, 1.0)
         delta_t_agent = agent_time - time.time()
         # logger.info("Action %s" % action)
 
@@ -407,6 +409,7 @@ def start_experiment(
     cmd_freq: int = 20,
     collect_data: bool = False,
     data_tag: str = "v5_0",
+    action_scale: float = 1.0,
     # policy settings
     goal: np.array = np.array([0.0, 0.0, 0.7]),
     project_name: str = "jitter_testing",
@@ -540,6 +543,7 @@ def start_experiment(
                 collect_data=collect_data,
                 data_buffer=data_buffer,
                 session_dir=session_dir,
+                action_scale=action_scale,
             )
         except KeyboardInterrupt:
             logger.info("Exiting due to keyboard interrupt")
@@ -578,14 +582,16 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
-    num_steps = 100
+    num_steps = 50
     cmd_freq = 10
-    collect_data = False
+    collect_data = True
     data_tag = "v5_0"
     project_name = "jitter_testing"
-    goal = np.array([0.0, 0.0, 0.7])
+    # goal = np.array([1.1, -0.2, 0.9])
+    goal = np.array([1.2, -0.2, 0.8])
+    action_scale = 0.4
 
     # old runs
     # run_id = "colcmp86"  # sim-model
@@ -593,9 +599,9 @@ if __name__ == "__main__":
     # run_id = "9e0x8qf1"  # bnn-fsvgd
 
     # new runs
-    # run_id = "xdbmvtfz"  # sim-model
+    run_id = "xdbmvtfz"  # sim-model
     # run_id = "sewujnou"  # bnn-sim-fsvgd
-    run_id = "bp2w7jml"  # bnn-fsvgd
+    # run_id = "bp2w7jml"  # bnn-fsvgd
 
     start_experiment(
         download_mode=download_mode,
@@ -603,8 +609,9 @@ if __name__ == "__main__":
         num_steps=num_steps,
         cmd_freq=cmd_freq,
         collect_data=collect_data,
-        data_tag=data_tag,
+        data_tag=f"{data_tag}_{run_id}_{action_scale}",
         goal=goal,
         project_name=project_name,
         run_id=run_id,
+        action_scale=action_scale,
     )

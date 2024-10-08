@@ -28,6 +28,7 @@ class OfflineTrainedAgent(AgentReset):
         self.action_dim = action_dim
         self.goal_dim = goal_dim
         self.goal = goal
+        self.reached_counter = 0
         self.reached = False
 
     def act(self, obs: np.ndarray) -> np.ndarray:
@@ -37,14 +38,22 @@ class OfflineTrainedAgent(AgentReset):
 
         # print(f"obs_goal_distance: {obs_goal_distance}")
         obs = np.concatenate((obs, goal), axis=-1)
-        print(f"obs: {obs}")
+        # print(f"obs: {obs}")
         action = self.policy(obs)
 
-        print(obs_goal_distance)
+        print(f"DISTANCE TO GOAL: {obs_goal_distance}")
 
         if obs_goal_distance < 0.1 or self.reached:
-            self.reached = True
-            action = np.zeros(self.action_dim)
+            if not self.reached:
+                print("GOAL TEMP REACHED")
+            self.reached_counter += 1
+            if self.reached_counter > 2:
+                self.reached = True
+            if self.reached:
+                action = np.zeros(self.action_dim)
+                print("GOAL FINALLY REACHED")
+        else:
+            self.reached_counter = 0
         return np.array(action)
 
     def description(self):
