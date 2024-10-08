@@ -101,7 +101,9 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_reward(self, action: np.ndarray, next_obs: np.ndarray) -> float:
+    def get_reward(
+        self, action: np.ndarray, next_obs: np.ndarray, last_obs: np.array = None
+    ) -> float:
         raise NotImplementedError
 
     @abstractmethod
@@ -134,8 +136,9 @@ class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
             next_state = self.__last_robot_state
         if oob:
             truncate = True
+        last_obs = self.get_obs_from_state(self.__last_robot_state)
         obs = self.get_obs_from_state(next_state)
-        reward = self.get_reward(action, obs)
+        reward = self.get_reward(action, obs, last_obs)
         done = self.is_done(obs)
         self.__last_robot_state = next_state
         if truncate:

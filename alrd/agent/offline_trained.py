@@ -12,6 +12,7 @@ class OfflineTrainedAgent(AgentReset):
         state_dim: int,
         action_dim: int,
         goal_dim: int,
+        goal: np.ndarray,
         SAC_KWARGS,
     ) -> None:
         self.rl_from_offline_data = RLFromOfflineData(
@@ -26,11 +27,12 @@ class OfflineTrainedAgent(AgentReset):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.goal_dim = goal_dim
+        self.goal = goal
         self.reached = False
 
     def act(self, obs: np.ndarray) -> np.ndarray:
         # add goal to obs
-        goal = np.array([1.2, -0.8, 0.9])
+        goal = self.goal
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
 
         # print(f"obs_goal_distance: {obs_goal_distance}")

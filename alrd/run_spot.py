@@ -33,6 +33,8 @@ from alrd.spot_gym.utils.utils import (
     ARM_MAX_LINEAR_VEL,
 )
 from alrd.spot_gym.model.command import Command
+from brax.training.types import Transition
+import jax.numpy as jnp
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -115,11 +117,13 @@ class DataBuffer:
         observations: list[np.ndarray] = [],
         transitions: list[TransitionData] = [],
         times: list[TimeData] = [],
+        brax_transitions: list[Transition] = [],
     ):
         self.states = states
         self.observations = observations
         self.transitions = transitions
         self.times = times
+        self.brax_transitions = brax_transitions
 
 
 # class to store all DataBuffers for a session
@@ -133,12 +137,13 @@ def get_offline_trained_agent(
     state_dim: int,
     action_dim: int,
     goal_dim: int,
+    goal: np.ndarray,
+    project_name: str = "jitter_testing",
+    run_id: str = "p71lprz0",
+    offline_mode=False,
 ) -> Agent:
-    offline_mode = False
 
-    project_name = "jitter_testing"
-    run_id = "p71lprz0"
-    local_dir = project_name + "_" + run_id
+    local_dir = "saved_models/" + project_name + "_" + run_id
 
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
@@ -221,6 +226,7 @@ def get_offline_trained_agent(
         action_dim=action_dim,
         goal_dim=goal_dim,
         SAC_KWARGS=SAC_KWARGS,
+        goal=goal,
     )
     return agent
 
@@ -288,6 +294,17 @@ def run(
                         0,
                     )
                 )
+                data_buffer.brax_transitions.append(
+                    Transition(
+                        observation=jnp.array(obs),
+                        action=jnp.zeros(6),
+                        reward=jnp.array(0),
+                        discount=jnp.array(0.99),
+                        next_observation=jnp.array(
+                            env.get_obs_from_state(info["next_state"])
+                        ),
+                    )
+                )
             if obs is None:
                 return
             agent.reset()
@@ -341,6 +358,15 @@ def run(
                         delta_t,
                     )
                 )
+                data_buffer.brax_transitions.append(
+                    Transition(
+                        observation=jnp.array(obs),
+                        action=jnp.array(action),
+                        reward=jnp.array(reward),
+                        discount=jnp.array(0.99),
+                        next_observation=jnp.array(next_obs),
+                    ),
+                )
                 delta_t_save = time.time() - save_time
                 data_buffer.times.append(
                     TimeData(
@@ -372,19 +398,20 @@ def run(
 
 
 # start experiment
-def start_experiment():
-
+def start_experiment(
+    # general
+    download_mode: bool = False,
     # experiment settings
-    num_episodes = 1
-    num_steps = 100
-    cmd_freq = 20
-    collect_data = False
-    random_seed = 0
-
-    # random seeds for noise sampling
-    sampling_seeds = np.random.default_rng(seed=random_seed).integers(
-        0, 2**32, size=num_episodes
-    )
+    num_episodes: int = 1,
+    num_steps: int = 100,
+    cmd_freq: int = 20,
+    collect_data: bool = False,
+    data_tag: str = "v5_0",
+    # policy settings
+    goal: np.array = np.array([0.0, 0.0, 0.7]),
+    project_name: str = "jitter_testing",
+    run_id: str = "p71lprz0",
+):
 
     # import real world config
     config = yaml.load(
@@ -401,8 +428,7 @@ def start_experiment():
 
     if collect_data:
         session_buffer = SessionBuffer()
-        tag = "v5_0"
-        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + tag
+        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + data_tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
@@ -411,6 +437,9 @@ def start_experiment():
             "num_episodes: {}".format(num_episodes),
             "num_steps: {}".format(num_steps),
             "cmd_freq: {}".format(cmd_freq),
+            "goal: {}".format(goal),
+            "project_name: {}".format(project_name),
+            "run_id: {}".format(run_id),
         ]
         os.makedirs(session_dir, exist_ok=True)
         settings_path = os.path.join(session_dir, "experiment_settings.pickle")
@@ -428,6 +457,14 @@ def start_experiment():
 
         """create env"""
         # note: make sure env and agent are compatible
+        if not download_mode:
+            env = SpotBasicEnv(
+                config,
+                cmd_freq=cmd_freq,
+                action_cost=0.005,
+                goal_pos=goal,
+            )
+
         # env = SpotEEVelEnv(
         #     config,
         #     cmd_freq=cmd_freq,
@@ -438,12 +475,18 @@ def start_experiment():
         #     cmd_freq=cmd_freq,
         #     log_str=False,
         # )
-        # env = SpotBasicEnv(
-        #     config,
-        #     cmd_freq=cmd_freq,
-        # )
 
         """create agent"""
+        agent = get_offline_trained_agent(
+            state_dim=13,
+            action_dim=6,
+            goal_dim=3,
+            goal=goal,
+            project_name=project_name,
+            run_id=run_id,
+            offline_mode=False if download_mode else True,
+        )
+
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
         # agent = SpotXboxSpacemouse(
@@ -460,34 +503,27 @@ def start_experiment():
         #     steps=num_steps,
         #     random_seed=sampling_seeds[episode],
         # )
-        agent = get_offline_trained_agent(
-            state_dim=13,
-            action_dim=6,
-            goal_dim=3,
-        )
 
-        return None
-
-        # # test agent
-        # for _ in range(10):
-        #     obs = [
-        #         0.0,  # base x
-        #         0.0,  # base y
-        #         0.0,  # sin theta
-        #         0.0,  # cos theta
-        #         0.0,  # base x vel
-        #         0.0,  # base y vel
-        #         0.0,  # base angular vel
-        #         2.0,  # ee x
-        #         0.0,  # ee y
-        #         0.7,  # ee z
-        #         0.0,  # ee x vel
-        #         0.0,  # ee y vel
-        #         0.0,  # ee z vel
-        #     ]
-        #     action = agent.act(np.array(obs))
-        #     print(action)
-        # return None
+        if download_mode:
+            for _ in range(10):
+                obs = [
+                    0.0,  # base x
+                    0.0,  # base y
+                    0.0,  # sin theta
+                    0.0,  # cos theta
+                    0.0,  # base x vel
+                    0.0,  # base y vel
+                    0.0,  # base angular vel
+                    2.0,  # ee x
+                    0.0,  # ee y
+                    0.7,  # ee z
+                    0.0,  # ee x vel
+                    0.0,  # ee y vel
+                    0.0,  # ee z vel
+                ]
+                action = agent.act(np.array(obs))
+                print(action)
+            return None
 
         # start env
         env.start()
@@ -540,4 +576,28 @@ def start_experiment():
 
 
 if __name__ == "__main__":
-    start_experiment()
+
+    # settings
+    download_mode = False  # use to download policy from wandb
+    num_episodes = 1
+    num_steps = 100
+    cmd_freq = 10
+    collect_data = False
+    data_tag = "v5_0"
+    project_name = "jitter_testing"
+    # run_id = "colcmp86"  # sim-model
+    # run_id = "788smzsl"  # bnn-sim-fsvgd
+    run_id = "9e0x8qf1"  # bnn-fsvgd
+    goal = np.array([0.0, 0.0, 0.7])
+
+    start_experiment(
+        download_mode=download_mode,
+        num_episodes=num_episodes,
+        num_steps=num_steps,
+        cmd_freq=cmd_freq,
+        collect_data=collect_data,
+        data_tag=data_tag,
+        goal=goal,
+        project_name=project_name,
+        run_id=run_id,
+    )

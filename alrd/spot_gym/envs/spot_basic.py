@@ -81,7 +81,7 @@ class DistReward(RewardModel):
         if bounds is None:
             bounds = (0.0, 0.0)
         bounds = np.array(bounds)
-        assert goal_pos.shape == (2,)
+        assert goal_pos.shape == (3,)
         tolerance_fn = get_tolerance_fn(
             bounds=bounds / margin,
             margin=1.0,
@@ -93,63 +93,8 @@ class DistReward(RewardModel):
     @jit
     def predict(self, obs, action, next_obs=None, rng=None):
         # dist = jnp.linalg.norm(obs[..., 0:2] - self.goal_pos, axis=-1)
-        dist = norm(obs[..., 0:2] - self.goal_pos, -1)
+        dist = norm(obs[..., 7:10] - self.goal_pos, -1)
         return self.tolerance_fn(dist / self.margin)
-
-
-# @struct.dataclass
-# class AngleReward(RewardModel):
-#     tolerance_fn: Callable = struct.field(pytree_node=False)
-#     goal_angle: float
-#     margin: float
-
-#     @staticmethod
-#     def create(
-#         goal_angle: float,
-#         margin: float,
-#         sigmoid: str = "long_tail",
-#         bounds=None,
-#         value_at_margin=_DEFAULT_VALUE_AT_MARGIN,
-#     ):
-#         if bounds is None:
-#             bounds = (0.0, 0.0)
-#         bounds = np.array(bounds)
-#         tolerance_fn = get_tolerance_fn(
-#             bounds=bounds / margin,
-#             margin=1.0,
-#             sigmoid=sigmoid,
-#             value_at_margin=value_at_margin,
-#         )
-#         return AngleReward(tolerance_fn, goal_angle, margin)
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         cos = obs[..., 2]
-#         sin = obs[..., 3]
-#         angle_diff = jnp.abs(jnp.arctan2(sin, cos) - self.goal_angle)
-#         angle_diff = jnp.where(
-#             angle_diff < 2.0 * jnp.pi - angle_diff,
-#             angle_diff,
-#             2.0 * jnp.pi - angle_diff,
-#         )
-#         return self.tolerance_fn(angle_diff / self.margin)
-
-
-# @struct.dataclass
-# class ActionCost(RewardModel):
-#     tolerance_fn: Callable = struct.field(pytree_node=False)
-
-#     @staticmethod
-#     def create(sigmoid: str = "long_tail"):
-#         tolerance_fn = get_tolerance_fn(
-#             margin=jnp.linalg.norm(jnp.ones([3])).item(), sigmoid=sigmoid
-#         )
-#         return ActionCost(tolerance_fn)
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         act_norm = norm(action[..., :3], axis=-1)
-#         return 1 - act_norm / jnp.linalg.norm(jnp.ones([3]))
 
 
 @struct.dataclass
@@ -166,145 +111,6 @@ class ActionCostSimple(RewardModel):
     def predict(self, obs, action, next_obs=None, rng=None):
         act_norm = norm(action[..., :3], axis=-1)
         return 1 - act_norm / jnp.linalg.norm(jnp.ones([3]))
-
-
-# @struct.dataclass
-# class LinearVelCost(RewardModel):
-#     tolerance_fn: Callable = struct.field(pytree_node=False)
-
-#     @staticmethod
-#     def create(sigmoid: str = "long_tail"):
-#         tolerance_fn = get_tolerance_fn(margin=1.0, sigmoid=sigmoid)
-#         return LinearVelCost(tolerance_fn)
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         # vel_norm = jnp.linalg.norm(obs[..., 4:6], axis=-1)
-#         vel_norm = norm(obs[..., 4:6], axis=-1)
-#         return self.tolerance_fn(vel_norm / BODY_MAX_VEL)
-
-
-# @struct.dataclass
-# class AngularVelCost(RewardModel):
-#     tolerance_fn: Callable = struct.field(pytree_node=False)
-
-#     @staticmethod
-#     def create(sigmoid: str = "long_tail"):
-#         tolerance_fn = get_tolerance_fn(margin=1.0, sigmoid=sigmoid)
-#         return AngularVelCost(tolerance_fn)
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         return self.tolerance_fn(obs[..., 6] / BODY_MAX_ANGULAR_VEL)
-
-
-# @struct.dataclass
-# class GoalLinearVelCost(RewardModel):
-#     vel_cost: LinearVelCost
-#     dist_rew: DistReward
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         return self.dist_rew.predict(
-#             obs, action, next_obs, rng
-#         ) * self.vel_cost.predict(obs, action, next_obs, rng)
-
-
-# @struct.dataclass
-# class GoalAngularVelCost(RewardModel):
-#     vel_cost: AngularVelCost
-#     angl_rew: AngleReward
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         return self.angl_rew.predict(
-#             obs, action, next_obs, rng
-#         ) * self.vel_cost.predict(obs, action, next_obs, rng)
-
-
-# @struct.dataclass
-# class Spot2DReward(RewardModel):
-#     dist_rew: DistReward
-#     angl_rew: AngleReward
-#     act_cost: ActionCost
-#     linvel_cost: LinearVelCost | GoalLinearVelCost
-#     angvel_cost: AngularVelCost | GoalAngularVelCost
-#     action_coeff: float = struct.field(default=0.0)
-#     velocity_coeff: float = struct.field(default=0.0)
-#     angle_coeff: float = struct.field(default=0.5)
-
-#     @staticmethod
-#     def create(
-#         goal_pos: np.ndarray | jnp.ndarray = None,
-#         angle_coeff: float = 0.5,
-#         action_coeff: float = 0.0,
-#         velocity_coeff: float = 0.0,
-#         dist_margin: float = 6.0,
-#         angle_margin: float = np.pi,
-#         sigmoid: str = "long_tail",
-#         vel_cost_on_goal: bool = False,
-#         vel_lin_margin: float = None,
-#         vel_ang_margin: float = None,
-#         dist_bound: float = 0.0,
-#         angle_bound: float = 0.0,
-#     ):
-#         if vel_cost_on_goal:
-#             if vel_lin_margin is None:
-#                 vel_lin_margin = 0.2
-#             if vel_ang_margin is None:
-#                 vel_ang_margin = jnp.pi / 18.0
-#         if goal_pos is None:
-#             goal_pos = jnp.zeros([3])
-#         dist_rew = DistReward.create(
-#             goal_pos[:2], dist_margin, sigmoid=sigmoid, bounds=(0.0, dist_bound)
-#         )
-#         angl_rew = AngleReward.create(
-#             goal_pos[2], angle_margin, sigmoid=sigmoid, bounds=(0.0, angle_bound)
-#         )
-#         act_cost = ActionCost.create(sigmoid=sigmoid)
-#         linvel_cost = LinearVelCost.create(sigmoid=sigmoid)
-#         angvel_cost = AngularVelCost.create(sigmoid=sigmoid)
-#         if vel_cost_on_goal:
-#             value_at_margin = 1e-2
-#             step_dist = DistReward.create(
-#                 goal_pos[:2],
-#                 vel_lin_margin,
-#                 sigmoid="gaussian",
-#                 value_at_margin=value_at_margin,
-#             )
-#             linvel_cost = GoalLinearVelCost(linvel_cost, step_dist)
-#             step_ang = AngleReward.create(
-#                 goal_pos[2],
-#                 vel_ang_margin,
-#                 sigmoid="gaussian",
-#                 value_at_margin=value_at_margin,
-#             )
-#             angvel_cost = GoalAngularVelCost(angvel_cost, step_ang)
-#         return Spot2DReward(
-#             dist_rew,
-#             angl_rew,
-#             act_cost,
-#             linvel_cost,
-#             angvel_cost,
-#             action_coeff,
-#             velocity_coeff,
-#             angle_coeff,
-#         )
-
-#     @jit
-#     def predict(self, obs, action, next_obs=None, rng=None):
-#         reward = (1 - self.angle_coeff) * self.dist_rew.predict(
-#             obs, action, next_obs, rng
-#         ) + (self.angle_coeff) * self.angl_rew.predict(obs, action, next_obs, rng)
-#         action_cost = self.act_cost.predict(obs, action, next_obs, rng)
-#         velocity_cost = (1 - self.angle_coeff) * self.linvel_cost.predict(
-#             obs, action, next_obs, rng
-#         ) + (self.angle_coeff) * self.angvel_cost.predict(obs, action, next_obs, rng)
-#         return (
-#             reward * (1.0 - self.action_coeff - self.velocity_coeff)
-#             + self.action_coeff * action_cost
-#             + self.velocity_coeff * velocity_cost
-#         )
 
 
 @struct.dataclass
@@ -326,7 +132,7 @@ class Spot2DReward(RewardModel):
             goal_pos = jnp.zeros([3])
 
         dist_rew = DistReward.create(
-            goal_pos[:2], dist_margin, sigmoid=sigmoid, bounds=(0.0, dist_bound)
+            goal_pos, dist_margin, sigmoid=sigmoid, bounds=(0.0, dist_bound)
         )
 
         act_cost = ActionCostSimple.create(sigmoid=sigmoid)
@@ -338,11 +144,25 @@ class Spot2DReward(RewardModel):
         )
 
     @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        reward = self.dist_rew.predict(obs, action, next_obs, rng)
+    def predict(self, obs, action, next_obs=None, rng=None, last_obs=None):
+        distance_reward = self.dist_rew.predict(obs, action, next_obs, rng)
         action_cost = self.act_cost.predict(obs, action, next_obs, rng)
+        if last_obs is not None:
+            last_action = jnp.concatenate(
+                [last_obs[..., 4:7], last_obs[..., 10:13]], axis=-1
+            )
+            action_difference_cost = -jnp.sum((action - last_action) ** 2, axis=-1)
+        else:
+            action_difference_cost = 0.0
 
-        return reward + self.action_coeff * action_cost
+        ee_body_reward = 0.1  # always given on real robot
+
+        return (
+            distance_reward
+            + self.action_coeff * action_cost
+            + 0.01 * action_difference_cost
+            + ee_body_reward
+        )
 
 
 class SpotBasicEnv(SpotGym):
@@ -382,6 +202,7 @@ class SpotBasicEnv(SpotGym):
         self,
         config: SpotEnvironmentConfig,
         cmd_freq: float,
+        goal_pos: np.ndarray,
         monitor_freq: float = 30,
         action_cost=0.0,
         skip_ui: bool = False,
@@ -458,7 +279,7 @@ class SpotBasicEnv(SpotGym):
         )
 
         # reward model
-        self.reward = Spot2DReward.create(action_coeff=action_cost)
+        self.reward = Spot2DReward.create(action_coeff=action_cost, goal_pos=goal_pos)
         self.__keyboard = KeyboardResetAgent(KeyboardAgent(0.5, 0.5))
         self.__skip_ui = skip_ui
 
@@ -528,8 +349,8 @@ class SpotBasicEnv(SpotGym):
             ]
         )
 
-    def get_reward(self, action, next_obs):
-        return self.reward.predict(next_obs, action)
+    def get_reward(self, action, next_obs, last_obs=None) -> float:
+        return self.reward.predict(obs=next_obs, action=action, last_obs=last_obs)
 
     def is_done(self, obs: np.ndarray) -> bool:
         return False
