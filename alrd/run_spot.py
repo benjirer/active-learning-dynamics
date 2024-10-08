@@ -578,17 +578,24 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 100
     cmd_freq = 10
     collect_data = False
     data_tag = "v5_0"
     project_name = "jitter_testing"
+    goal = np.array([0.0, 0.0, 0.7])
+
+    # old runs
     # run_id = "colcmp86"  # sim-model
     # run_id = "788smzsl"  # bnn-sim-fsvgd
-    run_id = "9e0x8qf1"  # bnn-fsvgd
-    goal = np.array([0.0, 0.0, 0.7])
+    # run_id = "9e0x8qf1"  # bnn-fsvgd
+
+    # new runs
+    # run_id = "xdbmvtfz"  # sim-model
+    # run_id = "sewujnou"  # bnn-sim-fsvgd
+    run_id = "bp2w7jml"  # bnn-fsvgd
 
     start_experiment(
         download_mode=download_mode,
