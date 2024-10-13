@@ -7,6 +7,7 @@ import os
 import numpy as np
 import cv2
 import wandb
+import csv
 
 # agents
 from alrd.agent.absagent import Agent
@@ -138,9 +139,9 @@ def get_offline_trained_agent(
     action_dim: int,
     goal_dim: int,
     goal: np.ndarray,
-    project_name: str = "jitter_testing",
-    run_id: str = "p71lprz0",
-    offline_mode=False,
+    project_name: str,
+    run_id: str,
+    offline_mode,
 ) -> Agent:
 
     local_dir = "saved_models/" + project_name + "_" + run_id
@@ -364,7 +365,11 @@ def run(
                     Transition(
                         observation=jnp.array(obs),
                         action=jnp.array(action),
-                        reward=jnp.array(reward),
+                        reward=agent.get_reward(
+                            obs=obs,
+                            action=action,
+                            next_obs=next_obs,
+                        ),
                         discount=jnp.array(0.99),
                         next_observation=jnp.array(next_obs),
                     ),
@@ -414,6 +419,10 @@ def start_experiment(
     goal: np.array = np.array([0.0, 0.0, 0.7]),
     project_name: str = "jitter_testing",
     run_id: str = "p71lprz0",
+    type: str = "sim-model",
+    data_size: int = 800,
+    seed_id: int = 1,
+    goal_id: int = 0,
 ):
 
     # import real world config
@@ -442,14 +451,19 @@ def start_experiment(
             "cmd_freq: {}".format(cmd_freq),
             "goal: {}".format(goal),
             "project_name: {}".format(project_name),
+            "action_scale: {}".format(action_scale),
             "run_id: {}".format(run_id),
+            "type : {}".format(type),
+            "data_size: {}".format(data_size),
+            "seed_id: {}".format(seed_id),
+            "goal_id: {}".format(goal_id),
         ]
         os.makedirs(session_dir, exist_ok=True)
-        settings_path = os.path.join(session_dir, "experiment_settings.pickle")
-        open(
-            settings_path,
-            "wb",
-        ).write(pickle.dumps(experiment_settings))
+        settings_path = os.path.join(session_dir, "experiment_settings.csv")
+        with open(settings_path, mode="w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            for setting in experiment_settings:
+                writer.writerow([setting])
 
     episode = 0
     while episode < num_episodes:
@@ -550,6 +564,19 @@ def start_experiment(
             env.stop_robot()
             env.close()
             if collect_data:
+                # export brax_transitions to its own file
+                # Collect all brax_transitions from session_buffer
+                all_brax_transitions = []
+                for data_buffer in session_buffer.data_buffers:
+                    all_brax_transitions.extend(data_buffer.brax_transitions)
+
+                # Save all_brax_transitions to a file
+                brax_transitions_path = os.path.join(
+                    session_dir, "brax_transitions.pickle"
+                )
+                with open(brax_transitions_path, "wb") as f:
+                    pickle.dump(all_brax_transitions, f)
+
                 session_buffer.data_buffers.append(data_buffer)
                 session_path = os.path.join(session_dir, "session_buffer.pickle")
                 open(
@@ -572,6 +599,18 @@ def start_experiment(
         episode += 1
 
     if collect_data:
+
+        # export brax_transitions to its own file
+        # Collect all brax_transitions from session_buffer
+        all_brax_transitions = []
+        for data_buffer in session_buffer.data_buffers:
+            all_brax_transitions.extend(data_buffer.brax_transitions)
+
+        # Save all_brax_transitions to a file
+        brax_transitions_path = os.path.join(session_dir, "brax_transitions.pickle")
+        with open(brax_transitions_path, "wb") as f:
+            pickle.dump(all_brax_transitions, f)
+
         session_path = os.path.join(session_dir, "session_buffer.pickle")
         open(
             session_path,
@@ -588,10 +627,11 @@ if __name__ == "__main__":
     cmd_freq = 10
     collect_data = True
     data_tag = "v5_0"
-    project_name = "jitter_testing"
-    # goal = np.array([1.1, -0.2, 0.9])
-    goal = np.array([1.2, -0.2, 0.8])
-    action_scale = 0.4
+    project_name = "policy_testing_full_v2"
+
+    goal_1 = np.array([1.2, -0.2, 0.8])
+    goal_2 = np.array([0.8, 0.2, 0.8])
+    goal_3 = np.array([0.8, -0.2, 0.8])
 
     # old runs
     # run_id = "colcmp86"  # sim-model
@@ -599,19 +639,103 @@ if __name__ == "__main__":
     # run_id = "9e0x8qf1"  # bnn-fsvgd
 
     # new runs
-    run_id = "xdbmvtfz"  # sim-model
+    # run_id = "xdbmvtfz"  # sim-model
     # run_id = "sewujnou"  # bnn-sim-fsvgd
     # run_id = "bp2w7jml"  # bnn-fsvgd
+
+    # full test runs: 81 experiments
+    # SIM-MODEL:
+    # run_id, data_size, seed_id
+    sim_model_run_configs = {
+        "lnc8z8pp": (800, 1),
+        "qrgm252s": (2500, 1),
+        "rg9vq53y": (5400, 1),
+        "e8bdn23s": (800, 2),
+        "1yurd56p": (2500, 2),
+        "zd0o0jx8": (5400, 2),
+        "ybtc7l88": (800, 3),
+        "kt9vhd17": (2500, 3),
+        "8sg8lbqq": (5400, 3),
+    }
+
+    exp_config_1 = {
+        "run_id": list(sim_model_run_configs.keys()),
+        "type": "sim-model",
+        "goal": [goal_1, goal_2, goal_3],
+        "action_scale": 0.4,
+    }
+
+    # BNN-SIM-FSVGD
+
+    bnn_sim_fsvgd_run_configs = {
+        "pjf0qaum": (800, 1),
+        "flxhy0yy": (2500, 1),
+        "rkrv365l": (5400, 1),
+        "tl210l8f": (800, 2),
+        "wj6jdjh5": (2500, 2),
+        "p5wgr7rm": (5400, 2),
+        "wudh8u7u": (800, 3),
+        "c4o3eb4k": (2500, 3),
+        "rfl97xto": (5400, 3),
+    }
+
+    exp_config_2 = {
+        "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
+        "type": "bnn-sim-fsvgd",
+        "goal": [goal_1, goal_2, goal_3],
+        "action_scale": 0.4,
+    }
+
+    # BNN-FSVGD
+
+    bnn_fsvgd_run_configs = {
+        "n2okbiym": (800, 1),
+        "0awx6i93": (2500, 1),
+        "jr0ybogk": (5400, 1),
+        "6mzchm1o": (800, 2),
+        "gdooo4u2": (2500, 2),
+        "99rq9ysq": (5400, 2),
+        "kagasm3e": (800, 3),
+        "fhe93mwq": (2500, 3),
+        "160s663n": (5400, 3),
+    }
+
+    exp_config_3 = {
+        "run_id": list(bnn_fsvgd_run_configs.keys()),
+        "type": "bnn-fsvgd",
+        "goal": [goal_1, goal_2, goal_3],
+        "action_scale": 0.4,
+    }
+
+    active_exp_config = exp_config_1
+    active_run_config = sim_model_run_configs
+
+    active_run_id = 8
+    active_goal_id = 0
+
+    run_id = active_exp_config["run_id"][active_run_id]
+    type = active_exp_config["type"]
+    goal = active_exp_config["goal"][active_goal_id]
+    action_scale = active_exp_config["action_scale"]
+    data_size = active_run_config[run_id][0]
+    seed_id = active_run_config[run_id][1]
+
+    # build tag
+    data_tag = f"{data_tag}_{run_id}_{type}_{data_size}_{seed_id}_{active_goal_id}"
 
     start_experiment(
         download_mode=download_mode,
         num_episodes=num_episodes,
         num_steps=num_steps,
         cmd_freq=cmd_freq,
-        collect_data=collect_data,
+        collect_data=False if download_mode else collect_data,
         data_tag=f"{data_tag}_{run_id}_{action_scale}",
         goal=goal,
         project_name=project_name,
-        run_id=run_id,
         action_scale=action_scale,
+        run_id=run_id,
+        type=type,
+        data_size=data_size,
+        seed_id=seed_id,
+        goal_id=active_goal_id,
     )
