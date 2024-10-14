@@ -20,7 +20,7 @@ required = [
     "casadi >= 3.5.5",
     "opax @ git+https://github.com/benjirer/opax.git",
     "jdm_control @ git+http://github.com/idrave/jdm_control.git",
-    "sim_transfer @ git+https://github.com/benjirer/simulation_transfer.git",
+    "sim_transfer @ git+https://github.com/benjirer/simulation_transfer.git@action_stack",
 ]
 
 extras = {}
