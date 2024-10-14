@@ -1,5 +1,5 @@
 from alrd.agent.absagent import Agent, AgentReset
-from sim_transfer.rl.spot_sim_rl_on_offline_data import RLFromOfflineData
+from sim_transfer.rl.spot_rl_on_offline_data import RLFromOfflineData
 from sim_transfer.sims.envs import SpotEnvReward
 import jax.numpy as jnp
 import numpy as np
@@ -24,7 +24,7 @@ class OfflineTrainedAgent(AgentReset):
             y_test=jnp.zeros((10, state_dim)),
             spot_reward_kwargs=reward_config,
         )
-        self.policy = self.rl_from_offline_data.prepare_policy(params=policy_params)
+        self.policy = self.rl_from_offline_data.prepare_policy_bnn(params=policy_params)
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.goal_dim = goal_dim
@@ -50,17 +50,19 @@ class OfflineTrainedAgent(AgentReset):
 
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
 
-        if obs_goal_distance < 0.1 or self.reached:
-            if not self.reached:
-                print("GOAL TEMP REACHED")
-            self.reached_counter += 1
-            if self.reached_counter > 2:
-                self.reached = True
-            if self.reached:
-                action = np.zeros(self.action_dim)
-                print("GOAL FINALLY REACHED")
-        else:
-            self.reached_counter = 0
+        force_stop = False
+        if force_stop:
+            if obs_goal_distance < 0.1 or self.reached:
+                if not self.reached:
+                    print("GOAL TEMP REACHED")
+                self.reached_counter += 1
+                if self.reached_counter > 2:
+                    self.reached = True
+                if self.reached:
+                    action = np.zeros(self.action_dim)
+                    print("GOAL FINALLY REACHED")
+            else:
+                self.reached_counter = 0
         return np.array(action)
 
     def get_reward(

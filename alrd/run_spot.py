@@ -365,12 +365,12 @@ def run(
                     Transition(
                         observation=jnp.array(obs),
                         action=jnp.array(action),
-                        # reward=agent.get_reward(
-                        #     obs=obs,
-                        #     action=action,
-                        #     next_obs=next_obs,
-                        # ),
-                        reward=jnp.array(reward),
+                        reward=agent.get_reward(
+                            obs=obs,
+                            action=action,
+                            next_obs=next_obs,
+                        ),
+                        # reward=jnp.array(reward),
                         discount=jnp.array(0.99),
                         next_observation=jnp.array(next_obs),
                     ),
@@ -622,17 +622,17 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    data_tag = "v5_0"
-    project_name = "policy_testing_full_v2"
+    project_name = "policy_testing_partial_v4"
+    data_tag = project_name
 
     goal_1 = np.array([1.2, -0.2, 0.8])
-    goal_2 = np.array([0.8, 0.2, 0.8])
-    goal_3 = np.array([0.8, -0.2, 0.8])
+    goal_2 = np.array([1.4, 0.2, 0.3])
+    goal_3 = np.array([1.5, 0.9, 0.6])
 
     # old runs
     # run_id = "colcmp86"  # sim-model
@@ -647,16 +647,25 @@ if __name__ == "__main__":
     # full test runs: 81 experiments
     # SIM-MODEL:
     # run_id, data_size, seed_id
+
+    # v2
+    # sim_model_run_configs = {
+    #     "lnc8z8pp": (800, 1),
+    #     "qrgm252s": (2500, 1),
+    #     "rg9vq53y": (5400, 1),
+    #     "e8bdn23s": (800, 2),
+    #     "1yurd56p": (2500, 2),
+    #     "zd0o0jx8": (5400, 2),
+    #     "ybtc7l88": (800, 3),
+    #     "kt9vhd17": (2500, 3),
+    #     "8sg8lbqq": (5400, 3),
+    # }
+
+    # v4
     sim_model_run_configs = {
-        "lnc8z8pp": (800, 1),
-        "qrgm252s": (2500, 1),
-        "rg9vq53y": (5400, 1),
-        "e8bdn23s": (800, 2),
-        "1yurd56p": (2500, 2),
-        "zd0o0jx8": (5400, 2),
-        "ybtc7l88": (800, 3),
-        "kt9vhd17": (2500, 3),
-        "8sg8lbqq": (5400, 3),
+        "hck2b2u0": (800, 3),
+        "chn3iu4r": (2000, 3),
+        "yjgeqtmy": (5000, 3),
     }
 
     exp_config_1 = {
@@ -668,16 +677,24 @@ if __name__ == "__main__":
 
     # BNN-SIM-FSVGD
 
+    # v2
+    # bnn_sim_fsvgd_run_configs = {
+    #     "pjf0qaum": (800, 1),
+    #     "flxhy0yy": (2500, 1),
+    #     "rkrv365l": (5400, 1),
+    #     "tl210l8f": (800, 2),
+    #     "wj6jdjh5": (2500, 2),
+    #     "p5wgr7rm": (5400, 2),
+    #     "wudh8u7u": (800, 3),
+    #     "c4o3eb4k": (2500, 3),
+    #     "rfl97xto": (5400, 3),
+    # }
+
+    # v4
     bnn_sim_fsvgd_run_configs = {
-        "pjf0qaum": (800, 1),
-        "flxhy0yy": (2500, 1),
-        "rkrv365l": (5400, 1),
-        "tl210l8f": (800, 2),
-        "wj6jdjh5": (2500, 2),
-        "p5wgr7rm": (5400, 2),
-        "wudh8u7u": (800, 3),
-        "c4o3eb4k": (2500, 3),
-        "rfl97xto": (5400, 3),
+        "sq0k6akn": (800, 3),
+        "k5kepn4q": (2000, 3),
+        "891g63gq": (5000, 3),
     }
 
     exp_config_2 = {
@@ -689,16 +706,24 @@ if __name__ == "__main__":
 
     # BNN-FSVGD
 
+    # v2
+    # bnn_fsvgd_run_configs = {
+    #     "n2okbiym": (800, 1),
+    #     "0awx6i93": (2500, 1),
+    #     "jr0ybogk": (5400, 1),
+    #     "6mzchm1o": (800, 2),
+    #     "gdooo4u2": (2500, 2),
+    #     "99rq9ysq": (5400, 2),
+    #     "kagasm3e": (800, 3),
+    #     "fhe93mwq": (2500, 3),
+    #     "160s663n": (5400, 3),
+    # }
+
+    # v4
     bnn_fsvgd_run_configs = {
-        "n2okbiym": (800, 1),
-        "0awx6i93": (2500, 1),
-        "jr0ybogk": (5400, 1),
-        "6mzchm1o": (800, 2),
-        "gdooo4u2": (2500, 2),
-        "99rq9ysq": (5400, 2),
-        "kagasm3e": (800, 3),
-        "fhe93mwq": (2500, 3),
-        "160s663n": (5400, 3),
+        "hjbw63y8": (800, 3),
+        "0dslu87b": (2000, 3),
+        "hq7f5yzu": (5000, 3),
     }
 
     exp_config_3 = {
@@ -708,12 +733,20 @@ if __name__ == "__main__":
         "action_scale": 0.8,
     }
 
-    active_exp_config = exp_config_1
-    active_run_config = sim_model_run_configs
+    exp_configs = [exp_config_1, exp_config_2, exp_config_3]
+    run_configs = [
+        sim_model_run_configs,
+        bnn_sim_fsvgd_run_configs,
+        bnn_fsvgd_run_configs,
+    ]
 
-    active_run_id = 2
+    # SET ACTIVE CONFIG
+    active_config_id = 0
+    active_run_id = 0
     active_goal_id = 0
 
+    active_exp_config = exp_configs[active_config_id]
+    active_run_config = run_configs[active_config_id]
     run_id = active_exp_config["run_id"][active_run_id]
     model_type = active_exp_config["model_type"]
     goal = active_exp_config["goal"][active_goal_id]
