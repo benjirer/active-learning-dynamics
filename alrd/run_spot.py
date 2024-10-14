@@ -365,11 +365,12 @@ def run(
                     Transition(
                         observation=jnp.array(obs),
                         action=jnp.array(action),
-                        reward=agent.get_reward(
-                            obs=obs,
-                            action=action,
-                            next_obs=next_obs,
-                        ),
+                        # reward=agent.get_reward(
+                        #     obs=obs,
+                        #     action=action,
+                        #     next_obs=next_obs,
+                        # ),
+                        reward=jnp.array(reward),
                         discount=jnp.array(0.99),
                         next_observation=jnp.array(next_obs),
                     ),
@@ -419,7 +420,7 @@ def start_experiment(
     goal: np.array = np.array([0.0, 0.0, 0.7]),
     project_name: str = "jitter_testing",
     run_id: str = "p71lprz0",
-    type: str = "sim-model",
+    model_type: str = "sim-model",
     data_size: int = 800,
     seed_id: int = 1,
     goal_id: int = 0,
@@ -453,7 +454,7 @@ def start_experiment(
             "project_name: {}".format(project_name),
             "action_scale: {}".format(action_scale),
             "run_id: {}".format(run_id),
-            "type : {}".format(type),
+            "model_type : {}".format(model_type),
             "data_size: {}".format(data_size),
             "seed_id: {}".format(seed_id),
             "goal_id: {}".format(goal_id),
@@ -660,9 +661,9 @@ if __name__ == "__main__":
 
     exp_config_1 = {
         "run_id": list(sim_model_run_configs.keys()),
-        "type": "sim-model",
+        "model_type": "sim-model",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.4,
+        "action_scale": 0.8,
     }
 
     # BNN-SIM-FSVGD
@@ -681,9 +682,9 @@ if __name__ == "__main__":
 
     exp_config_2 = {
         "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
-        "type": "bnn-sim-fsvgd",
+        "model_type": "bnn-sim-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.4,
+        "action_scale": 0.8,
     }
 
     # BNN-FSVGD
@@ -702,26 +703,26 @@ if __name__ == "__main__":
 
     exp_config_3 = {
         "run_id": list(bnn_fsvgd_run_configs.keys()),
-        "type": "bnn-fsvgd",
+        "model_type": "bnn-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.4,
+        "action_scale": 0.8,
     }
 
     active_exp_config = exp_config_1
     active_run_config = sim_model_run_configs
 
-    active_run_id = 8
+    active_run_id = 2
     active_goal_id = 0
 
     run_id = active_exp_config["run_id"][active_run_id]
-    type = active_exp_config["type"]
+    model_type = active_exp_config["model_type"]
     goal = active_exp_config["goal"][active_goal_id]
     action_scale = active_exp_config["action_scale"]
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
 
     # build tag
-    data_tag = f"{data_tag}_{run_id}_{type}_{data_size}_{seed_id}_{active_goal_id}"
+    data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"
 
     start_experiment(
         download_mode=download_mode,
@@ -729,12 +730,12 @@ if __name__ == "__main__":
         num_steps=num_steps,
         cmd_freq=cmd_freq,
         collect_data=False if download_mode else collect_data,
-        data_tag=f"{data_tag}_{run_id}_{action_scale}",
+        data_tag=data_tag,
         goal=goal,
         project_name=project_name,
         action_scale=action_scale,
         run_id=run_id,
-        type=type,
+        model_type=model_type,
         data_size=data_size,
         seed_id=seed_id,
         goal_id=active_goal_id,
