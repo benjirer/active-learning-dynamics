@@ -622,7 +622,7 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -631,8 +631,8 @@ if __name__ == "__main__":
     data_tag = project_name
 
     goal_1 = np.array([1.2, -0.2, 0.8])
-    goal_2 = np.array([1.4, 0.2, 0.3])
-    goal_3 = np.array([1.5, 0.9, 0.6])
+    goal_2 = np.array([1.4, 0.2, 0.4])
+    goal_3 = np.array([1.6, 0.0, 0.2])
 
     # old runs
     # run_id = "colcmp86"  # sim-model
@@ -672,7 +672,7 @@ if __name__ == "__main__":
         "run_id": list(sim_model_run_configs.keys()),
         "model_type": "sim-model",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.8,
+        "action_scale": 0.3,
     }
 
     # BNN-SIM-FSVGD
@@ -701,7 +701,7 @@ if __name__ == "__main__":
         "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
         "model_type": "bnn-sim-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.8,
+        "action_scale": 0.4,
     }
 
     # BNN-FSVGD
@@ -741,9 +741,9 @@ if __name__ == "__main__":
     ]
 
     # SET ACTIVE CONFIG
-    active_config_id = 0
-    active_run_id = 0
-    active_goal_id = 0
+    active_config_id = 1
+    active_run_id = 2
+    active_goal_id = 1
 
     active_exp_config = exp_configs[active_config_id]
     active_run_config = run_configs[active_config_id]

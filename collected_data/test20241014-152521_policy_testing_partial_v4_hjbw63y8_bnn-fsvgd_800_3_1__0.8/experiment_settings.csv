@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [1.4 0.2 0.4]
+project_name: policy_testing_partial_v4
+action_scale: 0.8
+run_id: hjbw63y8
+model_type : bnn-fsvgd
+data_size: 800
+seed_id: 3
+goal_id: 1
