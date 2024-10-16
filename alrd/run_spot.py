@@ -133,6 +133,22 @@ class SessionBuffer:
         self.data_buffers = data_buffers
 
 
+# save data function
+def save_data(session_buffer: SessionBuffer, session_dir: str):
+    # save brax transitions separately
+    all_brax_transitions = []
+    for data_buffer in session_buffer.data_buffers:
+        all_brax_transitions.extend(data_buffer.brax_transitions)
+    brax_transitions_path = os.path.join(session_dir, "brax_transitions.pickle")
+    with open(brax_transitions_path, "wb") as f:
+        pickle.dump(all_brax_transitions, f)
+
+    # save session buffer
+    session_path = os.path.join(session_dir, "session_buffer.pickle")
+    with open(session_path, "wb") as f:
+        pickle.dump(session_buffer, f)
+
+
 # get offline trained agent
 def get_offline_trained_agent(
     state_dim: int,
@@ -444,6 +460,7 @@ def start_experiment(
     session_dir = None
     session_buffer = None
 
+    # set up data collection and save experiment settings
     if collect_data:
         session_buffer = SessionBuffer()
         experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + data_tag
@@ -471,9 +488,11 @@ def start_experiment(
             for setting in experiment_settings:
                 writer.writerow([setting])
 
+    # run episodes
     episode = 0
     while episode < num_episodes:
 
+        # set up data collection for episode
         data_buffer = None
         if collect_data:
             data_buffer = DataBuffer()
@@ -527,6 +546,7 @@ def start_experiment(
         #     random_seed=sampling_seeds[episode],
         # )
 
+        # test downloaded policy
         if download_mode:
             for _ in range(10):
                 obs = [
@@ -553,7 +573,7 @@ def start_experiment(
         logger.info("env: %s. obs: %s" % (type(env), env.observation_space.shape))
         # env = RescaleAction(env, min_action=-1, max_action=1)
 
-        # run episode
+        # run current episode
         try:
             run(
                 agent,
@@ -571,25 +591,7 @@ def start_experiment(
             env.stop_robot()
             env.close()
             if collect_data:
-                # export brax_transitions to its own file
-                # Collect all brax_transitions from session_buffer
-                all_brax_transitions = []
-                for data_buffer in session_buffer.data_buffers:
-                    all_brax_transitions.extend(data_buffer.brax_transitions)
-
-                # Save all_brax_transitions to a file
-                brax_transitions_path = os.path.join(
-                    session_dir, "brax_transitions.pickle"
-                )
-                with open(brax_transitions_path, "wb") as f:
-                    pickle.dump(all_brax_transitions, f)
-
-                session_buffer.data_buffers.append(data_buffer)
-                session_path = os.path.join(session_dir, "session_buffer.pickle")
-                open(
-                    session_path,
-                    "wb",
-                ).write(pickle.dumps(session_buffer))
+                save_data(session_buffer, session_dir)
         except Exception as e:
             logger.error("Exiting due to exception: %s" % e)
             env.stop_robot()
@@ -606,55 +608,19 @@ def start_experiment(
         episode += 1
 
     if collect_data:
-
-        # export brax_transitions to its own file
-        # Collect all brax_transitions from session_buffer
-        all_brax_transitions = []
-        for data_buffer in session_buffer.data_buffers:
-            all_brax_transitions.extend(data_buffer.brax_transitions)
-
-        # Save all_brax_transitions to a file
-        brax_transitions_path = os.path.join(session_dir, "brax_transitions.pickle")
-        with open(brax_transitions_path, "wb") as f:
-            pickle.dump(all_brax_transitions, f)
-
-        session_path = os.path.join(session_dir, "session_buffer.pickle")
-        open(
-            session_path,
-            "wb",
-        ).write(pickle.dumps(session_buffer))
+        save_data(session_buffer, session_dir)
 
 
 if __name__ == "__main__":
 
-    # settings
-    download_mode = True  # use to download policy from wandb
-    num_episodes = 1
-    num_steps = 50
-    cmd_freq = 10
-    collect_data = True
-    project_name = "action_stack_testing_v2"
-    data_tag = project_name
-
+    """============== GOALs =============="""
     # goal_1 = np.array([1.2, -0.2, 0.8])
     goal_1 = np.array([1.9, -0.4, 0.4])
     goal_2 = np.array([1.4, 0.2, 0.4])
     goal_3 = np.array([1.6, 0.0, 0.2])
 
-    # old runs
-    # run_id = "colcmp86"  # sim-model
-    # run_id = "788smzsl"  # bnn-sim-fsvgd
-    # run_id = "9e0x8qf1"  # bnn-fsvgd
-
-    # new runs
-    # run_id = "xdbmvtfz"  # sim-model
-    # run_id = "sewujnou"  # bnn-sim-fsvgd
-    # run_id = "bp2w7jml"  # bnn-fsvgd
-
-    # full test runs: 81 experiments
-    # SIM-MODEL:
-    # run_id, data_size, seed_id
-
+    """============== EXPERIMENT CONFIGS =============="""
+    """===== SIM-MODEL ====="""
     # v2
     # sim_model_run_configs = {
     #     "lnc8z8pp": (800, 1),
@@ -668,19 +634,19 @@ if __name__ == "__main__":
     #     "8sg8lbqq": (5400, 3),
     # }
 
-    # v4
+    # v4_partial
     # sim_model_run_configs = {
     #     "hck2b2u0": (800, 3),
     #     "chn3iu4r": (2000, 3),
     #     "yjgeqtmy": (5000, 3),
     # }
 
-    # v action stack
+    # v_action_stack_1
     sim_model_run_configs = {
         "55zv3ri3": (800, 1),
         "31xn9mox": (2000, 1),
         "lcsku3pl": (5000, 1),
-        "zhke5a7p": (5000, 1),  # v2 action stack
+        "zhke5a7p": (5000, 1),  # v_action_stack_2
     }
 
     exp_config_1 = {
@@ -690,8 +656,7 @@ if __name__ == "__main__":
         "action_scale": 0.3,
     }
 
-    # BNN-SIM-FSVGD
-
+    """===== BNN-SIM-FSVGD ====="""
     # v2
     # bnn_sim_fsvgd_run_configs = {
     #     "pjf0qaum": (800, 1),
@@ -705,21 +670,21 @@ if __name__ == "__main__":
     #     "rfl97xto": (5400, 3),
     # }
 
-    # v4
+    # v4_partial
     # bnn_sim_fsvgd_run_configs = {
     #     "sq0k6akn": (800, 3),
     #     "k5kepn4q": (2000, 3),
     #     "891g63gq": (5000, 3),
     # }
 
-    # v action stack
+    # v_action_stack_1
     bnn_sim_fsvgd_run_configs = {
         "v64vrzpw": (800, 1),
         "bggled25": (2000, 1),
         "xcmnhhfq": (5000, 1),
-        # "zpdk97km": (5000, 1),
-        # "9g7whijl": (5000, 1),
-        "8n60b1jt": (5000, 1),
+        # "zpdk97km": (5000, 1), # v_action_stack_2
+        # "9g7whijl": (5000, 1), # v_action_stack_2
+        "8n60b1jt": (5000, 1),  # v_action_stack_2
     }
 
     exp_config_2 = {
@@ -729,7 +694,7 @@ if __name__ == "__main__":
         "action_scale": 1.1,
     }
 
-    # BNN-FSVGD
+    """===== BNN-FSVGD ====="""
 
     # v2
     # bnn_fsvgd_run_configs = {
@@ -744,14 +709,14 @@ if __name__ == "__main__":
     #     "160s663n": (5400, 3),
     # }
 
-    # v4
+    # v4_partial
     # bnn_fsvgd_run_configs = {
     #     "hjbw63y8": (800, 3),
     #     "0dslu87b": (2000, 3),
     #     "hq7f5yzu": (5000, 3),
     # }
 
-    # v action stack
+    # v_action_stack_1
     bnn_fsvgd_run_configs = {
         "hjbw63y8": (800, 1),
         "0dslu87b": (2000, 1),
@@ -765,19 +730,28 @@ if __name__ == "__main__":
         "action_scale": 0.8,
     }
 
+    """============== SETTINGS =============="""
+    download_mode = True  # use to download policy from wandb
+    num_episodes = 1
+    num_steps = 50
+    cmd_freq = 10
+    collect_data = True
+    project_name = "action_stack_testing_v2"
+    data_tag = project_name
+
+    """============== SET ACTIVE CONFIG =============="""
+    active_config_id = 0
+    active_run_id = 3
+    active_goal_id = 0
+    num_frame_stack = 2
+
+    """============== BUILD SETTINGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
     run_configs = [
         sim_model_run_configs,
         bnn_sim_fsvgd_run_configs,
         bnn_fsvgd_run_configs,
     ]
-
-    # SET ACTIVE CONFIG
-    active_config_id = 0
-    active_run_id = 3
-    active_goal_id = 0
-    num_frame_stack = 2
-
     active_exp_config = exp_configs[active_config_id]
     active_run_config = run_configs[active_config_id]
     run_id = active_exp_config["run_id"][active_run_id]
@@ -786,8 +760,6 @@ if __name__ == "__main__":
     action_scale = active_exp_config["action_scale"]
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
-
-    # build tag
     data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"
 
     start_experiment(
