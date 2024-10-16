@@ -613,7 +613,19 @@ def start_experiment(
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
     """============== GOALs =============="""
+=======
+    # settings
+    download_mode = False  # use to download policy from wandb
+    num_episodes = 1
+    num_steps = 50
+    cmd_freq = 10
+    collect_data = True
+    project_name = "action_stack_testing_v2"
+    data_tag = project_name
+
+>>>>>>> 1332711dd6ffcdc1bffcd7bdbfa256b5bdc1d0fd
     # goal_1 = np.array([1.2, -0.2, 0.8])
     goal_1 = np.array([1.9, -0.4, 0.4])
     goal_2 = np.array([1.4, 0.2, 0.4])
@@ -653,7 +665,7 @@ if __name__ == "__main__":
         "run_id": list(sim_model_run_configs.keys()),
         "model_type": "sim-model",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.3,
+        "action_scale": 1.0,
     }
 
     """===== BNN-SIM-FSVGD ====="""
