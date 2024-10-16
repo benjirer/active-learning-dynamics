@@ -628,12 +628,12 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "action_stack_testing"
+    project_name = "action_stack_testing_v2"
     data_tag = project_name
 
     # goal_1 = np.array([1.2, -0.2, 0.8])
@@ -680,6 +680,7 @@ if __name__ == "__main__":
         "55zv3ri3": (800, 1),
         "31xn9mox": (2000, 1),
         "lcsku3pl": (5000, 1),
+        "zhke5a7p": (5000, 1),  # v2 action stack
     }
 
     exp_config_1 = {
@@ -772,8 +773,8 @@ if __name__ == "__main__":
     ]
 
     # SET ACTIVE CONFIG
-    active_config_id = 1
-    active_run_id = 2
+    active_config_id = 0
+    active_run_id = 3
     active_goal_id = 0
     num_frame_stack = 2
 
