@@ -53,6 +53,7 @@ class OfflineTrainedAgent(AgentReset):
         action = self.policy(obs)
 
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
+        print(f"ACTION: {action}")
 
         force_stop = False
         if force_stop:

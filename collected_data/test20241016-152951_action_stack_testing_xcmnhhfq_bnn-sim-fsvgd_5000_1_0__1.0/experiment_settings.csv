@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [ 1.9 -0.4  0.8]
+project_name: action_stack_testing
+action_scale: 1.0
+run_id: xcmnhhfq
+model_type : bnn-sim-fsvgd
+data_size: 5000
+seed_id: 1
+goal_id: 0
