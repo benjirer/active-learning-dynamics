@@ -613,19 +613,7 @@ def start_experiment(
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
     """============== GOALs =============="""
-=======
-    # settings
-    download_mode = False  # use to download policy from wandb
-    num_episodes = 1
-    num_steps = 50
-    cmd_freq = 10
-    collect_data = True
-    project_name = "action_stack_testing_v2"
-    data_tag = project_name
-
->>>>>>> 1332711dd6ffcdc1bffcd7bdbfa256b5bdc1d0fd
     # goal_1 = np.array([1.2, -0.2, 0.8])
     goal_1 = np.array([1.9, -0.4, 0.4])
     goal_2 = np.array([1.4, 0.2, 0.4])
@@ -633,32 +621,32 @@ if __name__ == "__main__":
 
     """============== EXPERIMENT CONFIGS =============="""
     """===== SIM-MODEL ====="""
-    # v2
-    # sim_model_run_configs = {
-    #     "lnc8z8pp": (800, 1),
-    #     "qrgm252s": (2500, 1),
-    #     "rg9vq53y": (5400, 1),
-    #     "e8bdn23s": (800, 2),
-    #     "1yurd56p": (2500, 2),
-    #     "zd0o0jx8": (5400, 2),
-    #     "ybtc7l88": (800, 3),
-    #     "kt9vhd17": (2500, 3),
-    #     "8sg8lbqq": (5400, 3),
-    # }
-
-    # v4_partial
-    # sim_model_run_configs = {
-    #     "hck2b2u0": (800, 3),
-    #     "chn3iu4r": (2000, 3),
-    #     "yjgeqtmy": (5000, 3),
-    # }
-
-    # v_action_stack_1
     sim_model_run_configs = {
-        "55zv3ri3": (800, 1),
-        "31xn9mox": (2000, 1),
-        "lcsku3pl": (5000, 1),
-        "zhke5a7p": (5000, 1),  # v_action_stack_2
+        # # v2
+        # "lnc8z8pp": (800, 1),
+        # "qrgm252s": (2500, 1),
+        # "rg9vq53y": (5400, 1),
+        # "e8bdn23s": (800, 2),
+        # "1yurd56p": (2500, 2),
+        # "zd0o0jx8": (5400, 2),
+        # "ybtc7l88": (800, 3),
+        # "kt9vhd17": (2500, 3),
+        # "8sg8lbqq": (5400, 3),
+        # #
+        # # v4_partial
+        # "hck2b2u0": (800, 3),
+        # "chn3iu4r": (2000, 3),
+        # "yjgeqtmy": (5000, 3),
+        # #
+        # # v_action_stack_1
+        # "55zv3ri3": (800, 1),
+        # "31xn9mox": (2000, 1),
+        # "lcsku3pl": (5000, 1),
+        # #
+        # v_action_stack_2
+        "6fn7dsov": (800, 1),
+        "3zrabx81": (2000, 1),
+        "zhke5a7p": (5000, 1),
     }
 
     exp_config_1 = {
@@ -669,34 +657,37 @@ if __name__ == "__main__":
     }
 
     """===== BNN-SIM-FSVGD ====="""
-    # v2
-    # bnn_sim_fsvgd_run_configs = {
-    #     "pjf0qaum": (800, 1),
-    #     "flxhy0yy": (2500, 1),
-    #     "rkrv365l": (5400, 1),
-    #     "tl210l8f": (800, 2),
-    #     "wj6jdjh5": (2500, 2),
-    #     "p5wgr7rm": (5400, 2),
-    #     "wudh8u7u": (800, 3),
-    #     "c4o3eb4k": (2500, 3),
-    #     "rfl97xto": (5400, 3),
-    # }
-
-    # v4_partial
-    # bnn_sim_fsvgd_run_configs = {
-    #     "sq0k6akn": (800, 3),
-    #     "k5kepn4q": (2000, 3),
-    #     "891g63gq": (5000, 3),
-    # }
-
-    # v_action_stack_1
     bnn_sim_fsvgd_run_configs = {
-        "v64vrzpw": (800, 1),
-        "bggled25": (2000, 1),
-        "xcmnhhfq": (5000, 1),
-        # "zpdk97km": (5000, 1), # v_action_stack_2
-        # "9g7whijl": (5000, 1), # v_action_stack_2
-        "8n60b1jt": (5000, 1),  # v_action_stack_2
+        # # v2
+        # "pjf0qaum": (800, 1),
+        # "flxhy0yy": (2500, 1),
+        # "rkrv365l": (5400, 1),
+        # "tl210l8f": (800, 2),
+        # "wj6jdjh5": (2500, 2),
+        # "p5wgr7rm": (5400, 2),
+        # "wudh8u7u": (800, 3),
+        # "c4o3eb4k": (2500, 3),
+        # "rfl97xto": (5400, 3),
+        # #
+        # # v4_partial
+        # "sq0k6akn": (800, 3),
+        # "k5kepn4q": (2000, 3),
+        # "891g63gq": (5000, 3),
+        # #
+        # # v_action_stack_1
+        # "v64vrzpw": (800, 1),
+        # "bggled25": (2000, 1),
+        # "xcmnhhfq": (5000, 1),
+        # #
+        # v_action_stack_1.2
+        # "zpdk97km": (5000, 1),
+        # "9g7whijl": (5000, 1),
+        # "8n60b1jt": (5000, 1),
+        # #
+        # v_action_stack_2
+        "0vaw5ltx": (800, 1),
+        "zo86kfgj": (2000, 1),
+        "waklhuyc": (5000, 1),
     }
 
     exp_config_2 = {
@@ -708,31 +699,32 @@ if __name__ == "__main__":
 
     """===== BNN-FSVGD ====="""
 
-    # v2
-    # bnn_fsvgd_run_configs = {
-    #     "n2okbiym": (800, 1),
-    #     "0awx6i93": (2500, 1),
-    #     "jr0ybogk": (5400, 1),
-    #     "6mzchm1o": (800, 2),
-    #     "gdooo4u2": (2500, 2),
-    #     "99rq9ysq": (5400, 2),
-    #     "kagasm3e": (800, 3),
-    #     "fhe93mwq": (2500, 3),
-    #     "160s663n": (5400, 3),
-    # }
-
-    # v4_partial
-    # bnn_fsvgd_run_configs = {
-    #     "hjbw63y8": (800, 3),
-    #     "0dslu87b": (2000, 3),
-    #     "hq7f5yzu": (5000, 3),
-    # }
-
-    # v_action_stack_1
     bnn_fsvgd_run_configs = {
-        "hjbw63y8": (800, 1),
-        "0dslu87b": (2000, 1),
-        "hq7f5yzu": (5000, 1),
+        # # v2
+        # "n2okbiym": (800, 1),
+        # "0awx6i93": (2500, 1),
+        # "jr0ybogk": (5400, 1),
+        # "6mzchm1o": (800, 2),
+        # "gdooo4u2": (2500, 2),
+        # "99rq9ysq": (5400, 2),
+        # "kagasm3e": (800, 3),
+        # "fhe93mwq": (2500, 3),
+        # "160s663n": (5400, 3),
+        # #
+        # # v4_partial
+        # "hjbw63y8": (800, 3),
+        # "0dslu87b": (2000, 3),
+        # "hq7f5yzu": (5000, 3),
+        # #
+        # # v_action_stack_1
+        # "hjbw63y8": (800, 1),
+        # "0dslu87b": (2000, 1),
+        # "hq7f5yzu": (5000, 1),
+        # #
+        # v_action_stack_2
+        "ccx8cxmw": (800, 1),
+        "h6ci16iv": (2000, 1),
+        "06hno299": (5000, 1),
     }
 
     exp_config_3 = {
@@ -752,8 +744,8 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
-    active_run_id = 3
+    active_config_id = 2
+    active_run_id = 2
     active_goal_id = 0
     num_frame_stack = 2
 
