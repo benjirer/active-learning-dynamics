@@ -242,6 +242,7 @@ def run(
     data_buffer: DataBuffer = None,
     session_dir: str | None = None,
     action_scale: float = 1.0,
+    num_frame_stack: int = 0,
 ):
 
     started = False
@@ -249,6 +250,7 @@ def run(
     recent_state = None
     delta_t = 0
     start_t = time.time()
+    action_buffer = np.zeros(6 * num_frame_stack)
 
     while step < num_steps:
         # logger.info("Step %s" % step)
@@ -316,16 +318,18 @@ def run(
         # get action from agent
         agent_time = time.time()
         # action = agent.act(obs, recent_state)
-        action = agent.act(obs)
-        # clip action
-        # action[:3] = [0.0, 0.0, 0.0]
-        # print(action)
-        # action = np.clip(action, -0.2, 0.2)
+
+        action = agent.act(obs, action_buffer)
         action = action_scale * action
-        # print(action)
+
+        # update action buffer
+        if num_frame_stack > 0:
+            action_buffer = np.concatenate([action_buffer[6:], action], axis=0)
+
+        # clip for safety
         action = np.clip(action, -1.0, 1.0)
+
         delta_t_agent = agent_time - time.time()
-        # logger.info("Action %s" % action)
 
         # step the environment
         if action is not None:
@@ -424,6 +428,7 @@ def start_experiment(
     data_size: int = 800,
     seed_id: int = 1,
     goal_id: int = 0,
+    num_frame_stack: int = 0,
 ):
 
     # import real world config
@@ -539,7 +544,7 @@ def start_experiment(
                     0.0,  # ee y vel
                     0.0,  # ee z vel
                 ]
-                action = agent.act(np.array(obs))
+                action = agent.act(np.array(obs), np.zeros(6 * num_frame_stack))
                 print(action)
             return None
 
@@ -559,6 +564,7 @@ def start_experiment(
                 data_buffer=data_buffer,
                 session_dir=session_dir,
                 action_scale=action_scale,
+                num_frame_stack=num_frame_stack,
             )
         except KeyboardInterrupt:
             logger.info("Exiting due to keyboard interrupt")
@@ -622,12 +628,12 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "policy_testing_partial_v4"
+    project_name = "action_stack_testing"
     data_tag = project_name
 
     goal_1 = np.array([1.2, -0.2, 0.8])
@@ -662,10 +668,17 @@ if __name__ == "__main__":
     # }
 
     # v4
+    # sim_model_run_configs = {
+    #     "hck2b2u0": (800, 3),
+    #     "chn3iu4r": (2000, 3),
+    #     "yjgeqtmy": (5000, 3),
+    # }
+
+    # v action stack
     sim_model_run_configs = {
-        "hck2b2u0": (800, 3),
-        "chn3iu4r": (2000, 3),
-        "yjgeqtmy": (5000, 3),
+        "55zv3ri3": (800, 1),
+        "31xn9mox": (2000, 1),
+        "lcsku3pl": (5000, 1),
     }
 
     exp_config_1 = {
@@ -691,10 +704,17 @@ if __name__ == "__main__":
     # }
 
     # v4
+    # bnn_sim_fsvgd_run_configs = {
+    #     "sq0k6akn": (800, 3),
+    #     "k5kepn4q": (2000, 3),
+    #     "891g63gq": (5000, 3),
+    # }
+
+    # v action stack
     bnn_sim_fsvgd_run_configs = {
-        "sq0k6akn": (800, 3),
-        "k5kepn4q": (2000, 3),
-        "891g63gq": (5000, 3),
+        "v64vrzpw": (800, 1),
+        "bggled25": (2000, 1),
+        "xcmnhhfq": (5000, 1),
     }
 
     exp_config_2 = {
@@ -720,10 +740,17 @@ if __name__ == "__main__":
     # }
 
     # v4
+    # bnn_fsvgd_run_configs = {
+    #     "hjbw63y8": (800, 3),
+    #     "0dslu87b": (2000, 3),
+    #     "hq7f5yzu": (5000, 3),
+    # }
+
+    # v action stack
     bnn_fsvgd_run_configs = {
-        "hjbw63y8": (800, 3),
-        "0dslu87b": (2000, 3),
-        "hq7f5yzu": (5000, 3),
+        "hjbw63y8": (800, 1),
+        "0dslu87b": (2000, 1),
+        "hq7f5yzu": (5000, 1),
     }
 
     exp_config_3 = {
@@ -744,6 +771,7 @@ if __name__ == "__main__":
     active_config_id = 1
     active_run_id = 2
     active_goal_id = 1
+    num_frame_stack = 2
 
     active_exp_config = exp_configs[active_config_id]
     active_run_config = run_configs[active_config_id]
@@ -772,4 +800,5 @@ if __name__ == "__main__":
         data_size=data_size,
         seed_id=seed_id,
         goal_id=active_goal_id,
+        num_frame_stack=num_frame_stack,
     )

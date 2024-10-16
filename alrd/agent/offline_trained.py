@@ -38,7 +38,7 @@ class OfflineTrainedAgent(AgentReset):
             margin_factor=reward_config["margin_factor"],
         )
 
-    def act(self, obs: np.ndarray) -> np.ndarray:
+    def act(self, obs: np.ndarray, action_buffer: np.ndarray) -> np.ndarray:
         # add goal to obs
         goal = self.goal
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
@@ -46,6 +46,10 @@ class OfflineTrainedAgent(AgentReset):
         # print(f"obs_goal_distance: {obs_goal_distance}")
         obs = np.concatenate((obs, goal), axis=-1)
         # print(f"obs: {obs}")
+
+        # add action buffer to obs
+        obs = np.concatenate((obs, action_buffer), axis=-1)
+
         action = self.policy(obs)
 
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
