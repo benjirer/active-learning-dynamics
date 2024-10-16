@@ -628,7 +628,7 @@ def start_experiment(
 if __name__ == "__main__":
 
     # settings
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -714,15 +714,16 @@ if __name__ == "__main__":
     bnn_sim_fsvgd_run_configs = {
         "v64vrzpw": (800, 1),
         "bggled25": (2000, 1),
-        # "xcmnhhfq": (5000, 1),
-        "zpdk97km": (5000, 1),
+        "xcmnhhfq": (5000, 1),
+        # "zpdk97km": (5000, 1),
+        # "9g7whijl": (5000, 1),
     }
 
     exp_config_2 = {
         "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
         "model_type": "bnn-sim-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.4,
+        "action_scale": 1.0,
     }
 
     # BNN-FSVGD
@@ -771,7 +772,7 @@ if __name__ == "__main__":
     # SET ACTIVE CONFIG
     active_config_id = 1
     active_run_id = 2
-    active_goal_id = 1
+    active_goal_id = 0
     num_frame_stack = 2
 
     active_exp_config = exp_configs[active_config_id]
