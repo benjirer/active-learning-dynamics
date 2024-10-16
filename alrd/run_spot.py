@@ -653,7 +653,6 @@ if __name__ == "__main__":
         "run_id": list(sim_model_run_configs.keys()),
         "model_type": "sim-model",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 1.0,
     }
 
     """===== BNN-SIM-FSVGD ====="""
@@ -684,17 +683,20 @@ if __name__ == "__main__":
         # "9g7whijl": (5000, 1),
         # "8n60b1jt": (5000, 1),
         # #
-        # v_action_stack_2
-        "0vaw5ltx": (800, 1),
-        "zo86kfgj": (2000, 1),
-        "waklhuyc": (5000, 1),
+        # # v_action_stack_2
+        # "0vaw5ltx": (800, 1),
+        # "zo86kfgj": (2000, 1),
+        # "waklhuyc": (5000, 1),
+        # #
+        # v_action_stack_3
+        # "hcmip3gc": (5000, 1),
+        "dj131cg6": (5000, 1),
     }
 
     exp_config_2 = {
         "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
         "model_type": "bnn-sim-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 1.1,
     }
 
     """===== BNN-FSVGD ====="""
@@ -731,23 +733,23 @@ if __name__ == "__main__":
         "run_id": list(bnn_fsvgd_run_configs.keys()),
         "model_type": "bnn-fsvgd",
         "goal": [goal_1, goal_2, goal_3],
-        "action_scale": 0.8,
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "action_stack_testing_v2"
+    project_name = "action_stack_testing_v3"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 2
-    active_run_id = 2
+    active_config_id = 1
+    active_run_id = 0
     active_goal_id = 0
     num_frame_stack = 2
+    action_scale = 1.1
 
     """============== BUILD SETTINGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
@@ -761,7 +763,6 @@ if __name__ == "__main__":
     run_id = active_exp_config["run_id"][active_run_id]
     model_type = active_exp_config["model_type"]
     goal = active_exp_config["goal"][active_goal_id]
-    action_scale = active_exp_config["action_scale"]
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
     data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"

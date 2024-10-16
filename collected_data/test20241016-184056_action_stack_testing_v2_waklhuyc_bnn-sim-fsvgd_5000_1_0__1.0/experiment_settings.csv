@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [ 1.6 -0.2  0.4]
+project_name: action_stack_testing_v2
+action_scale: 1.0
+run_id: waklhuyc
+model_type : bnn-sim-fsvgd
+data_size: 5000
+seed_id: 1
+goal_id: 0
