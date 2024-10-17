@@ -720,6 +720,10 @@ if __name__ == "__main__":
             5000,
             1,
         ),  # 0.05, 0.3, (weighst back to 0.05 and 0.3, bound back to 0.1, new margin at 5.0) -- very nice
+        "nv6uhshi": (
+            5000,
+            1,
+        ),  # 0.05, 0.4, (weights back to 0.05 and 0.4, bound back to 0.1, new margin at 5.0, no ee-body-reward) --
     }
 
     exp_config_2 = {
@@ -773,7 +777,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -783,7 +787,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 1
-    active_run_id = 0
+    active_run_id = 1
     active_goal_id = 3
     num_frame_stack = 2
     action_scale = 1.0
