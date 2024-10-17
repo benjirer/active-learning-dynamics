@@ -615,7 +615,7 @@ if __name__ == "__main__":
 
     """============== GOALs =============="""
     # goal_1 = np.array([1.2, -0.2, 0.8])
-    goal_1 = np.array([1.9, -0.4, 0.4])
+    goal_1 = np.array([1.8, -0.4, 0.4])
     goal_2 = np.array([1.4, 0.2, 0.4])
     goal_3 = np.array([1.6, 0.0, 0.2])
 
@@ -649,10 +649,10 @@ if __name__ == "__main__":
         # "zhke5a7p": (5000, 1),
         # #
         # v_action_stack_5
-        "zlbzwr4q": (5000, 1),  # 0.05, 0.3
-        "fqiti1id": (5000, 1),  # 0.05, 0.4
-        "pr52xbny": (5000, 1),  # 0.02, 0.3
-        "lrvplba1": (5000, 1),  # 0.02, 0.4
+        "zlbzwr4q": (5000, 1),  # 0.05, 0.3 -- slow
+        "fqiti1id": (5000, 1),  # 0.05, 0.4 -- slow not accurate
+        "pr52xbny": (5000, 1),  # 0.02, 0.3 -- shaky
+        "lrvplba1": (5000, 1),  # 0.02, 0.4 -- okay but slow
     }
 
     exp_config_1 = {
@@ -699,10 +699,13 @@ if __name__ == "__main__":
         # "dj131cg6": (5000, 1),
         # #
         # # v_action_stack_5
-        "p7kd475o": (5000, 1),  # 0.05, 0.3
-        "lhfwewuf": (5000, 1),  # 0.05, 0.4
-        "u9i1vo0n": (5000, 1),  # 0.02, 0.3
-        "i37so3f7": (5000, 1),  # 0.02, 0.4
+        "p7kd475o": (
+            5000,
+            1,
+        ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
+        "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
+        "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
+        "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
     }
 
     exp_config_2 = {
@@ -741,10 +744,10 @@ if __name__ == "__main__":
         # "06hno299": (5000, 1),
         # #
         # # v_action_stack_5
-        "biteqxmk": (5000, 1),  # 0.05, 0.3
-        "ji4pagqe": (5000, 1),  # 0.05, 0.4
-        "btaozmx5": (5000, 1),  # 0.02, 0.3
-        "gwvr88cm": (5000, 1),  # 0.02, 0.4
+        "biteqxmk": (5000, 1),  # 0.05, 0.3 -- not bad tbh
+        "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
+        "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
+        "gwvr88cm": (5000, 1),  # 0.02, 0.4 -- a bit slow
     }
 
     exp_config_3 = {
@@ -767,7 +770,7 @@ if __name__ == "__main__":
     active_run_id = 0
     active_goal_id = 0
     num_frame_stack = 2
-    action_scale = 0.3
+    action_scale = 1.0
 
     """============== BUILD SETTINGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
