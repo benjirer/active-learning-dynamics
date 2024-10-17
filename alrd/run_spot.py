@@ -643,10 +643,16 @@ if __name__ == "__main__":
         # "31xn9mox": (2000, 1),
         # "lcsku3pl": (5000, 1),
         # #
-        # v_action_stack_2
-        "6fn7dsov": (800, 1),
-        "3zrabx81": (2000, 1),
-        "zhke5a7p": (5000, 1),
+        # # v_action_stack_2
+        # "6fn7dsov": (800, 1),
+        # "3zrabx81": (2000, 1),
+        # "zhke5a7p": (5000, 1),
+        # #
+        # v_action_stack_5
+        "zlbzwr4q": (5000, 1),  # 0.05, 0.3
+        "fqiti1id": (5000, 1),  # 0.05, 0.4
+        "pr52xbny": (5000, 1),  # 0.02, 0.3
+        "lrvplba1": (5000, 1),  # 0.02, 0.4
     }
 
     exp_config_1 = {
@@ -688,9 +694,15 @@ if __name__ == "__main__":
         # "zo86kfgj": (2000, 1),
         # "waklhuyc": (5000, 1),
         # #
-        # v_action_stack_3
+        # # v_action_stack_3
         # "hcmip3gc": (5000, 1),
-        "dj131cg6": (5000, 1),
+        # "dj131cg6": (5000, 1),
+        # #
+        # # v_action_stack_5
+        "p7kd475o": (5000, 1),  # 0.05, 0.3
+        "lhfwewuf": (5000, 1),  # 0.05, 0.4
+        "u9i1vo0n": (5000, 1),  # 0.02, 0.3
+        "i37so3f7": (5000, 1),  # 0.02, 0.4
     }
 
     exp_config_2 = {
@@ -723,10 +735,16 @@ if __name__ == "__main__":
         # "0dslu87b": (2000, 1),
         # "hq7f5yzu": (5000, 1),
         # #
-        # v_action_stack_2
-        "ccx8cxmw": (800, 1),
-        "h6ci16iv": (2000, 1),
-        "06hno299": (5000, 1),
+        # # v_action_stack_2
+        # "ccx8cxmw": (800, 1),
+        # "h6ci16iv": (2000, 1),
+        # "06hno299": (5000, 1),
+        # #
+        # # v_action_stack_5
+        "biteqxmk": (5000, 1),  # 0.05, 0.3
+        "ji4pagqe": (5000, 1),  # 0.05, 0.4
+        "btaozmx5": (5000, 1),  # 0.02, 0.3
+        "gwvr88cm": (5000, 1),  # 0.02, 0.4
     }
 
     exp_config_3 = {
@@ -741,15 +759,15 @@ if __name__ == "__main__":
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "action_stack_testing_v3"
+    project_name = "action_stack_testing_v5"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
+    active_config_id = 0
     active_run_id = 0
     active_goal_id = 0
     num_frame_stack = 2
-    action_scale = 1.1
+    action_scale = 0.3
 
     """============== BUILD SETTINGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
