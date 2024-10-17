@@ -703,17 +703,23 @@ if __name__ == "__main__":
         # "dj131cg6": (5000, 1),
         # #
         # # v_action_stack_5
-        "p7kd475o": (
+        # "p7kd475o": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
+        # "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
+        # "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
+        # "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
+        # "gboojd12": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- unstable
+        # #
+        # v_action_stack_6
+        "93jklpn7": (
             5000,
             1,
-        ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
-        "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
-        "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
-        "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
-        "gboojd12": (
-            5000,
-            1,
-        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- unstable
+        ),  # 0.05, 0.3, (weighst back to 0.05 and 0.3, bound back to 0.1, new margin at 5.0) --
     }
 
     exp_config_2 = {
@@ -750,7 +756,7 @@ if __name__ == "__main__":
         # "h6ci16iv": (2000, 1),
         # "06hno299": (5000, 1),
         # #
-        # # v_action_stack_5
+        # v_action_stack_5
         "biteqxmk": (5000, 1),  # 0.05, 0.3 -- not bad tbh
         "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
         "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
@@ -767,17 +773,17 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "action_stack_testing_v5"
+    project_name = "action_stack_testing_v6"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 2
-    active_run_id = 4
+    active_config_id = 1
+    active_run_id = 0
     active_goal_id = 3
     num_frame_stack = 2
     action_scale = 1.0
