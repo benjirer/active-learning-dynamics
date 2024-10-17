@@ -777,7 +777,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
