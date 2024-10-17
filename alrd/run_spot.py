@@ -614,10 +614,11 @@ def start_experiment(
 if __name__ == "__main__":
 
     """============== GOALs =============="""
-    # goal_1 = np.array([1.2, -0.2, 0.8])
-    goal_1 = np.array([1.8, -0.4, 0.4])
+    goal_1 = np.array([1.2, -0.2, 0.8])
     goal_2 = np.array([1.4, 0.2, 0.4])
     goal_3 = np.array([1.6, 0.0, 0.2])
+    goal_4 = np.array([1.8, -0.4, 0.4])
+    goals = [goal_1, goal_2, goal_3, goal_4]
 
     """============== EXPERIMENT CONFIGS =============="""
     """===== SIM-MODEL ====="""
@@ -653,12 +654,15 @@ if __name__ == "__main__":
         "fqiti1id": (5000, 1),  # 0.05, 0.4 -- slow not accurate
         "pr52xbny": (5000, 1),  # 0.02, 0.3 -- shaky
         "lrvplba1": (5000, 1),  # 0.02, 0.4 -- okay but slow
+        "v2ifxv4t": (
+            5000,
+            1,
+        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
     }
 
     exp_config_1 = {
         "run_id": list(sim_model_run_configs.keys()),
         "model_type": "sim-model",
-        "goal": [goal_1, goal_2, goal_3],
     }
 
     """===== BNN-SIM-FSVGD ====="""
@@ -706,12 +710,15 @@ if __name__ == "__main__":
         "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
         "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
         "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
+        "gboojd12": (
+            5000,
+            1,
+        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
     }
 
     exp_config_2 = {
         "run_id": list(bnn_sim_fsvgd_run_configs.keys()),
         "model_type": "bnn-sim-fsvgd",
-        "goal": [goal_1, goal_2, goal_3],
     }
 
     """===== BNN-FSVGD ====="""
@@ -748,16 +755,19 @@ if __name__ == "__main__":
         "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
         "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
         "gwvr88cm": (5000, 1),  # 0.02, 0.4 -- a bit slow
+        "0fjeh9h1": (
+            5000,
+            1,
+        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
     }
 
     exp_config_3 = {
         "run_id": list(bnn_fsvgd_run_configs.keys()),
         "model_type": "bnn-fsvgd",
-        "goal": [goal_1, goal_2, goal_3],
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -767,7 +777,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 0
-    active_run_id = 0
+    active_run_id = 4
     active_goal_id = 0
     num_frame_stack = 2
     action_scale = 1.0
@@ -783,7 +793,7 @@ if __name__ == "__main__":
     active_run_config = run_configs[active_config_id]
     run_id = active_exp_config["run_id"][active_run_id]
     model_type = active_exp_config["model_type"]
-    goal = active_exp_config["goal"][active_goal_id]
+    goal = goals[active_goal_id]
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
     data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"
