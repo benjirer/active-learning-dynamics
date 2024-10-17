@@ -657,7 +657,7 @@ if __name__ == "__main__":
         "v2ifxv4t": (
             5000,
             1,
-        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
+        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- very shakey
     }
 
     exp_config_1 = {
@@ -713,7 +713,7 @@ if __name__ == "__main__":
         "gboojd12": (
             5000,
             1,
-        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
+        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- unstable
     }
 
     exp_config_2 = {
@@ -767,7 +767,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -776,9 +776,9 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
+    active_config_id = 2
     active_run_id = 4
-    active_goal_id = 0
+    active_goal_id = 3
     num_frame_stack = 2
     action_scale = 1.0
 
