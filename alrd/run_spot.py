@@ -649,15 +649,26 @@ if __name__ == "__main__":
         # "3zrabx81": (2000, 1),
         # "zhke5a7p": (5000, 1),
         # #
-        # v_action_stack_5
-        "zlbzwr4q": (5000, 1),  # 0.05, 0.3 -- slow
-        "fqiti1id": (5000, 1),  # 0.05, 0.4 -- slow not accurate
-        "pr52xbny": (5000, 1),  # 0.02, 0.3 -- shaky
-        "lrvplba1": (5000, 1),  # 0.02, 0.4 -- okay but slow
-        "v2ifxv4t": (
-            5000,
-            1,
-        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- very shakey
+        # # v_action_stack_5
+        # "zlbzwr4q": (5000, 1),  # 0.05, 0.3 -- slow
+        # "fqiti1id": (5000, 1),  # 0.05, 0.4 -- slow not accurate
+        # "pr52xbny": (5000, 1),  # 0.02, 0.3 -- shaky
+        # "lrvplba1": (5000, 1),  # 0.02, 0.4 -- okay but slow
+        # "v2ifxv4t": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- very shakey
+        # #
+        # policy_testing_full_v7
+        "cbi88nlv": (800, 1),
+        "6a3fl4sv": (2000, 1),
+        "619xr8v0": (5000, 1),
+        "6bz96swf": (800, 2),
+        "u1lk0ef7": (2000, 2),
+        "z5nq664s": (5000, 2),
+        "2iqhbwgg": (800, 3),
+        "hfhac88t": (2000, 3),
+        "xigimeuv": (5000, 3),
     }
 
     exp_config_1 = {
@@ -715,15 +726,26 @@ if __name__ == "__main__":
         #     1,
         # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- unstable
         # #
-        # v_action_stack_6
-        "93jklpn7": (
-            5000,
-            1,
-        ),  # 0.05, 0.3, (weighst back to 0.05 and 0.3, bound back to 0.1, new margin at 5.0) -- very nice
-        "nv6uhshi": (
-            5000,
-            1,
-        ),  # 0.05, 0.4, (weights back to 0.05 and 0.4, bound back to 0.1, new margin at 5.0, no ee-body-reward) --
+        # # v_action_stack_6
+        # "93jklpn7": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.3, (weighst back to 0.05 and 0.3, bound back to 0.1, new margin at 5.0) -- very nice
+        # "nv6uhshi": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.4, (weights back to 0.05 and 0.4, bound back to 0.1, new margin at 5.0, no ee-body-reward) --
+        # #
+        # policy_testing_full_v7
+        "qvuwmfpb": (800, 1),
+        "oevoq5sy": (2000, 1),
+        "t52fwb3i": (5000, 1),
+        "p4dev9us": (800, 2),
+        "5h8f8f2u": (2000, 2),
+        "8wqusuky": (5000, 2),
+        "qoltkgal": (800, 3),
+        "7bf2ep2q": (2000, 3),
+        "r35p5r8n": (5000, 3),
     }
 
     exp_config_2 = {
@@ -760,15 +782,26 @@ if __name__ == "__main__":
         # "h6ci16iv": (2000, 1),
         # "06hno299": (5000, 1),
         # #
-        # v_action_stack_5
-        "biteqxmk": (5000, 1),  # 0.05, 0.3 -- not bad tbh
-        "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
-        "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
-        "gwvr88cm": (5000, 1),  # 0.02, 0.4 -- a bit slow
-        "0fjeh9h1": (
-            5000,
-            1,
-        ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
+        # # v_action_stack_5
+        # "biteqxmk": (5000, 1),  # 0.05, 0.3 -- not bad tbh
+        # "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
+        # "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
+        # "gwvr88cm": (5000, 1),  # 0.02, 0.4 -- a bit slow
+        # "0fjeh9h1": (
+        #     5000,
+        #     1,
+        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
+        # #
+        # policy_testing_full_v7
+        "elalw325": (800, 1),
+        "lsl7a43d": (2000, 1),
+        "b8hmqch9": (5000, 1),
+        "vfh488fo": (800, 2),
+        "me5h5ln9": (2000, 2),
+        "3tak9fi6": (5000, 2),
+        "3fphi2oe": (800, 3),
+        "zzruqgll": (2000, 3),
+        "4ocmi4z2": (5000, 3),
     }
 
     exp_config_3 = {
@@ -777,17 +810,17 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "action_stack_testing_v6"
+    project_name = "policy_testing_full_v7"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
-    active_run_id = 1
+    active_config_id = 2
+    active_run_id = 8
     active_goal_id = 3
     num_frame_stack = 2
     action_scale = 1.0
