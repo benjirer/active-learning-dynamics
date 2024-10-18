@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [1.8 0.5 0.2]
+project_name: policy_testing_full_v7
+action_scale: 1.0
+run_id: 6a3fl4sv
+model_type : sim-model
+data_size: 2000
+seed_id: 1
+goal_id: 2
