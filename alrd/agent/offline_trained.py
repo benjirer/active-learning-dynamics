@@ -24,7 +24,7 @@ class OfflineTrainedAgent(AgentReset):
             y_test=jnp.zeros((10, state_dim)),
             spot_reward_kwargs=reward_config,
         )
-        self.policy = self.rl_from_offline_data.prepare_policy_bnn(params=policy_params)
+        self.policy = self.rl_from_offline_data.prepare_policy(params=policy_params)
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.goal_dim = goal_dim
