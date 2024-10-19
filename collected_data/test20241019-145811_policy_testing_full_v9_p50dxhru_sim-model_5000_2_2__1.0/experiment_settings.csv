@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [1.6 0.5 0.2]
+project_name: policy_testing_full_v9
+action_scale: 1.0
+run_id: p50dxhru
+model_type : sim-model
+data_size: 5000
+seed_id: 2
+goal_id: 2

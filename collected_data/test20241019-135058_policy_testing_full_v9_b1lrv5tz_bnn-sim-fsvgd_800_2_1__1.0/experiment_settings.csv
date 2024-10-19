@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 50
+cmd_freq: 10
+goal: [1.4 0.2 0.4]
+project_name: policy_testing_full_v9
+action_scale: 1.0
+run_id: b1lrv5tz
+model_type : bnn-sim-fsvgd
+data_size: 800
+seed_id: 2
+goal_id: 1

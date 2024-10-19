@@ -616,7 +616,7 @@ if __name__ == "__main__":
     """============== GOALs =============="""
     goal_1 = np.array([1.2, -0.2, 0.8])
     goal_2 = np.array([1.4, 0.2, 0.4])
-    goal_3 = np.array([1.8, 0.5, 0.2])
+    goal_3 = np.array([1.6, 0.5, 0.2])
     goals = [goal_1, goal_2, goal_3]
 
     """============== EXPERIMENT CONFIGS =============="""
@@ -845,7 +845,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     num_steps = 50
     cmd_freq = 10
@@ -855,8 +855,8 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 2
-    active_run_id = 0
-    active_goal_id = 0
+    active_run_id = 8
+    active_goal_id = 2
     num_frame_stack = 2
     action_scale = 1.0
 
