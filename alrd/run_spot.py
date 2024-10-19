@@ -713,10 +713,10 @@ if __name__ == "__main__":
         # "dj131cg6": (5000, 1),
         # #
         # # v_action_stack_5
-        # "p7kd475o": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
+        "p7kd475o": (
+            5000,
+            1,
+        ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
         # "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
         # "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
         # "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
@@ -736,9 +736,12 @@ if __name__ == "__main__":
         # ),  # 0.05, 0.4, (weights back to 0.05 and 0.4, bound back to 0.1, new margin at 5.0, no ee-body-reward) --
         # #
         # policy_testing_full_v7
-        "qvuwmfpb": (800, 1),
-        "oevoq5sy": (2000, 1),
-        "t52fwb3i": (5000, 1),
+        # "qvuwmfpb": (800, 1),
+        "2mx3baga": (800, 1),  # --changed 2.0 to 1.5 and margin to 10.0
+        # "oevoq5sy": (2000, 1),
+        "tbrg0x8v": (2000, 1),  # --changed 2.0 to 1.5 and margin to 10.0
+        # "t52fwb3i": (5000, 1),
+        "r19dq47e": (5000, 1),  # --changed 2.0 to 1.5 and margin to 10.0
         "p4dev9us": (800, 2),
         "5h8f8f2u": (2000, 2),
         "8wqusuky": (5000, 2),
@@ -814,13 +817,13 @@ if __name__ == "__main__":
     num_steps = 50
     cmd_freq = 10
     collect_data = True
-    project_name = "policy_testing_full_v7"
+    project_name = "action_stack_testing_v5"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 1
-    active_run_id = 8
-    active_goal_id = 0
+    active_run_id = 0
+    active_goal_id = 2
     num_frame_stack = 2
     action_scale = 1.0
 
