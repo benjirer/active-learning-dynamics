@@ -670,9 +670,16 @@ class SpotBaseStateMachine(SpotBaseModel):
             self.__reset_event.wait()
             while self.__state != State.SHUTDOWN:
                 self.logger.debug("Reset loop: Resetting robot...")
+                # done = self._issue_goal_pose_command(
+                #     *np.array(self.__reset_pose), timeout=POSE_TIMEOUT
+                # )
                 done = self._issue_goal_pose_command(
-                    *np.array(self.__reset_pose), timeout=POSE_TIMEOUT
+                    x=self.body_start_frame.x,
+                    y=self.body_start_frame.y,
+                    theta=self.body_start_frame.angle,
+                    timeout=POSE_TIMEOUT,
                 )
+
                 self.__reset_event.clear()
                 self.__queue.put(
                     StateMachineRequest(StateMachineAction.RESET_DONE, done)
