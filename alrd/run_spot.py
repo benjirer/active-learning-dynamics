@@ -855,7 +855,7 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
+    active_config_id = 2
     active_run_id = 8
     active_goal_id = 2
     num_frame_stack = 2
