@@ -599,11 +599,16 @@ class SpotBaseStateMachine(SpotBaseModel):
                         self.body_start_frame.angle,
                     )
                 )
+                # self._issue_goal_pose_command(
+                #     self.body_start_frame.x,
+                #     self.body_start_frame.y,
+                #     self.body_start_frame.angle,
+                # )  # TODO add this to main loop somehow
                 self._issue_goal_pose_command(
-                    self.body_start_frame.x,
-                    self.body_start_frame.y,
-                    self.body_start_frame.angle,
-                )  # TODO add this to main loop somehow
+                    x=0.0,
+                    y=0.0,
+                    theta=0.0,
+                )
             except:
                 self.logger.error("Failed to reset robot position before shutdown")
                 pass  # TODO do this properly
