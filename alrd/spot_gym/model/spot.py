@@ -592,6 +592,13 @@ class SpotBaseStateMachine(SpotBaseModel):
         if self.state != State.SHUTDOWN:
             try:
                 self._issue_stop()
+                self.logger.error(
+                    "Resetting the robot with x: {}, y: {}, angle: {}".format(
+                        self.body_start_frame.x,
+                        self.body_start_frame.y,
+                        self.body_start_frame.angle,
+                    )
+                )
                 self._issue_goal_pose_command(
                     self.body_start_frame.x,
                     self.body_start_frame.y,

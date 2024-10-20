@@ -591,6 +591,7 @@ def start_experiment(
             env.stop_robot()
             env.close()
             if collect_data:
+                session_buffer.data_buffers.append(data_buffer)
                 save_data(session_buffer, session_dir)
         except Exception as e:
             logger.error("Exiting due to exception: %s" % e)
