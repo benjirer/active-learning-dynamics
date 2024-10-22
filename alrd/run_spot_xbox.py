@@ -154,7 +154,6 @@ def run(
     data_buffer: DataBuffer = None,
     session_dir: str | None = None,
     action_scale: float = 1.0,
-    num_frame_stack: int = 0,
 ):
 
     started = False
@@ -162,7 +161,6 @@ def run(
     recent_state = None
     delta_t = 0
     start_t = time.time()
-    action_buffer = np.zeros(6 * num_frame_stack)
 
     while step < num_steps:
         # logger.info("Step %s" % step)
@@ -213,7 +211,7 @@ def run(
                 data_buffer.brax_transitions.append(
                     Transition(
                         observation=jnp.array(obs),
-                        action=jnp.zeros(6),
+                        action=jnp.zeros(9),
                         reward=jnp.array(0),
                         discount=jnp.array(0.99),
                         next_observation=jnp.array(
@@ -231,10 +229,6 @@ def run(
         agent_time = time.time()
         action = agent.act(obs, recent_state)
         action = action_scale * action
-
-        # update action buffer
-        if num_frame_stack > 0:
-            action_buffer = np.concatenate([action_buffer[6:], action], axis=0)
 
         delta_t_agent = agent_time - time.time()
 
@@ -276,11 +270,7 @@ def run(
                     Transition(
                         observation=jnp.array(obs),
                         action=jnp.array(action),
-                        reward=agent.get_reward(
-                            obs=obs,
-                            action=action,
-                            next_obs=next_obs,
-                        ),
+                        reward=jnp.array(0),
                         # reward=jnp.array(reward),
                         discount=jnp.array(0.99),
                         next_observation=jnp.array(next_obs),
@@ -411,7 +401,7 @@ def start_experiment(
         agent = SpotXboxSpacemouse(
             base_speed=1.0,
             base_angular=1.0,
-            ee_speed=1.0,
+            ee_speed=1.5,
             ee_control_mode="augmented",
         )
 
@@ -462,9 +452,9 @@ if __name__ == "__main__":
 
     """============== SETTINGS =============="""
     num_episodes = 1
-    num_steps = 40
+    num_steps = 50000
     cmd_freq = 10
-    collect_data = True
+    collect_data = False
     data_tag = "data_collection"
     action_scale = 1.0
 

@@ -356,7 +356,8 @@ class SpotEnvBasic(SpotEnvBase):
         )
 
     def get_reward(self, action, next_obs, last_obs=None) -> float:
-        return self.reward.predict(obs=next_obs, action=action, last_obs=last_obs)
+        return 0
+        # return self.reward.predict(obs=next_obs, action=action, last_obs=last_obs)
 
     def is_done(self, obs: np.ndarray) -> bool:
         return False
@@ -495,7 +496,7 @@ class SpotEnvAugmented(SpotEnvBasic):
         self,
         config,
         cmd_freq: float,
-        goal_pos: np.ndarray,
+        goal_pos: np.ndarray = None,
         monitor_freq: float = 30,
         action_cost=0.0,
         skip_ui: bool = False,
