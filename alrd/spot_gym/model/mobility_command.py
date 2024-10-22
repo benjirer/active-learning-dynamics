@@ -178,7 +178,8 @@ class MobilityCommandAugmented(MobilityCommandBasic):
     ee_vrz: float
 
     def __post_init__(self) -> None:
-        # build base mobility parameters
+
+        # make base command
         orientation = EulerZXY(roll=0.0, pitch=self.pitch, yaw=0.0)
         mobility_params = RobotCommandBuilder.mobility_params(
             body_height=self.height,
@@ -187,7 +188,8 @@ class MobilityCommandAugmented(MobilityCommandBasic):
             stair_hint=self.stair_hint,
         )
 
-        # check if any end-effector velocities are non-zero
+        # make ee command
+        # only if ee velocity commands are not zero
         if (
             self.ee_vx != 0
             or self.ee_vy != 0
@@ -196,7 +198,16 @@ class MobilityCommandAugmented(MobilityCommandBasic):
             or self.ee_vry != 0
             or self.ee_vrz != 0
         ):
-            # create the SE3Velocity with both linear and angular velocities
+            # ee cartesian linear velocity command
+            cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
+            cartesian_velocity.frame_name = BODY_FRAME_NAME
+            cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
+            cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
+            cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
+
+            # ee angular velocity command
+            # note: we have to convert ee angular velocity from body frame to odom frame
+            # since the SDK only accepts ee angular velocity in odom frame
             ee_vel_in_body = SE3Velocity(
                 lin_x=self.ee_vx,
                 lin_y=self.ee_vy,
@@ -205,41 +216,28 @@ class MobilityCommandAugmented(MobilityCommandBasic):
                 ang_y=self.ee_vry,
                 ang_z=self.ee_vrz,
             )
-
-            # transform velocities to the odom frame
             ee_vel_in_odom_proto = express_se3_velocity_in_new_frame(
                 self.prev_state.transforms_snapshot,
                 BODY_FRAME_NAME,
                 ODOM_FRAME_NAME,
                 ee_vel_in_body.to_proto(),
             )
-
             ee_angular_velocity = Vec3(
                 x=ee_vel_in_odom_proto.angular_velocity_x,
                 y=ee_vel_in_odom_proto.angular_velocity_y,
                 z=ee_vel_in_odom_proto.angular_velocity_z,
             )
 
-            # Create cartesian velocity command for the end effector
-            cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
-            cartesian_velocity.frame_name = BODY_FRAME_NAME
-            cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
-            cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
-            cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
-
-            # Build the arm velocity command
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
                 cartesian_velocity=cartesian_velocity,
                 angular_velocity_of_hand_rt_odom_in_hand=ee_angular_velocity.to_proto(),
             )
-
-            # Build robot command
             robot_command = robot_command_pb2.RobotCommand()
             robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
                 arm_velocity_command
             )
 
-            # Build the full robot command including mobility and arm commands
+            # build command
             cmd = RobotCommandBuilder.synchro_velocity_command(
                 v_x=self.vx,
                 v_y=self.vy,
@@ -248,11 +246,9 @@ class MobilityCommandAugmented(MobilityCommandBasic):
                 build_on_command=robot_command,
             )
         else:
-            # If only linear EE velocities are non-zero, delegate to MobilityCommandBasic
             super().__post_init__()
-            return  # The command is already built in MobilityCommandBasic
+            return
 
-        # Initialize the Command class with the built command
         super(Command, self).__init__(cmd)
 
     def __array__(self, dtype=None) -> np.ndarray:
