@@ -17,7 +17,7 @@ from alrd.agent import Agent, AgentType, SpotAgentEnum, create_spot_agent
 from alrd.agent.repeat import RepeatAgent
 from alrd.agent.asynchronous import AsyncWrapper
 from alrd.spot_gym import create_spot_env
-from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.envs.spot_env_base import SpotGym
 from alrd.spot_gym.wrappers.operational_wrappers import Trajectory2DWrapper
 from alrd.spot_gym.wrappers.video_recorder_wrapper import VideoRecordingWrapper
 from alrd.utils.utils import get_timestamp_str, Pose2D

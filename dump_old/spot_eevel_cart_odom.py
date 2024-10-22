@@ -11,7 +11,7 @@ import numpy as np
 from alrd.spot_gym.model.command import Command, CommandEnum
 from alrd.spot_gym.model.mobility_command_eevel_cart import MobilityCommand
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.envs.spot_env_base import SpotGym
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent

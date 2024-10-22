@@ -18,7 +18,7 @@ from alrd.spot_gym.model.spot import (
 from alrd.utils.utils import get_timestamp_str
 
 
-class SpotGym(SpotBaseStateMachine, gym.Env, ABC):
+class SpotEnvBase(SpotBaseStateMachine, gym.Env, ABC):
     def __init__(
         self,
         config: SpotEnvironmentConfig,

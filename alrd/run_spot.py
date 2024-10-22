@@ -18,12 +18,8 @@ from alrd.agent.xbox_random_jointpos import SpotXboxRandomJointPos
 from alrd.agent.offline_trained import OfflineTrainedAgent
 
 # environments
-from alrd.spot_gym.envs.spot_eevel_cart_body import SpotEEVelEnv
-
-# from alrd.spot_gym.envs.spot_eevel_cyl import SpotEEVelEnv
-from alrd.spot_gym.envs.spot_jointpos import SpotJointPosEnv
-from alrd.spot_gym.envs.spot_basic import SpotBasicEnv
-from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.envs.spot_envs_augmented import SpotEnvBasic
+from alrd.spot_gym.envs.spot_env_base import SpotEnvBase
 
 # additionals
 from gym.wrappers.rescale_action import RescaleAction
@@ -251,7 +247,7 @@ def get_offline_trained_agent(
 # run episode
 def run(
     agent: Agent,
-    env: SpotGym,
+    env: SpotEnvBase,
     num_steps: int = 1000,
     cmd_freq: float = 10,
     collect_data: bool = False,
@@ -500,7 +496,7 @@ def start_experiment(
         """create env"""
         # note: make sure env and agent are compatible
         if not download_mode:
-            env = SpotBasicEnv(
+            env = SpotEnvBasic(
                 config,
                 cmd_freq=cmd_freq,
                 action_cost=0.005,

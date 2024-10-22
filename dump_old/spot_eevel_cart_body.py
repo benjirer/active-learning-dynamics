@@ -9,9 +9,9 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from alrd.spot_gym.model.command import Command, CommandEnum
-from alrd.spot_gym.model.mobility_command_eevel_cyl import MobilityCommand
+from alrd.spot_gym.model.mobility_command_eevel_cart import MobilityCommand
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.envs.spot_env_base import SpotGym
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent
@@ -19,10 +19,17 @@ from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from gym import spaces
 from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
+    MIN_X,
+    MAX_X,
+    MIN_Y,
+    MAX_Y,
     BODY_MAX_ANGULAR_VEL,
     BODY_MAX_VEL,
     ARM_MIN_HEIGHT,
     ARM_MAX_HEIGHT,
+    ARM_MAX_X,
+    ARM_MAX_Y,
+    ARM_MAX_LINEAR_VEL,
     ARM_MIN_AZIMUTHAL,
     ARM_MAX_AZIMUTHAL,
     ARM_MAX_RADIAL,
@@ -285,12 +292,6 @@ class Spot2DReward(RewardModel):
         )
 
 
-MIN_X = -4
-MIN_Y = -3
-MAX_X = 4
-MAX_Y = 3
-
-
 class SpotEEVelEnv(SpotGym):
     """
     Kinematic Observation:
@@ -303,26 +304,35 @@ class SpotEEVelEnv(SpotGym):
         w: angular velocity of the robot in the goal frame
 
     Arm Observation:
-        r: radial position of hand in the body frame
-        az: azimuthal position/angle of hand in the body frame
-        z: z position of hand in the body frame
-        vr: radial velocity of hand in the body frame
-        vaz: azimuthal velocity of hand in the body frame
+        x: position of hand in the body frame
+        y: position of hand in the body frame
+        z: position of hand in the body frame
+        hand_rx: x rotation angle of hand in the body frame
+        hand_ry: y rotation angle of hand in the body frame
+        hand_rz: z rotation angle of hand in the body frame
+        vx: x velocity of hand in the body frame
+        vy: y velocity of hand in the body frame
         vz: z velocity of hand in the body frame
+        vrx: x angular velocity of hand in the body frame
+        vry: y angular velocity of hand in the body frame
+        vrz: z angular velocity of hand in the body frame
 
     Kinematic Action:
-        vx: x velocity command for robot
-        vy: y velocity command for robot
-        w: angular velocity command for robot
+        vx: x velocity command for robot base
+        vy: y velocity command for robot base
+        w: angular velocity command for robot base
 
     Arm Action:
-        vr: radial velocity command for hand
-        vaz: azimuthal velocity command for hand
-        vz: z velocity command for hand
+        vx: x velocity command for hand in body frame
+        vy: velocity command for hand in body frame
+        vz: z velocity command for hand in body frame
+        vrx: x angular velocity command for hand in body frame
+        vry: y angular velocity command for hand in body frame
+        vrz: z angular velocity command for hand in body frame
     """
 
-    obs_shape = (13,)
-    action_shape = (6,)
+    obs_shape = (19,)
+    action_shape = (9,)
 
     def __init__(
         self,
@@ -354,12 +364,18 @@ class SpotEEVelEnv(SpotGym):
                     -BODY_MAX_VEL,
                     -BODY_MAX_VEL,
                     -BODY_MAX_ANGULAR_VEL,
-                    -ARM_MAX_RADIAL,
-                    ARM_MIN_AZIMUTHAL,
+                    -ARM_MAX_X,
+                    -ARM_MAX_Y,
                     ARM_MIN_HEIGHT,
-                    -ARM_MAX_RADIAL_VEL,
-                    -ARM_MAX_AZIMUTHAL_VEL,
+                    -np.pi,
+                    -np.pi / 2,
+                    -np.pi,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -371,12 +387,18 @@ class SpotEEVelEnv(SpotGym):
                     BODY_MAX_VEL,
                     BODY_MAX_VEL,
                     BODY_MAX_ANGULAR_VEL,
-                    ARM_MAX_RADIAL,
-                    ARM_MAX_AZIMUTHAL,
+                    np.pi,
+                    np.pi / 2,
+                    np.pi,
+                    ARM_MAX_X,
+                    ARM_MAX_Y,
                     ARM_MAX_HEIGHT,
-                    ARM_MAX_RADIAL_VEL,
-                    ARM_MAX_AZIMUTHAL_VEL,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
@@ -388,9 +410,12 @@ class SpotEEVelEnv(SpotGym):
                     -BODY_MAX_VEL,
                     -BODY_MAX_VEL,
                     -BODY_MAX_ANGULAR_VEL,
-                    -ARM_MAX_RADIAL_VEL,
-                    -ARM_MAX_AZIMUTHAL_VEL,
+                    -ARM_MAX_LINEAR_VEL,
+                    -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
+                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -398,9 +423,12 @@ class SpotEEVelEnv(SpotGym):
                     BODY_MAX_VEL,
                     BODY_MAX_VEL,
                     BODY_MAX_ANGULAR_VEL,
-                    ARM_MAX_RADIAL_VEL,
-                    ARM_MAX_AZIMUTHAL_VEL,
+                    ARM_MAX_LINEAR_VEL,
+                    ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
+                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
@@ -423,24 +451,10 @@ class SpotEEVelEnv(SpotGym):
         return self.__goal_frame
 
     def get_obs_from_state(self, state: SpotState) -> np.ndarray:
-        """
-        Returns
-            Kinematic Observations:
-                [x, y, cos, sin, vx, vy, w] with the origin at the goal position and axis aligned to environment frame
-            Arm Observations:
-                [r, az, z, vr, vaz, vz] with the origin at the body frame
-        """
         return SpotEEVelEnv.get_obs_from_state_goal(state, self.__goal_frame)
 
     @staticmethod
     def get_obs_from_state_goal(state: SpotState, goal_frame: Frame2D) -> np.ndarray:
-        """
-        Returns
-            Kinematic observations corresponding to the kinematic state using as origin the goal position
-            with the x axis in the direction of the goal orientation.
-
-            Arm observations corresponding to the manipulator state using as origin the body frame.
-        """
         # kinematic observations
         x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
         angle = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
@@ -448,18 +462,17 @@ class SpotEEVelEnv(SpotGym):
         vx, vy, _, _, _, w = state.velocity_of_body_in_vision
         vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
 
-        x_hand, y_hand, z_hand, _, _, _, _ = state.pose_of_hand_in_body
-        vx_hand, vy_hand, vz_hand, _, _, _ = state.velocity_of_hand_in_vision
-
         # arm observations
-        r = np.linalg.norm([x_hand, y_hand])
-        az = np.arctan2(y_hand, x_hand)
-        vr = np.dot(
-            np.array([vx_hand, vy_hand]), np.array([x_hand, y_hand])
-        ) / np.linalg.norm(np.array([x_hand, y_hand]))
-        vaz = np.cross(
-            np.array([x_hand, y_hand]), np.array([vx_hand, vy_hand])
-        ) / np.linalg.norm(np.array([x_hand, y_hand]))
+        hand_x, hand_y, hand_z, hand_qx, hand_qy, hand_qz, hand_qw = (
+            state.pose_of_hand_in_body
+        )
+        hand_rx, hand_ry, hand_rz = R.from_quat(
+            [hand_qx, hand_qy, hand_qz, hand_qw]
+        ).as_euler("xyz", degrees=False)
+        hand_vx, hand_vy, hand_vz, hand_vrx, hand_vry, hand_vrz = (
+            state.velocity_of_hand_in_body
+        )
+
         return np.array(
             [
                 x,
@@ -469,12 +482,18 @@ class SpotEEVelEnv(SpotGym):
                 vx,
                 vy,
                 w,
-                r,
-                az,
-                z_hand,
-                vr,
-                vaz,
-                vz_hand,
+                hand_x,
+                hand_y,
+                hand_z,
+                hand_rx,
+                hand_ry,
+                hand_rz,
+                hand_vx,
+                hand_vy,
+                hand_vz,
+                hand_vrx,
+                hand_vry,
+                hand_vrz,
             ]
         )
 
@@ -491,14 +510,29 @@ class SpotEEVelEnv(SpotGym):
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            vr=action[3],
-            vaz=action[4],
-            vz=action[5],
+            hand_vx=action[3],
+            hand_vy=action[4],
+            hand_vz=action[5],
+            hand_vrx=action[6],
+            hand_vry=action[7],
+            hand_vrz=action[8],
         )
 
     @staticmethod
     def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
-        return np.array([cmd.vx, cmd.vy, cmd.w, cmd.vr, cmd.vaz, cmd.vz])
+        return np.array(
+            [
+                cmd.vx,
+                cmd.vy,
+                cmd.w,
+                cmd.hand_vx,
+                cmd.hand_vy,
+                cmd.hand_vz,
+                cmd.hand_vrx,
+                cmd.hand_vry,
+                cmd.hand_vrz,
+            ]
+        )
 
     def get_reward(self, action, next_obs):
         return self.reward.predict(next_obs, action)

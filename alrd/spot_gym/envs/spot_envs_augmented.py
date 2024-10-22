@@ -1,23 +1,29 @@
 from __future__ import annotations
-
 import textwrap
 from pathlib import Path
 from typing import Any, Optional, Tuple, Callable
-
 from jax import jit
 import jax
 import jax.numpy as jnp
 import numpy as np
-from alrd.spot_gym.model.command import Command, CommandEnum
-from alrd.spot_gym.model.mobility_command_eevel_cart import MobilityCommand
+from gym import spaces
+from scipy.spatial.transform import Rotation as R
+from flax import struct
+
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from opax.models.reward_model import RewardModel
+from jdm_control.rewards import get_tolerance_fn
+
+from alrd.spot_gym.model.command import Command
+from alrd.spot_gym.model.mobility_command import (
+    MobilityCommandBasic,
+    MobilityCommandAugmented,
+)
 from alrd.spot_gym.model.robot_state import SpotState
-from alrd.spot_gym.envs.spotgym import SpotGym
+from alrd.spot_gym.envs.spot_env_base import SpotEnvBase
 from alrd.spot_gym.model.spot import SpotEnvironmentConfig
 from alrd.utils.utils import change_frame_2d, rotate_2d_vector, Frame2D
 from alrd.agent.keyboard import KeyboardResetAgent, KeyboardAgent
-from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
-from gym import spaces
-from scipy.spatial.transform import Rotation as R
 from alrd.spot_gym.utils.utils import (
     MIN_X,
     MAX_X,
@@ -51,16 +57,13 @@ from alrd.spot_gym.utils.utils import (
     ARM_MAX_JOINT_VEL,
 )
 
-from opax.models.reward_model import RewardModel
-from jdm_control.rewards import get_tolerance_fn
-from flax import struct
-
 
 def norm(x: jax.Array, axis: int):
     norm = jnp.sum(x * x, axis=axis)
     return jnp.sqrt(norm + 1e-12)
 
 
+# reward options
 _DEFAULT_VALUE_AT_MARGIN = 0.1
 
 
@@ -82,7 +85,7 @@ class DistReward(RewardModel):
         if bounds is None:
             bounds = (0.0, 0.0)
         bounds = np.array(bounds)
-        assert goal_pos.shape == (2,)
+        assert goal_pos.shape == (3,)
         tolerance_fn = get_tolerance_fn(
             bounds=bounds / margin,
             margin=1.0,
@@ -94,58 +97,19 @@ class DistReward(RewardModel):
     @jit
     def predict(self, obs, action, next_obs=None, rng=None):
         # dist = jnp.linalg.norm(obs[..., 0:2] - self.goal_pos, axis=-1)
-        dist = norm(obs[..., 0:2] - self.goal_pos, -1)
+        dist = norm(obs[..., 7:10] - self.goal_pos, -1)
         return self.tolerance_fn(dist / self.margin)
 
 
 @struct.dataclass
-class AngleReward(RewardModel):
-    tolerance_fn: Callable = struct.field(pytree_node=False)
-    goal_angle: float
-    margin: float
-
-    @staticmethod
-    def create(
-        goal_angle: float,
-        margin: float,
-        sigmoid: str = "long_tail",
-        bounds=None,
-        value_at_margin=_DEFAULT_VALUE_AT_MARGIN,
-    ):
-        if bounds is None:
-            bounds = (0.0, 0.0)
-        bounds = np.array(bounds)
-        tolerance_fn = get_tolerance_fn(
-            bounds=bounds / margin,
-            margin=1.0,
-            sigmoid=sigmoid,
-            value_at_margin=value_at_margin,
-        )
-        return AngleReward(tolerance_fn, goal_angle, margin)
-
-    @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        cos = obs[..., 2]
-        sin = obs[..., 3]
-        angle_diff = jnp.abs(jnp.arctan2(sin, cos) - self.goal_angle)
-        angle_diff = jnp.where(
-            angle_diff < 2.0 * jnp.pi - angle_diff,
-            angle_diff,
-            2.0 * jnp.pi - angle_diff,
-        )
-        return self.tolerance_fn(angle_diff / self.margin)
-
-
-@struct.dataclass
-class ActionCost(RewardModel):
-    tolerance_fn: Callable = struct.field(pytree_node=False)
+class ActionCostSimple(RewardModel):
+    action_cost_fn: Callable = struct.field(pytree_node=False)
+    """Just takes the squared sum of the action vector"""
 
     @staticmethod
     def create(sigmoid: str = "long_tail"):
-        tolerance_fn = get_tolerance_fn(
-            margin=jnp.linalg.norm(jnp.ones([3])).item(), sigmoid=sigmoid
-        )
-        return ActionCost(tolerance_fn)
+        action_cost_fn = lambda action: jnp.sum(action**2, axis=-1)
+        return ActionCostSimple(action_cost_fn)
 
     @jit
     def predict(self, obs, action, next_obs=None, rng=None):
@@ -154,196 +118,101 @@ class ActionCost(RewardModel):
 
 
 @struct.dataclass
-class LinearVelCost(RewardModel):
-    tolerance_fn: Callable = struct.field(pytree_node=False)
-
-    @staticmethod
-    def create(sigmoid: str = "long_tail"):
-        tolerance_fn = get_tolerance_fn(margin=1.0, sigmoid=sigmoid)
-        return LinearVelCost(tolerance_fn)
-
-    @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        # vel_norm = jnp.linalg.norm(obs[..., 4:6], axis=-1)
-        vel_norm = norm(obs[..., 4:6], axis=-1)
-        return self.tolerance_fn(vel_norm / BODY_MAX_VEL)
-
-
-@struct.dataclass
-class AngularVelCost(RewardModel):
-    tolerance_fn: Callable = struct.field(pytree_node=False)
-
-    @staticmethod
-    def create(sigmoid: str = "long_tail"):
-        tolerance_fn = get_tolerance_fn(margin=1.0, sigmoid=sigmoid)
-        return AngularVelCost(tolerance_fn)
-
-    @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        return self.tolerance_fn(obs[..., 6] / BODY_MAX_ANGULAR_VEL)
-
-
-@struct.dataclass
-class GoalLinearVelCost(RewardModel):
-    vel_cost: LinearVelCost
-    dist_rew: DistReward
-
-    @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        return self.dist_rew.predict(
-            obs, action, next_obs, rng
-        ) * self.vel_cost.predict(obs, action, next_obs, rng)
-
-
-@struct.dataclass
-class GoalAngularVelCost(RewardModel):
-    vel_cost: AngularVelCost
-    angl_rew: AngleReward
-
-    @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        return self.angl_rew.predict(
-            obs, action, next_obs, rng
-        ) * self.vel_cost.predict(obs, action, next_obs, rng)
-
-
-@struct.dataclass
 class Spot2DReward(RewardModel):
     dist_rew: DistReward
-    angl_rew: AngleReward
-    act_cost: ActionCost
-    linvel_cost: LinearVelCost | GoalLinearVelCost
-    angvel_cost: AngularVelCost | GoalAngularVelCost
+    act_cost: ActionCostSimple
     action_coeff: float = struct.field(default=0.0)
-    velocity_coeff: float = struct.field(default=0.0)
-    angle_coeff: float = struct.field(default=0.5)
 
     @staticmethod
     def create(
         goal_pos: np.ndarray | jnp.ndarray = None,
-        angle_coeff: float = 0.5,
-        action_coeff: float = 0.0,
-        velocity_coeff: float = 0.0,
-        dist_margin: float = 6.0,
-        angle_margin: float = np.pi,
+        action_coeff: float = 0.001,
+        dist_margin: float = 5.0,
         sigmoid: str = "long_tail",
-        vel_cost_on_goal: bool = False,
-        vel_lin_margin: float = None,
-        vel_ang_margin: float = None,
         dist_bound: float = 0.0,
-        angle_bound: float = 0.0,
     ):
-        if vel_cost_on_goal:
-            if vel_lin_margin is None:
-                vel_lin_margin = 0.2
-            if vel_ang_margin is None:
-                vel_ang_margin = jnp.pi / 18.0
+
         if goal_pos is None:
             goal_pos = jnp.zeros([3])
+
         dist_rew = DistReward.create(
-            goal_pos[:2], dist_margin, sigmoid=sigmoid, bounds=(0.0, dist_bound)
+            goal_pos, dist_margin, sigmoid=sigmoid, bounds=(0.0, dist_bound)
         )
-        angl_rew = AngleReward.create(
-            goal_pos[2], angle_margin, sigmoid=sigmoid, bounds=(0.0, angle_bound)
-        )
-        act_cost = ActionCost.create(sigmoid=sigmoid)
-        linvel_cost = LinearVelCost.create(sigmoid=sigmoid)
-        angvel_cost = AngularVelCost.create(sigmoid=sigmoid)
-        if vel_cost_on_goal:
-            value_at_margin = 1e-2
-            step_dist = DistReward.create(
-                goal_pos[:2],
-                vel_lin_margin,
-                sigmoid="gaussian",
-                value_at_margin=value_at_margin,
-            )
-            linvel_cost = GoalLinearVelCost(linvel_cost, step_dist)
-            step_ang = AngleReward.create(
-                goal_pos[2],
-                vel_ang_margin,
-                sigmoid="gaussian",
-                value_at_margin=value_at_margin,
-            )
-            angvel_cost = GoalAngularVelCost(angvel_cost, step_ang)
+
+        act_cost = ActionCostSimple.create(sigmoid=sigmoid)
+
         return Spot2DReward(
             dist_rew,
-            angl_rew,
             act_cost,
-            linvel_cost,
-            angvel_cost,
             action_coeff,
-            velocity_coeff,
-            angle_coeff,
         )
 
     @jit
-    def predict(self, obs, action, next_obs=None, rng=None):
-        reward = (1 - self.angle_coeff) * self.dist_rew.predict(
-            obs, action, next_obs, rng
-        ) + (self.angle_coeff) * self.angl_rew.predict(obs, action, next_obs, rng)
+    def predict(self, obs, action, next_obs=None, rng=None, last_obs=None):
+        distance_reward = self.dist_rew.predict(obs, action, next_obs, rng)
         action_cost = self.act_cost.predict(obs, action, next_obs, rng)
-        velocity_cost = (1 - self.angle_coeff) * self.linvel_cost.predict(
-            obs, action, next_obs, rng
-        ) + (self.angle_coeff) * self.angvel_cost.predict(obs, action, next_obs, rng)
+        if last_obs is not None:
+            last_action = jnp.concatenate(
+                [last_obs[..., 4:7], last_obs[..., 10:13]], axis=-1
+            )
+            action_difference_cost = -jnp.sum((action - last_action) ** 2, axis=-1)
+        else:
+            action_difference_cost = 0.0
+
+        ee_body_reward = 0.1  # always given on real robot
+
         return (
-            reward * (1.0 - self.action_coeff - self.velocity_coeff)
+            distance_reward
             + self.action_coeff * action_cost
-            + self.velocity_coeff * velocity_cost
+            + 0.01 * action_difference_cost
+            + ee_body_reward
         )
 
 
-class SpotEEVelEnv(SpotGym):
+class SpotEnvBasic(SpotEnvBase):
     """
-    Kinematic Observation:
-        x: x position of the robot in the goal frame
-        y: y position of the robot in the goal frame
-        cos: cosine of the heading angle of the robot in the goal frame
-        sin: sine of the heading angle of the robot in the goal frame
-        vx: x velocity of the robot in the goal frame
-        vy: y velocity of the robot in the goal frame
-        w: angular velocity of the robot in the goal frame
+    SpotEnvBasic allows for control of the robot base and end-effector.
 
-    Arm Observation:
-        x: position of hand in the body frame
-        y: position of hand in the body frame
-        z: position of hand in the body frame
-        hand_rx: x rotation angle of hand in the body frame
-        hand_ry: y rotation angle of hand in the body frame
-        hand_rz: z rotation angle of hand in the body frame
-        vx: x velocity of hand in the body frame
-        vy: y velocity of hand in the body frame
-        vz: z velocity of hand in the body frame
-        vrx: x angular velocity of hand in the body frame
-        vry: y angular velocity of hand in the body frame
-        vrz: z angular velocity of hand in the body frame
+    Base State Observation:
+        x: x position of the base in global frame
+        y: y position of the base in global frame
+        sin(theta): sine of the heading angle theta of the base in global frame
+        cos(theta): cosine of the heading angle theta of the base global frame
+        vx: x velocity of the base in global frame
+        vy: y velocity of the base in global frame
+        vrz: yaw angular velocity of the base in global frame
 
-    Kinematic Action:
-        vx: x velocity command for robot base
-        vy: y velocity command for robot base
-        w: angular velocity command for robot base
+    EE State Observation:
+        x: position of ee in global frame
+        y: position of ee in global frame
+        z: position of ee in global frame
+        vx: x velocity of ee in global frame
+        vy: y velocity of ee in global frame
+        vz: z velocity of ee in global frame
 
-    Arm Action:
-        vx: x velocity command for hand in body frame
-        vy: velocity command for hand in body frame
-        vz: z velocity command for hand in body frame
-        vrx: x angular velocity command for hand in body frame
-        vry: y angular velocity command for hand in body frame
-        vrz: z angular velocity command for hand in body frame
+    Base Action:
+        vx: x linear velocity command for robot base
+        vy: y linear velocity command for robot base
+        vrz: yaw angular velocity command for robot base
+
+    EE Action:
+        vx: x linear velocity command for ee in body frame
+        vy: y linear velocity command for ee in body frame
+        vz: z linear velocity command for ee in body frame
     """
 
-    obs_shape = (19,)
-    action_shape = (9,)
+    obs_shape = (13,)
+    action_shape = (6,)
 
     def __init__(
         self,
         config: SpotEnvironmentConfig,
         cmd_freq: float,
+        goal_pos: np.ndarray = None,
         monitor_freq: float = 30,
         action_cost=0.0,
-        velocity_cost=0.0,
         skip_ui: bool = False,
     ):
-
         super().__init__(
             config,
             cmd_freq,
@@ -367,15 +236,9 @@ class SpotEEVelEnv(SpotGym):
                     -ARM_MAX_X,
                     -ARM_MAX_Y,
                     ARM_MIN_HEIGHT,
-                    -np.pi,
-                    -np.pi / 2,
-                    -np.pi,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -387,18 +250,12 @@ class SpotEEVelEnv(SpotGym):
                     BODY_MAX_VEL,
                     BODY_MAX_VEL,
                     BODY_MAX_ANGULAR_VEL,
-                    np.pi,
-                    np.pi / 2,
-                    np.pi,
                     ARM_MAX_X,
                     ARM_MAX_Y,
                     ARM_MAX_HEIGHT,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
@@ -413,9 +270,6 @@ class SpotEEVelEnv(SpotGym):
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_LINEAR_VEL,
                     -ARM_MAX_VERTICAL_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
-                    -ARM_MAX_JOINT_VEL,
                 ]
             ),
             high=np.array(
@@ -426,116 +280,83 @@ class SpotEEVelEnv(SpotGym):
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_LINEAR_VEL,
                     ARM_MAX_VERTICAL_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
-                    ARM_MAX_JOINT_VEL,
                 ]
             ),
         )
 
-        # check if transform needed
-        self.__goal_frame = None  # goal position in vision frame
-
         # reward model
-        self.reward = Spot2DReward.create(
-            action_coeff=action_cost, velocity_coeff=velocity_cost
-        )
+        self.reward = Spot2DReward.create(action_coeff=action_cost, goal_pos=goal_pos)
         self.__keyboard = KeyboardResetAgent(KeyboardAgent(0.5, 0.5))
         self.__skip_ui = skip_ui
 
     def start(self):
         super().start()
 
-    @property
-    def goal_frame(self) -> Frame2D:
-        return self.__goal_frame
-
     def get_obs_from_state(self, state: SpotState) -> np.ndarray:
-        return SpotEEVelEnv.get_obs_from_state_goal(state, self.__goal_frame)
+        # base state observations
+        x, y, z, qx, qy, qz, qw = state.pose_of_body_in_vision
+        theta = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
+        theta = (theta + np.pi) % (2 * np.pi) - np.pi
+        vx, vy, vz, vrx, vry, vrz = state.velocity_of_body_in_vision
 
-    @staticmethod
-    def get_obs_from_state_goal(state: SpotState, goal_frame: Frame2D) -> np.ndarray:
-        # kinematic observations
-        x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
-        angle = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
-        x, y, angle = goal_frame.transform_pose(x, y, angle)
-        vx, vy, _, _, _, w = state.velocity_of_body_in_vision
-        vx, vy = goal_frame.transform_direction(np.array((vx, vy)))
-
-        # arm observations
-        hand_x, hand_y, hand_z, hand_qx, hand_qy, hand_qz, hand_qw = (
-            state.pose_of_hand_in_body
+        # ee state observations
+        ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_vision
+        ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
+            "xyz", degrees=False
         )
-        hand_rx, hand_ry, hand_rz = R.from_quat(
-            [hand_qx, hand_qy, hand_qz, hand_qw]
-        ).as_euler("xyz", degrees=False)
-        hand_vx, hand_vy, hand_vz, hand_vrx, hand_vry, hand_vrz = (
-            state.velocity_of_hand_in_body
-        )
+        ee_vx, ee_vy, ee_vz, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_vision
 
         return np.array(
             [
                 x,
                 y,
-                np.cos(angle),
-                np.sin(angle),
+                np.sin(theta),
+                np.cos(theta),
                 vx,
                 vy,
-                w,
-                hand_x,
-                hand_y,
-                hand_z,
-                hand_rx,
-                hand_ry,
-                hand_rz,
-                hand_vx,
-                hand_vy,
-                hand_vz,
-                hand_vrx,
-                hand_vry,
-                hand_vrz,
+                vrz,
+                ee_x,
+                ee_y,
+                ee_z,
+                ee_vx,
+                ee_vy,
+                ee_vz,
             ]
         )
 
     def get_cmd_from_action(
         self, action: np.ndarray, prev_state: np.ndarray
     ) -> Command:
-        return MobilityCommand(
+        return MobilityCommandBasic(
             prev_state=prev_state,
             cmd_freq=self._cmd_freq,
             vx=action[0],
             vy=action[1],
-            w=action[2],
+            vrz=action[2],
             height=0.0,
             pitch=0.0,
             locomotion_hint=spot_command_pb2.HINT_AUTO,
             stair_hint=0,
-            hand_vx=action[3],
-            hand_vy=action[4],
-            hand_vz=action[5],
-            hand_vrx=action[6],
-            hand_vry=action[7],
-            hand_vrz=action[8],
+            ee_vx=action[3],
+            ee_vy=action[4],
+            ee_vz=action[5],
         )
 
     @staticmethod
-    def get_action_from_command(cmd: MobilityCommand) -> np.ndarray:
+    def get_action_from_command(cmd: MobilityCommandBasic) -> np.ndarray:
         return np.array(
             [
                 cmd.vx,
                 cmd.vy,
-                cmd.w,
-                cmd.hand_vx,
-                cmd.hand_vy,
-                cmd.hand_vz,
-                cmd.hand_vrx,
-                cmd.hand_vry,
-                cmd.hand_vrz,
+                cmd.vrz,
+                cmd.ee_vx,
+                cmd.ee_vy,
+                cmd.ee_vz,
             ]
         )
 
-    def get_reward(self, action, next_obs):
-        return self.reward.predict(next_obs, action)
+    def get_reward(self, action, next_obs, last_obs=None) -> float:
+        return self.reward.predict(obs=next_obs, action=action, last_obs=last_obs)
 
     def is_done(self, obs: np.ndarray) -> bool:
         return False
@@ -648,7 +469,143 @@ class SpotEEVelEnv(SpotGym):
         return super().reset(seed=seed, options=options)
 
 
-class SpotEEVelEnvDone(SpotEEVelEnv):
+class SpotEnvAugmented(SpotEnvBasic):
+    """
+    SpotEnvAugmented extends SpotEnvBasic by allowing for control of the ee angular velocities.
+
+    Additions:
+    EE State Observation:
+        sin(ee_rx): sin of roll of ee in global frame
+        cos(ee_rx): cos of roll of ee in global frame
+        sin(ee_ry): sin of pitch of ee in global frame
+        cos(ee_ry): cos of pitch of ee in global frame
+        sin(ee_rz): sin of yaw of ee in global frame
+        cos(ee_rz): cos of yaw of ee in global frame
+
+    EE Action:
+        ee_vrx: roll angular velocity command for ee in body frame
+        ee_vry: pitch angular velocity command for ee in body frame
+        ee_vrz: yaw angular velocity command for ee in body frame
+    """
+
+    obs_shape = (13 + 6 + 3,)
+    action_shape = (6 + 3,)
+
+    def __init__(
+        self,
+        config,
+        cmd_freq: float,
+        goal_pos: np.ndarray,
+        monitor_freq: float = 30,
+        action_cost=0.0,
+        skip_ui: bool = False,
+    ):
+        super().__init__(
+            config=config,
+            cmd_freq=cmd_freq,
+            goal_pos=goal_pos,
+            monitor_freq=monitor_freq,
+            action_cost=action_cost,
+            skip_ui=skip_ui,
+        )
+
+        # update observation and action spaces
+        obs_low = np.concatenate(
+            (
+                self.observation_space.low,
+                np.array([-1] * 6),
+                np.array([-ARM_MAX_JOINT_VEL] * 3),
+            )
+        )
+        obs_high = np.concatenate(
+            (
+                self.observation_space.high,
+                np.array([1] * 6),
+                np.array([ARM_MAX_JOINT_VEL] * 3),
+            )
+        )
+        self.observation_space = spaces.Box(low=obs_low, high=obs_high)
+        action_low = np.concatenate(
+            (
+                self.action_space.low,
+                np.array([-ARM_MAX_JOINT_VEL] * 3),
+            )
+        )
+        action_high = np.concatenate(
+            (
+                self.action_space.high,
+                np.array([ARM_MAX_JOINT_VEL] * 3),
+            )
+        )
+        self.action_space = spaces.Box(low=action_low, high=action_high)
+
+    def get_obs_from_state(self, state: SpotState) -> np.ndarray:
+        obs = super().get_obs_from_state(state)
+
+        # ee orientation
+        ee_pose = state.pose_of_hand_in_vision
+        ee_qx, ee_qy, ee_qz, ee_qw = ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]
+        ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
+            "xyz", degrees=False
+        )
+
+        # ee angular velocities
+        ee_vel = state.velocity_of_hand_in_vision
+        ee_vrx, ee_vry, ee_vrz = ee_vel[3], ee_vel[4], ee_vel[5]
+
+        # add to obs
+        new_obs = np.array(
+            [
+                np.sin(ee_rx),
+                np.cos(ee_rx),
+                np.sin(ee_ry),
+                np.cos(ee_ry),
+                np.sin(ee_rz),
+                np.cos(ee_rz),
+                ee_vrx,
+                ee_vry,
+                ee_vrz,
+            ]
+        )
+        obs = np.concatenate((obs, new_obs))
+        return obs
+
+    def get_cmd_from_action(self, action: np.ndarray, prev_state: SpotState) -> Command:
+        return MobilityCommandAugmented(
+            prev_state=prev_state,
+            vx=action[0],
+            vy=action[1],
+            vrz=action[2],
+            height=0.0,
+            pitch=0.0,
+            locomotion_hint=spot_command_pb2.HINT_AUTO,
+            stair_hint=False,
+            ee_vx=action[3],
+            ee_vy=action[4],
+            ee_vz=action[5],
+            ee_vrx=action[6],
+            ee_vry=action[7],
+            ee_vrz=action[8],
+        )
+
+    @staticmethod
+    def get_action_from_command(cmd: MobilityCommandAugmented) -> np.ndarray:
+        return np.array(
+            [
+                cmd.vx,
+                cmd.vy,
+                cmd.vrz,
+                cmd.ee_vx,
+                cmd.ee_vy,
+                cmd.ee_vz,
+                cmd.ee_vrx,
+                cmd.ee_vry,
+                cmd.ee_vrz,
+            ]
+        )
+
+
+class SpotEnvBasicDone(SpotEnvBasic):
     """Stops the robot when close to goal pose with low velocity"""
 
     def __init__(self, dist_tol, ang_tol, vel_tol, *args, **kwargs) -> None:
