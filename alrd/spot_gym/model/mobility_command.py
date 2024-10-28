@@ -206,27 +206,30 @@ class MobilityCommandAugmented(MobilityCommandBasic):
             cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
 
             # ee angular velocity command
-            # note: we have to convert ee angular velocity from body frame to odom frame
-            # since the SDK only accepts ee angular velocity in odom frame
-            ee_vel_in_body = SE3Velocity(
-                lin_x=self.ee_vx,
-                lin_y=self.ee_vy,
-                lin_z=self.ee_vz,
-                ang_x=self.ee_vrx,
-                ang_y=self.ee_vry,
-                ang_z=self.ee_vrz,
-            )
-            ee_vel_in_odom_proto = express_se3_velocity_in_new_frame(
-                self.prev_state.transforms_snapshot,
-                BODY_FRAME_NAME,
-                ODOM_FRAME_NAME,
-                ee_vel_in_body.to_proto(),
-            )
-            ee_angular_velocity = Vec3(
-                x=ee_vel_in_odom_proto.angular_velocity_x,
-                y=ee_vel_in_odom_proto.angular_velocity_y,
-                z=ee_vel_in_odom_proto.angular_velocity_z,
-            )
+            # # note: we have to convert ee angular velocity from body frame to odom frame
+            # # since the SDK only accepts ee angular velocity in odom frame
+            # ee_vel_in_body = SE3Velocity(
+            #     lin_x=self.ee_vx,
+            #     lin_y=self.ee_vy,
+            #     lin_z=self.ee_vz,
+            #     ang_x=self.ee_vrx,
+            #     ang_y=self.ee_vry,
+            #     ang_z=self.ee_vrz,
+            # )
+            # ee_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+            #     self.prev_state.transforms_snapshot,
+            #     BODY_FRAME_NAME,
+            #     ODOM_FRAME_NAME,
+            #     ee_vel_in_body.to_proto(),
+            # )
+            # ee_angular_velocity = Vec3(
+            #     x=ee_vel_in_odom_proto.angular_velocity_x,
+            #     y=ee_vel_in_odom_proto.angular_velocity_y,
+            #     z=ee_vel_in_odom_proto.angular_velocity_z,
+            # )
+
+            # note: let's try without converting it
+            ee_angular_velocity = Vec3(x=self.ee_vrx, y=self.ee_vry, z=self.ee_vrz)
 
             arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
                 cartesian_velocity=cartesian_velocity,

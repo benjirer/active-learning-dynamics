@@ -37,6 +37,14 @@ class SpotXboxSpacemouse(AgentReset):
         # end effector control mode
         self.ee_control_mode = ee_control_mode
 
+        # create random commands for end effector roll, pitch, yaw
+        rng = np.random.default_rng(12345)
+        random_numbers = rng.random((100000, 3))
+        self.ee_vrx = random_numbers[:, 0]
+        self.ee_vry = random_numbers[:, 1]
+        self.ee_vrz = random_numbers[:, 2]
+        self.idx = 0
+
     def _move(
         self,
         left_x,
@@ -80,10 +88,16 @@ class SpotXboxSpacemouse(AgentReset):
 
         # ee angular velocity control
         # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
-        if sm_button_1 and self.ee_control_mode == "augmented":
-            v_4 = sm_roll * self.ee_angular
-            v_5 = sm_pitch * self.ee_angular
-            v_6 = sm_yaw * self.ee_angular
+        # if sm_button_1 and self.ee_control_mode == "augmented":
+        #     v_4 = sm_roll * self.ee_angular
+        #     v_5 = sm_pitch * self.ee_angular
+        #     v_6 = sm_yaw * self.ee_angular
+
+        # get random command
+        v_4 = self.ee_vrx[self.idx] * self.ee_angular
+        v_5 = self.ee_vry[self.idx] * self.ee_angular
+        v_6 = self.ee_vrz[self.idx] * self.ee_angular
+        self.idx += 1
 
         # if basic: return only linear velocities for ee
         if self.ee_control_mode == "basic":

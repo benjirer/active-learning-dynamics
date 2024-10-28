@@ -399,9 +399,10 @@ def start_experiment(
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
         agent = SpotXboxSpacemouse(
-            base_speed=1.0,
-            base_angular=1.0,
+            base_speed=1.5,
+            base_angular=1.5,
             ee_speed=1.5,
+            ee_angular=5.0,
             ee_control_mode="augmented",
         )
 
