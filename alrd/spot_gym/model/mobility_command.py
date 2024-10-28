@@ -252,7 +252,7 @@ class MobilityCommandAugmented(MobilityCommandBasic):
             super().__post_init__()
             return
 
-        super(Command, self).__init__(cmd)
+        Command.__init__(self, cmd)
 
     def __array__(self, dtype=None) -> np.ndarray:
         return np.array(

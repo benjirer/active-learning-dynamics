@@ -38,11 +38,10 @@ class SpotXboxSpacemouse(AgentReset):
         self.ee_control_mode = ee_control_mode
 
         # create random commands for end effector roll, pitch, yaw
-        rng = np.random.default_rng(12345)
-        random_numbers = rng.random((100000, 3))
-        self.ee_vrx = random_numbers[:, 0]
-        self.ee_vry = random_numbers[:, 1]
-        self.ee_vrz = random_numbers[:, 2]
+        np.random.seed(42)
+        combined_array = np.random.uniform(-1, 1, 100000 * 3)
+        self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
+
         self.idx = 0
 
     def _move(

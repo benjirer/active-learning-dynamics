@@ -453,9 +453,9 @@ if __name__ == "__main__":
 
     """============== SETTINGS =============="""
     num_episodes = 1
-    num_steps = 50000
+    num_steps = 5000
     cmd_freq = 10
-    collect_data = False
+    collect_data = True
     data_tag = "data_collection"
     action_scale = 1.0
 
