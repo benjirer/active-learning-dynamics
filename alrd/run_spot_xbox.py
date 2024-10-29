@@ -239,6 +239,7 @@ def run(
             delta_t_step = time.time() - step_time
 
             delta_t = start_t - time.time()
+            print(1 / delta_t)
             start_t = time.time()
             recent_state = info["next_state"]
             save_time = time.time()
@@ -462,13 +463,13 @@ if __name__ == "__main__":
     """============== SETTINGS =============="""
     num_episodes = 1
     num_steps = 2000
-    cmd_freq = 10
+    cmd_freq = 15
     collect_data = True
-    data_tag = "data_collection_v1"
+    data_tag = "data_collection_v2"
     action_scale = 1.0
-    base_speed = 1.5
-    base_angular = 2.5
-    ee_speed = 1.5
+    base_speed = 1.6
+    base_angular = 1.5
+    ee_speed = 5.0
     ee_angular = 2.5
 
     """============== RUN =============="""

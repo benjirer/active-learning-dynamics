@@ -1,0 +1,7 @@
+num_episodes: 1
+num_steps: 2000
+cmd_freq: 15
+base_speed: 1.6
+base_angular: 1.8
+ee_speed: 5.0
+ee_angular: 2.5
