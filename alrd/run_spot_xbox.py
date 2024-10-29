@@ -456,7 +456,7 @@ if __name__ == "__main__":
     num_steps = 5000
     cmd_freq = 10
     collect_data = True
-    data_tag = "data_collection"
+    data_tag = "ee_ang_test"
     action_scale = 1.0
 
     start_experiment(
