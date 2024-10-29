@@ -315,6 +315,10 @@ def start_experiment(
     collect_data: bool = False,
     data_tag: str = "v5_0",
     action_scale: float = 1.0,
+    base_speed: float = 1.0,
+    base_angular: float = 1.0,
+    ee_speed: float = 1.0,
+    ee_angular: float = 1.0,
 ):
 
     # import real world config
@@ -342,6 +346,10 @@ def start_experiment(
             "num_episodes: {}".format(num_episodes),
             "num_steps: {}".format(num_steps),
             "cmd_freq: {}".format(cmd_freq),
+            "base_speed: {}".format(base_speed),
+            "base_angular: {}".format(base_angular),
+            "ee_speed: {}".format(ee_speed),
+            "ee_angular: {}".format(ee_angular),
         ]
         os.makedirs(session_dir, exist_ok=True)
         settings_path = os.path.join(session_dir, "experiment_settings.csv")
@@ -399,10 +407,10 @@ def start_experiment(
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
         agent = SpotXboxSpacemouse(
-            base_speed=1.5,
-            base_angular=1.5,
-            ee_speed=1.5,
-            ee_angular=5.0,
+            base_speed=base_speed,
+            base_angular=base_angular,
+            ee_speed=ee_speed,
+            ee_angular=ee_angular,
             ee_control_mode="augmented",
         )
 
@@ -458,6 +466,12 @@ if __name__ == "__main__":
     collect_data = True
     data_tag = "ee_ang_test"
     action_scale = 1.0
+    base_speed = 1.5
+    base_angular = 2.5
+    ee_speed = 1.5
+    ee_angular = 2.5
+
+    """============== RUN =============="""
 
     start_experiment(
         num_episodes=num_episodes,
@@ -466,4 +480,8 @@ if __name__ == "__main__":
         collect_data=collect_data,
         data_tag=data_tag,
         action_scale=action_scale,
+        base_speed=base_speed,
+        base_angular=base_angular,
+        ee_speed=ee_speed,
+        ee_angular=ee_angular,
     )

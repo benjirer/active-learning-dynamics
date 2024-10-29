@@ -19,8 +19,8 @@ class SpotXboxSpacemouse(AgentReset):
         self,
         base_speed: float = 1.0,
         base_angular: float = 1.0,
-        ee_speed: float = 0.5,
-        ee_angular: float = 0.5,
+        ee_speed: float = 1.0,
+        ee_angular: float = 1.0,
         ee_control_mode: str = "basic",
     ):
         super().__init__()
