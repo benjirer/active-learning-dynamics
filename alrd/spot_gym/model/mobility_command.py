@@ -56,40 +56,30 @@ class MobilityCommandBasic(Command):
         )
 
         # make ee command
-        # only if ee velocity commands are not zero
-        if self.ee_vx != 0 or self.ee_vy != 0 or self.ee_vz != 0:
-            # ee cartesian linear velocity command
-            cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
-            cartesian_velocity.frame_name = BODY_FRAME_NAME
-            cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
-            cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
-            cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
+        # ee cartesian linear velocity command
+        cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
+        cartesian_velocity.frame_name = BODY_FRAME_NAME
+        cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
+        cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
+        cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
 
-            arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
-                cartesian_velocity=cartesian_velocity,
-            )
-            robot_command = robot_command_pb2.RobotCommand()
-            robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
-                arm_velocity_command
-            )
+        arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
+            cartesian_velocity=cartesian_velocity,
+        )
+        robot_command = robot_command_pb2.RobotCommand()
+        robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
+            arm_velocity_command
+        )
 
-            # build command
-            cmd = RobotCommandBuilder.synchro_velocity_command(
-                v_x=self.vx,
-                v_y=self.vy,
-                v_rot=self.vrz,
-                params=mobility_params,
-                build_on_command=robot_command,
-            )
+        # build command
+        cmd = RobotCommandBuilder.synchro_velocity_command(
+            v_x=self.vx,
+            v_y=self.vy,
+            v_rot=self.vrz,
+            params=mobility_params,
+            build_on_command=robot_command,
+        )
 
-        else:
-            # build command
-            cmd = RobotCommandBuilder.synchro_velocity_command(
-                v_x=self.vx,
-                v_y=self.vy,
-                v_rot=self.vrz,
-                params=mobility_params,
-            )
         super().__init__(cmd)
 
     def __array__(self, dtype=None) -> np.ndarray:
@@ -189,68 +179,56 @@ class MobilityCommandAugmented(MobilityCommandBasic):
         )
 
         # make ee command
-        # only if ee velocity commands are not zero
-        if (
-            self.ee_vx != 0
-            or self.ee_vy != 0
-            or self.ee_vz != 0
-            or self.ee_vrx != 0
-            or self.ee_vry != 0
-            or self.ee_vrz != 0
-        ):
-            # ee cartesian linear velocity command
-            cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
-            cartesian_velocity.frame_name = BODY_FRAME_NAME
-            cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
-            cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
-            cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
+        # ee cartesian linear velocity command
+        cartesian_velocity = arm_command_pb2.ArmVelocityCommand.CartesianVelocity()
+        cartesian_velocity.frame_name = BODY_FRAME_NAME
+        cartesian_velocity.velocity_in_frame_name.x = self.ee_vx
+        cartesian_velocity.velocity_in_frame_name.y = self.ee_vy
+        cartesian_velocity.velocity_in_frame_name.z = self.ee_vz
 
-            # ee angular velocity command
-            # # note: we have to convert ee angular velocity from body frame to odom frame
-            # # since the SDK only accepts ee angular velocity in odom frame
-            # ee_vel_in_body = SE3Velocity(
-            #     lin_x=self.ee_vx,
-            #     lin_y=self.ee_vy,
-            #     lin_z=self.ee_vz,
-            #     ang_x=self.ee_vrx,
-            #     ang_y=self.ee_vry,
-            #     ang_z=self.ee_vrz,
-            # )
-            # ee_vel_in_odom_proto = express_se3_velocity_in_new_frame(
-            #     self.prev_state.transforms_snapshot,
-            #     BODY_FRAME_NAME,
-            #     ODOM_FRAME_NAME,
-            #     ee_vel_in_body.to_proto(),
-            # )
-            # ee_angular_velocity = Vec3(
-            #     x=ee_vel_in_odom_proto.angular_velocity_x,
-            #     y=ee_vel_in_odom_proto.angular_velocity_y,
-            #     z=ee_vel_in_odom_proto.angular_velocity_z,
-            # )
+        # ee angular velocity command
+        # # note: we have to convert ee angular velocity from body frame to odom frame
+        # # since the SDK only accepts ee angular velocity in odom frame
+        # ee_vel_in_body = SE3Velocity(
+        #     lin_x=self.ee_vx,
+        #     lin_y=self.ee_vy,
+        #     lin_z=self.ee_vz,
+        #     ang_x=self.ee_vrx,
+        #     ang_y=self.ee_vry,
+        #     ang_z=self.ee_vrz,
+        # )
+        # ee_vel_in_odom_proto = express_se3_velocity_in_new_frame(
+        #     self.prev_state.transforms_snapshot,
+        #     BODY_FRAME_NAME,
+        #     ODOM_FRAME_NAME,
+        #     ee_vel_in_body.to_proto(),
+        # )
+        # ee_angular_velocity = Vec3(
+        #     x=ee_vel_in_odom_proto.angular_velocity_x,
+        #     y=ee_vel_in_odom_proto.angular_velocity_y,
+        #     z=ee_vel_in_odom_proto.angular_velocity_z,
+        # )
 
-            # note: let's try without converting it
-            ee_angular_velocity = Vec3(x=self.ee_vrx, y=self.ee_vry, z=self.ee_vrz)
+        # note: let's pass ee ang vel in world frame for now
+        ee_angular_velocity = Vec3(x=self.ee_vrx, y=self.ee_vry, z=self.ee_vrz)
 
-            arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
-                cartesian_velocity=cartesian_velocity,
-                angular_velocity_of_hand_rt_odom_in_hand=ee_angular_velocity.to_proto(),
-            )
-            robot_command = robot_command_pb2.RobotCommand()
-            robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
-                arm_velocity_command
-            )
+        arm_velocity_command = arm_command_pb2.ArmVelocityCommand.Request(
+            cartesian_velocity=cartesian_velocity,
+            angular_velocity_of_hand_rt_odom_in_hand=ee_angular_velocity.to_proto(),
+        )
+        robot_command = robot_command_pb2.RobotCommand()
+        robot_command.synchronized_command.arm_command.arm_velocity_command.CopyFrom(
+            arm_velocity_command
+        )
 
-            # build command
-            cmd = RobotCommandBuilder.synchro_velocity_command(
-                v_x=self.vx,
-                v_y=self.vy,
-                v_rot=self.vrz,
-                params=mobility_params,
-                build_on_command=robot_command,
-            )
-        else:
-            super().__post_init__()
-            return
+        # build command
+        cmd = RobotCommandBuilder.synchro_velocity_command(
+            v_x=self.vx,
+            v_y=self.vy,
+            v_rot=self.vrz,
+            params=mobility_params,
+            build_on_command=robot_command,
+        )
 
         Command.__init__(self, cmd)
 
