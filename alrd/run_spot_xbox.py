@@ -400,9 +400,9 @@ def start_experiment(
         # agent = SpotXboxEEVel(base_speed=1, base_angular=1, ee_speed=1.0)
         agent = SpotXboxSpacemouse(
             base_speed=1.5,
-            base_angular=1.5,
+            base_angular=2.5,
             ee_speed=1.5,
-            ee_angular=5.0,
+            ee_angular=2.5,
             ee_control_mode="augmented",
         )
 
@@ -453,10 +453,10 @@ if __name__ == "__main__":
 
     """============== SETTINGS =============="""
     num_episodes = 1
-    num_steps = 5000
+    num_steps = 2000
     cmd_freq = 10
     collect_data = True
-    data_tag = "ee_ang_test"
+    data_tag = "data_collection_v1"
     action_scale = 1.0
 
     start_experiment(
