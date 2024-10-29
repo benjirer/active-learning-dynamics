@@ -93,13 +93,10 @@ class SpotXboxSpacemouse(AgentReset):
         #     v_6 = sm_yaw * self.ee_angular
 
         # get random command
-        # v_4 = self.ee_vrx[self.idx] * self.ee_angular
-        # v_5 = self.ee_vry[self.idx] * self.ee_angular
-        # v_6 = self.ee_vrz[self.idx] * self.ee_angular
-        val = 1 if self.idx % 2 == 0 else -1
-        v_6 = 1 * val
-        v_4 = 0
-        v_5 = 0
+        v_4 = self.ee_vrx[self.idx] * self.ee_angular
+        v_5 = self.ee_vry[self.idx] * self.ee_angular
+        v_6 = self.ee_vrz[self.idx] * self.ee_angular
+
         self.idx += 1
 
         # if basic: return only linear velocities for ee
