@@ -7,6 +7,7 @@ from bosdyn.client.frame_helpers import (
     ODOM_FRAME_NAME,
     BODY_FRAME_NAME,
 )
+from opax.optimizers.icem_trajectory_optimizer import powerlaw_psd_gaussian_numpy
 from bosdyn.client.math_helpers import SE3Velocity
 from typing import Optional
 import numpy as np
@@ -39,9 +40,17 @@ class SpotXboxSpacemouse(AgentReset):
 
         # create random commands for end effector roll, pitch, yaw
         np.random.seed(42)
-        combined_array = np.random.uniform(-1, 1, 100000 * 3)
-        self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
+        # combined_array = np.random.uniform(-1, 1, 100000 * 3)
+        from scipy.stats import truncnorm
 
+        samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=200)
+        combined_array = np.repeat(samples, 5)
+        pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
+        pink_noise /= np.max(np.abs(pink_noise))
+        pink_noise *= 0.2
+        combined_array = np.clip(combined_array + pink_noise, -1, 1)
+        combined_array = combined_array[: len(combined_array) // 3 * 3]
+        self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
         self.idx = 0
 
     def _move(
@@ -194,5 +203,36 @@ class SpotXboxSpacemouse(AgentReset):
 
 
 if __name__ == "__main__":
-    agent = SpotXboxSpacemouse()
-    print(agent.description())
+    # agent = SpotXboxSpacemouse()
+    # print(agent.description())
+    # create random commands for end effector roll, pitch, yaw
+    np.random.seed(42)
+    # combined_array = np.random.uniform(-1, 1, 100000 * 3)
+    from scipy.stats import truncnorm
+
+    samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=200)
+    combined_array = np.repeat(samples, 5)
+    pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
+    pink_noise /= np.max(np.abs(pink_noise))
+    pink_noise *= 0.2
+    combined_array = np.clip(combined_array + pink_noise, -1, 1)
+    # make sure we can split the array into 3
+    combined_array = combined_array[: len(combined_array) // 3 * 3]
+    ee_vrx, ee_vry, ee_vrz = np.split(combined_array, 3)
+    # plot velocities in subplots
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=(10, 5))
+    plt.subplot(311)
+    plt.plot(ee_vrx)
+    plt.title("ee_vrx")
+    plt.subplot(312)
+    plt.plot(ee_vry)
+    plt.title("ee_vry")
+    plt.subplot(313)
+    plt.plot(ee_vrz)
+    plt.title("ee_vrz")
+
+    plt.legend()
+    plt.savefig("ee_v.png")
+    plt.show()

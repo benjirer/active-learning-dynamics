@@ -294,17 +294,14 @@ class SpotEnvBasic(SpotEnvBase):
 
     def get_obs_from_state(self, state: SpotState) -> np.ndarray:
         # base state observations
-        x, y, z, qx, qy, qz, qw = state.pose_of_body_in_vision
+        x, y, _, qx, qy, qz, qw = state.pose_of_body_in_vision
         theta = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[2]
         theta = (theta + np.pi) % (2 * np.pi) - np.pi
-        vx, vy, vz, vrx, vry, vrz = state.velocity_of_body_in_vision
+        vx, vy, _, _, _, vrz = state.velocity_of_body_in_vision
 
         # ee state observations
-        ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_vision
-        ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
-            "xyz", degrees=False
-        )
-        ee_vx, ee_vy, ee_vz, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_vision
+        ee_x, ee_y, ee_z, _, _, _, _ = state.pose_of_hand_in_vision
+        ee_vx, ee_vy, ee_vz, _, _, _ = state.velocity_of_hand_in_vision
 
         return np.array(
             [
@@ -544,15 +541,16 @@ class SpotEnvAugmented(SpotEnvBasic):
         obs = super().get_obs_from_state(state)
 
         # ee orientation
-        ee_pose = state.pose_of_hand_in_vision
-        ee_qx, ee_qy, ee_qz, ee_qw = ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]
+        _, _, _, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_odom
         ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
             "xyz", degrees=False
         )
+        ee_rx = (ee_rx + np.pi) % (2 * np.pi) - np.pi
+        ee_ry = (ee_ry + np.pi) % (2 * np.pi) - np.pi
+        ee_rz = (ee_rz + np.pi) % (2 * np.pi) - np.pi
 
         # ee angular velocities
-        ee_vel = state.velocity_of_hand_in_vision
-        ee_vrx, ee_vry, ee_vrz = ee_vel[3], ee_vel[4], ee_vel[5]
+        _, _, _, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_odom
 
         # add to obs
         new_obs = np.array(
