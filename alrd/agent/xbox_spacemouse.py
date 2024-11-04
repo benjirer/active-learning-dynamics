@@ -39,11 +39,11 @@ class SpotXboxSpacemouse(AgentReset):
         self.ee_control_mode = ee_control_mode
 
         # create random commands for end effector roll, pitch, yaw
-        np.random.seed(42)
+        np.random.seed(242)
         # combined_array = np.random.uniform(-1, 1, 100000 * 3)
         from scipy.stats import truncnorm
 
-        samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=200)
+        samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=100000)
         combined_array = np.repeat(samples, 5)
         pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
         pink_noise /= np.max(np.abs(pink_noise))

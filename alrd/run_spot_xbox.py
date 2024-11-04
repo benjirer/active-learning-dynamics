@@ -465,11 +465,11 @@ if __name__ == "__main__":
     num_steps = 2000
     cmd_freq = 15
     collect_data = True
-    data_tag = "data_collection_v2"
+    data_tag = "data_collection_new_v5"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5
-    ee_speed = 5.0
+    ee_speed = 2.5
     ee_angular = 2.5
 
     """============== RUN =============="""
