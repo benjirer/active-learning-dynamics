@@ -102,9 +102,12 @@ class SpotXboxSpacemouse(AgentReset):
         #     v_6 = sm_yaw * self.ee_angular
 
         # get random command
-        v_4 = self.ee_vrx[self.idx] * self.ee_angular
-        v_5 = self.ee_vry[self.idx] * self.ee_angular
-        v_6 = self.ee_vrz[self.idx] * self.ee_angular
+        # v_4 = self.ee_vrx[self.idx] * self.ee_angular
+        # v_5 = self.ee_vry[self.idx] * self.ee_angular
+        # v_6 = self.ee_vrz[self.idx] * self.ee_angular
+        v_4 = 0.15
+        v_5 = 0
+        v_6 = 0
 
         self.idx += 1
 
