@@ -2,6 +2,7 @@ import pickle
 import pandas as pd
 import jax.numpy as jnp
 import re
+from brax.training.types import Transition
 
 from alrd.utils.data_utils import load_data_set
 from alrd.run_spot import SessionBuffer, DataBuffer, TransitionData, StateData, TimeData
@@ -14,6 +15,7 @@ def convert_for_learning(
     with_wrist: bool = False,
     with_joints: bool = False,
     skip_first: bool = True,
+    encode_angles: bool = True,
     start_idx: int = 0,
     end_idx: int = None,
     format: str = "numpy",
@@ -36,6 +38,7 @@ def convert_for_learning(
         as_euler=as_euler,
         with_wrist=with_wrist,
         with_joints=with_joints,
+        encode_angles=encode_angles,
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
@@ -49,6 +52,23 @@ def convert_for_learning(
             jnp.array(actions),
             jnp.array(next_states),
         )
+    elif format == "brax":
+        previous_states, actions, next_states = data_set
+
+        brax_transitions = []
+        for previous_state, action, next_state in zip(
+            previous_states, actions, next_states
+        ):
+            brax_transitions.append(
+                Transition(
+                    observation=jnp.array(previous_state),
+                    action=jnp.array(action),
+                    reward=jnp.array(0.0),
+                    discount=jnp.array(0.99),
+                    next_observation=jnp.array(next_state),
+                )
+            )
+        data_set = brax_transitions
 
     return data_set
 
@@ -81,23 +101,34 @@ def convert_for_learning(
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142535_v4_3/session_buffer.pickle"
 # session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20240909-142945_v4_4/session_buffer.pickle"
 
-session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241003-113919_vArm_rot_cw/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241003-113919_vArm_rot_cw/session_buffer.pickle"
 
-format = "jax"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-174844_data_collection_new_v0/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-175451_data_collection_new_v1/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-180148_data_collection_new_v2/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-180443_data_collection_new_v3/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-180949_data_collection_new_v4/session_buffer.pickle"
+# session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-181100_data_collection_new_v4/session_buffer.pickle"
+session_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/test20241104-181628_data_collection_new_v5/session_buffer.pickle"
+
+format = "brax"
 data_set_converted = convert_for_learning(
     file_path=session_path,
     as_euler=True,
-    with_wrist=False,
+    with_wrist=True,
     with_joints=False,
     skip_first=True,
+    end_idx=None,
+    encode_angles=True,
     format=format,
 )
 
 # export converted data
-output_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/data_analysis/learning_data/"
-# test_id = re.search(r"test\d{8}-\d{6}_v\d{1}_\d{1}", session_path).group(0)
-test_id = "vArm_rot_cw"
-output_path = f"{output_path}dataset_learn_{format}_{test_id}.pickle"
+output_path = "/home/bhoffman/Documents/MT_FS24/simulation_transfer/data/recordings_spot_new_new_v5/"
+
+file_name = "brax_transitions.pickle"
+
+output_path = output_path + file_name
 with open(output_path, "wb") as file:
     pickle.dump(data_set_converted, file)
 print(f"Data set exported to {output_path}")

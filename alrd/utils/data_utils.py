@@ -27,6 +27,7 @@ def load_data(
     as_euler: bool = True,
     with_wrist: bool = False,
     with_joints: bool = False,
+    encode_angles: bool = True,
     skip_first: bool = True,
     start_idx: int = 0,
     end_idx: int = None,
@@ -40,6 +41,7 @@ def load_data(
         as_euler (bool): Whether to return the orientation as Euler angles.
         with_wrist (bool): Whether to include wrist positions and velocity in the state space.
         with_joints (bool): Whether to include joint positions in the state space.
+        encode_angles (bool): Whether to encode angles as sin and cos.
         skip_first (bool): Whether to skip the first state.
         start_idx (int): The index of the first state to include.
         end_idx (int): The index of the last state to include.
@@ -61,8 +63,9 @@ def load_data(
     if start_idx == 0 and skip_first:
         states_data = states_data[1:]
 
+    total_states = len(states_data)
     # parse selected data vector
-    for state in states_data:
+    for curr_index, state in enumerate(states_data):
         if which_data == "previous_state":
             state_data = state.last_state
         elif which_data == "next_state":
@@ -75,6 +78,11 @@ def load_data(
             raise ValueError(
                 "which_data must be either 'previous_state', 'next_state', or 'action'."
             )
+
+        if state_data is None:
+            # warn that current state is None
+            print(f"State at index {curr_index} of {total_states} is None.")
+            continue
 
         # base state
         body_vector = []
@@ -92,30 +100,40 @@ def load_data(
         body_vector.extend([x, y])
         ee_state.extend([ee_x, ee_y, ee_z])
 
-        # add orientations
+        # add body orientation
         if as_euler:
             body_heading = R.from_quat([qx, qy, qz, qw]).as_euler("xyz", degrees=False)[
                 2
             ]
             body_heading = project_angle(body_heading)
-            ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
-                "xyz", degrees=False
-            )
+            if encode_angles:
+                body_vector.extend([np.sin(body_heading), np.cos(body_heading)])
+            else:
+                body_vector.extend([body_heading])
 
-            body_vector.extend([body_heading])
-            if with_wrist:
-                ee_state.extend([ee_rx, ee_ry, ee_rz])
         else:
             body_vector.extend([qx, qy, qz, qw])
-            if with_wrist:
-                ee_state.extend([ee_qx, ee_qy, ee_qz, ee_qw])
 
         # add velocities
         body_vector.extend([vx, vy, w])
+        ee_state.extend([ee_vx, ee_vy, ee_vz])
+
+        # add ee orientation and angular velocities
         if with_wrist:
-            ee_state.extend([ee_vx, ee_vy, ee_vz, ee_vrx, ee_vry, ee_vrz])
-        else:
-            ee_state.extend([ee_vx, ee_vy, ee_vz])
+            if as_euler:
+                ee_rx, ee_ry, ee_rz = R.from_quat(
+                    [ee_qx, ee_qy, ee_qz, ee_qw]
+                ).as_euler("xyz", degrees=False)
+                if encode_angles:
+                    ee_state.extend([np.sin(ee_rx), np.cos(ee_rx)])
+                    ee_state.extend([np.sin(ee_ry), np.cos(ee_ry)])
+                    ee_state.extend([np.sin(ee_rz), np.cos(ee_rz)])
+                else:
+                    ee_state.extend([ee_rx, ee_ry, ee_rz])
+            else:
+                ee_state.extend([ee_qx, ee_qy, ee_qz, ee_qw])
+
+            ee_state.extend([ee_vrx, ee_vry, ee_vrz])
 
         # concat
         state_vector.append(np.array(body_vector + ee_state, dtype=np.float32))
@@ -131,6 +149,7 @@ def load_data_set(
     as_euler: bool = True,
     with_wrist: bool = False,
     with_joints: bool = False,
+    encode_angles: bool = True,
     skip_first: bool = True,
     start_idx: int = 0,
     end_idx: int = None,
@@ -157,6 +176,7 @@ def load_data_set(
         as_euler=as_euler,
         with_wrist=with_wrist,
         with_joints=with_joints,
+        encode_angles=encode_angles,
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
@@ -167,6 +187,7 @@ def load_data_set(
         as_euler=as_euler,
         with_wrist=with_wrist,
         with_joints=with_joints,
+        encode_angles=encode_angles,
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
@@ -177,6 +198,7 @@ def load_data_set(
         as_euler=as_euler,
         with_wrist=with_wrist,
         with_joints=with_joints,
+        encode_angles=encode_angles,
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
