@@ -541,7 +541,7 @@ class SpotEnvAugmented(SpotEnvBasic):
         obs = super().get_obs_from_state(state)
 
         # ee orientation
-        _, _, _, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_odom
+        _, _, _, ee_qx, ee_qy, ee_qz, ee_qw = state.pose_of_hand_in_vision
         ee_rx, ee_ry, ee_rz = R.from_quat([ee_qx, ee_qy, ee_qz, ee_qw]).as_euler(
             "xyz", degrees=False
         )
@@ -550,7 +550,7 @@ class SpotEnvAugmented(SpotEnvBasic):
         ee_rz = (ee_rz + np.pi) % (2 * np.pi) - np.pi
 
         # ee angular velocities
-        _, _, _, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_odom
+        _, _, _, ee_vrx, ee_vry, ee_vrz = state.velocity_of_hand_in_vision
 
         # add to obs
         new_obs = np.array(
