@@ -465,7 +465,7 @@ if __name__ == "__main__":
     num_steps = 2000
     cmd_freq = 15
     collect_data = True
-    data_tag = "vrx_testing_02"
+    data_tag = "vrx_testing_03"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5

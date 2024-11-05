@@ -105,7 +105,10 @@ class SpotXboxSpacemouse(AgentReset):
         # v_4 = self.ee_vrx[self.idx] * self.ee_angular
         # v_5 = self.ee_vry[self.idx] * self.ee_angular
         # v_6 = self.ee_vrz[self.idx] * self.ee_angular
-        v_4 = 0.5
+
+        # switch direction every 20 steps
+        sign = 1 if self.idx % 20 < 10 else -1
+        v_4 = 0.5 * sign
         v_5 = 0
         v_6 = 0
 
