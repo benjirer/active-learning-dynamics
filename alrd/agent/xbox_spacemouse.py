@@ -96,10 +96,10 @@ class SpotXboxSpacemouse(AgentReset):
 
         # ee angular velocity control
         # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
-        # if sm_button_1 and self.ee_control_mode == "augmented":
-        #     v_4 = sm_roll * self.ee_angular
-        #     v_5 = sm_pitch * self.ee_angular
-        #     v_6 = sm_yaw * self.ee_angular
+        if sm_button_1 and self.ee_control_mode == "augmented":
+            v_4 = sm_roll * self.ee_angular
+            v_5 = sm_pitch * self.ee_angular
+            v_6 = sm_yaw * self.ee_angular
 
         # get random command
         # v_4 = self.ee_vrx[self.idx] * self.ee_angular
@@ -107,10 +107,10 @@ class SpotXboxSpacemouse(AgentReset):
         # v_6 = self.ee_vrz[self.idx] * self.ee_angular
 
         # switch direction every 20 steps
-        sign = 1 if self.idx % 20 < 10 else -1
-        v_4 = 0.5 * sign
-        v_5 = 0
-        v_6 = 0
+        # sign = 1 if self.idx % 20 < 10 else -1
+        # v_4 = 0.5 * sign
+        # v_5 = 0
+        # v_6 = 0
 
         self.idx += 1
 
