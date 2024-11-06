@@ -39,12 +39,12 @@ class SpotXboxSpacemouse(AgentReset):
         self.ee_control_mode = ee_control_mode
 
         # create random commands for end effector roll, pitch, yaw
-        np.random.seed(242)
+        np.random.seed(8)
         # combined_array = np.random.uniform(-1, 1, 100000 * 3)
         from scipy.stats import truncnorm
 
         samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=100000)
-        combined_array = np.repeat(samples, 5)
+        combined_array = np.repeat(samples, 8)
         pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
         pink_noise /= np.max(np.abs(pink_noise))
         pink_noise *= 0.2
@@ -102,9 +102,9 @@ class SpotXboxSpacemouse(AgentReset):
             v_6 = sm_yaw * self.ee_angular
 
         # get random command
-        # v_4 = self.ee_vrx[self.idx] * self.ee_angular
-        # v_5 = self.ee_vry[self.idx] * self.ee_angular
-        # v_6 = self.ee_vrz[self.idx] * self.ee_angular
+        v_4 = self.ee_vrx[self.idx] * self.ee_angular
+        v_5 = self.ee_vry[self.idx] * self.ee_angular
+        v_6 = self.ee_vrz[self.idx] * self.ee_angular
 
         # switch direction every 20 steps
         # sign = 1 if self.idx % 20 < 10 else -1
