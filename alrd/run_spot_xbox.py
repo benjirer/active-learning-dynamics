@@ -465,7 +465,7 @@ if __name__ == "__main__":
     num_steps = 2000
     cmd_freq = 15
     collect_data = True
-    data_tag = "data_collection_v8"
+    data_tag = "ee_ori_data_v0"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5

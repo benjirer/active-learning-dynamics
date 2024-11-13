@@ -79,32 +79,32 @@ class SpotXboxSpacemouse(AgentReset):
                 f"End effector control mode {self.ee_control_mode} not implemented."
             )
 
-        # base linear velocity control
-        v_y = -left_x * self.base_speed
-        v_x = left_y * self.base_speed
+        # # base linear velocity control
+        # v_y = -left_x * self.base_speed
+        # v_x = left_y * self.base_speed
 
-        # base angular velocity control
-        v_rot = -right_x * self.base_angular
+        # # base angular velocity control
+        # v_rot = -right_x * self.base_angular
 
-        # ee linear velocity control
-        # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
-        # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
-        if not sm_button_1 or self.ee_control_mode == "basic":
-            v_1 = -sm_left_right * self.ee_speed
-            v_2 = -sm_forward_backward * self.ee_speed
-            v_3 = sm_up_down * self.ee_speed
+        # # ee linear velocity control
+        # # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
+        # # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
+        # if not sm_button_1 or self.ee_control_mode == "basic":
+        #     v_1 = -sm_left_right * self.ee_speed
+        #     v_2 = -sm_forward_backward * self.ee_speed
+        #     v_3 = sm_up_down * self.ee_speed
 
-        # ee angular velocity control
-        # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
-        if sm_button_1 and self.ee_control_mode == "augmented":
-            v_4 = sm_roll * self.ee_angular
-            v_5 = sm_pitch * self.ee_angular
-            v_6 = sm_yaw * self.ee_angular
+        # # ee angular velocity control
+        # # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
+        # if sm_button_1 and self.ee_control_mode == "augmented":
+        #     v_4 = sm_roll * self.ee_angular
+        #     v_5 = sm_pitch * self.ee_angular
+        #     v_6 = sm_yaw * self.ee_angular
 
         # get random command
-        v_4 = self.ee_vrx[self.idx] * self.ee_angular
-        v_5 = self.ee_vry[self.idx] * self.ee_angular
-        v_6 = self.ee_vrz[self.idx] * self.ee_angular
+        # v_4 = self.ee_vrx[self.idx] * self.ee_angular
+        # v_5 = self.ee_vry[self.idx] * self.ee_angular
+        # v_6 = self.ee_vrz[self.idx] * self.ee_angular
 
         # switch direction every 20 steps
         # sign = 1 if self.idx % 20 < 10 else -1
@@ -112,7 +112,12 @@ class SpotXboxSpacemouse(AgentReset):
         # v_5 = 0
         # v_6 = 0
 
-        self.idx += 1
+        # self.idx += 1
+
+        # use joystick to control end effector angular velocity
+        v_4 = left_x * self.ee_angular
+        v_5 = left_y * self.ee_angular
+        v_6 = right_x * self.ee_angular
 
         # if basic: return only linear velocities for ee
         if self.ee_control_mode == "basic":
