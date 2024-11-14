@@ -470,7 +470,7 @@ if __name__ == "__main__":
     base_speed = 1.6
     base_angular = 1.5
     ee_speed = 2.5
-    ee_angular = 2.5
+    ee_angular = 1.5
 
     """============== RUN =============="""
 
