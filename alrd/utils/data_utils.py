@@ -31,6 +31,7 @@ def load_data(
     skip_first: bool = True,
     start_idx: int = 0,
     end_idx: int = None,
+    use_vision: bool = False,
 ) -> np.ndarray:
     """
     Load and parse a single data vector from a pickle file.
@@ -45,12 +46,12 @@ def load_data(
         skip_first (bool): Whether to skip the first state.
         start_idx (int): The index of the first state to include.
         end_idx (int): The index of the last state to include.
+        use_vision (bool): Whether to use vision or odom sensor.
 
     Returns:
         state_vector (np.ndarray): The parsed data vector.
 
     """
-
     # load data set
     with open(file_path, "rb") as file:
         data = pickle.load(file)
@@ -91,9 +92,17 @@ def load_data(
 
         # ee state
         ee_state = []
-        ee_x, ee_y, ee_z, ee_qx, ee_qy, ee_qz, ee_qw = state_data.pose_of_hand_in_vision
-        ee_vx, ee_vy, ee_vz, ee_vrx, ee_vry, ee_vrz = (
+        ee_x, ee_y, ee_z, _, _, _, _ = state_data.pose_of_hand_in_vision
+        _, _, _, ee_qx, ee_qy, ee_qz, ee_qw = (
+            state_data.pose_of_hand_in_vision
+            if use_vision
+            else state_data.pose_of_hand_in_odom
+        )
+        ee_vx, ee_vy, ee_vz, _, _, _ = state_data.velocity_of_hand_in_vision
+        _, _, _, ee_vrx, ee_vry, ee_vrz = (
             state_data.velocity_of_hand_in_vision
+            if use_vision
+            else state_data.velocity_of_hand_in_odom
         )
 
         # add positions
@@ -153,6 +162,7 @@ def load_data_set(
     skip_first: bool = True,
     start_idx: int = 0,
     end_idx: int = None,
+    use_vision: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Load and parse data set from a pickle file.
@@ -166,6 +176,7 @@ def load_data_set(
         skip_first (bool): Whether to skip the first state.
         start_idx (int): The index of the first state to include.
         end_idx (int): The index of the last state to include.
+        use_vision (bool): Whether to use vision or odom sensor.
 
     Returns:
         Tuple of numpy arrays for previous states, actions, and next states.
@@ -180,6 +191,7 @@ def load_data_set(
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
+        use_vision=use_vision,
     )
     actions = load_data(
         file_path,
@@ -191,6 +203,7 @@ def load_data_set(
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
+        use_vision=use_vision,
     )
     next_states = load_data(
         file_path,
@@ -202,6 +215,7 @@ def load_data_set(
         skip_first=skip_first,
         start_idx=start_idx,
         end_idx=end_idx,
+        use_vision=use_vision,
     )
 
     assert (
