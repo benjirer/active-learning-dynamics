@@ -11,6 +11,7 @@ from opax.optimizers.icem_trajectory_optimizer import powerlaw_psd_gaussian_nump
 from bosdyn.client.math_helpers import SE3Velocity
 from typing import Optional
 import numpy as np
+import pickle
 
 
 class SpotXboxSpacemouse(AgentReset):
@@ -38,19 +39,29 @@ class SpotXboxSpacemouse(AgentReset):
         # end effector control mode
         self.ee_control_mode = ee_control_mode
 
-        # create random commands for end effector roll, pitch, yaw
-        np.random.seed(8)
-        # combined_array = np.random.uniform(-1, 1, 100000 * 3)
-        from scipy.stats import truncnorm
+        # # create random commands for end effector roll, pitch, yaw
+        # np.random.seed(8)
+        # # combined_array = np.random.uniform(-1, 1, 100000 * 3)
+        # from scipy.stats import truncnorm
 
-        samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=100000)
-        combined_array = np.repeat(samples, 8)
-        pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
-        pink_noise /= np.max(np.abs(pink_noise))
-        pink_noise *= 0.2
-        combined_array = np.clip(combined_array + pink_noise, -1, 1)
-        combined_array = combined_array[: len(combined_array) // 3 * 3]
-        self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
+        # samples = truncnorm.rvs(-1, 1, loc=0, scale=1, size=100000)
+        # combined_array = np.repeat(samples, 8)
+        # pink_noise = powerlaw_psd_gaussian_numpy(exponent=1, size=len(combined_array))
+        # pink_noise /= np.max(np.abs(pink_noise))
+        # pink_noise *= 0.2
+        # combined_array = np.clip(combined_array + pink_noise, -1, 1)
+        # combined_array = combined_array[: len(combined_array) // 3 * 3]
+        # self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
+
+        # import actions for ee angular velocity from prerecorded data
+        ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/ee_ori_action_traj.pickle"
+        ee_ori_actions_traj = pickle.load(open(ee_ori_actions_traj_path, "rb"))
+        self.ee_vrx, self.ee_vry, self.ee_vrz = (
+            ee_ori_actions_traj[..., 6],
+            ee_ori_actions_traj[..., 7],
+            ee_ori_actions_traj[..., 8],
+        )
+
         self.idx = 0
 
     def _move(
@@ -79,20 +90,20 @@ class SpotXboxSpacemouse(AgentReset):
                 f"End effector control mode {self.ee_control_mode} not implemented."
             )
 
-        # # base linear velocity control
-        # v_y = -left_x * self.base_speed
-        # v_x = left_y * self.base_speed
+        # base linear velocity control
+        v_y = -left_x * self.base_speed
+        v_x = left_y * self.base_speed
 
-        # # base angular velocity control
-        # v_rot = -right_x * self.base_angular
+        # base angular velocity control
+        v_rot = -right_x * self.base_angular
 
-        # # ee linear velocity control
-        # # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
-        # # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
-        # if not sm_button_1 or self.ee_control_mode == "basic":
-        #     v_1 = -sm_left_right * self.ee_speed
-        #     v_2 = -sm_forward_backward * self.ee_speed
-        #     v_3 = sm_up_down * self.ee_speed
+        # ee linear velocity control
+        # if cylindrical: v_1 = v_r (radial), v_2 = v_az (azimuthal), v_3 = v_z
+        # if cartesian: v_1 = v_x, v_2 = v_y, v_3 = v_z
+        if not sm_button_1 or self.ee_control_mode == "basic":
+            v_1 = -sm_left_right * self.ee_speed
+            v_2 = -sm_forward_backward * self.ee_speed
+            v_3 = sm_up_down * self.ee_speed
 
         # # ee angular velocity control
         # # both cylindrical and cartesian: v_4 = vrx, v_5 = vry, v_6 = vrz
@@ -114,10 +125,15 @@ class SpotXboxSpacemouse(AgentReset):
 
         # self.idx += 1
 
-        # use joystick to control end effector angular velocity
-        v_4 = left_x * self.ee_angular
-        v_5 = left_y * self.ee_angular
-        v_6 = right_x * self.ee_angular
+        # # use joystick to control end effector angular velocity
+        # v_4 = left_x * self.ee_angular
+        # v_5 = left_y * self.ee_angular
+        # v_6 = right_x * self.ee_angular
+
+        # get from prerecorded data
+        v_4 = self.ee_vrx[self.idx]
+        v_5 = self.ee_vry[self.idx]
+        v_6 = self.ee_vrz[self.idx]
 
         # if basic: return only linear velocities for ee
         if self.ee_control_mode == "basic":
