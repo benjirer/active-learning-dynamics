@@ -63,6 +63,7 @@ class SpotXboxSpacemouse(AgentReset):
         )
 
         self.idx = 0
+        self.max_idx = len(self.ee_vrx)
 
     def _move(
         self,
@@ -134,6 +135,9 @@ class SpotXboxSpacemouse(AgentReset):
         v_4 = self.ee_vrx[self.idx]
         v_5 = self.ee_vry[self.idx]
         v_6 = self.ee_vrz[self.idx]
+
+        if self.idx < self.max_idx - 1:
+            self.idx += 1
 
         # if basic: return only linear velocities for ee
         if self.ee_control_mode == "basic":
