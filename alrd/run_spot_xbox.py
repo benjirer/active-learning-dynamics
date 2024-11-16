@@ -163,7 +163,7 @@ def run(
     start_t = time.time()
 
     while step < num_steps:
-        # logger.info("Step %s" % step)
+        logger.info("Step %s" % step)
         # if not started, reset the environment
         if not started:
             logger.info("Agent description: %s" % agent.description())
@@ -239,7 +239,7 @@ def run(
             delta_t_step = time.time() - step_time
 
             delta_t = start_t - time.time()
-            print(1 / delta_t)
+            # print(1 / delta_t)
             start_t = time.time()
             recent_state = info["next_state"]
             save_time = time.time()
@@ -465,7 +465,7 @@ if __name__ == "__main__":
     num_steps = 10000
     cmd_freq = 15
     collect_data = True
-    data_tag = "data_collection_slow_v0"
+    data_tag = "ee_ori_traj_v1"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5
