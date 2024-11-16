@@ -54,8 +54,10 @@ class SpotXboxSpacemouse(AgentReset):
         # self.ee_vrx, self.ee_vry, self.ee_vrz = np.split(combined_array, 3)
 
         # import actions for ee angular velocity from prerecorded data
-        # ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/ee_ori_action_traj.pickle"
-        ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/actions_ee_ori_action_traj_benchmark_v1.pickle"
+        # ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/ee_ori_action_traj_v0.pickle"
+        ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/actions_ee_ori_action_traj_v1.pickle"
+        # ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/actions_ee_ori_action_traj_benchmark_v1.pickle"
+        # ee_ori_actions_traj_path = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/actions_ee_ori_action_traj_benchmark_v2.pickle"
         ee_ori_actions_traj = pickle.load(open(ee_ori_actions_traj_path, "rb"))
         self.ee_vrx, self.ee_vry, self.ee_vrz = (
             ee_ori_actions_traj[..., 6],
