@@ -1,0 +1,3 @@
+num_episodes: 1
+num_steps: 500
+cmd_freq: 10
