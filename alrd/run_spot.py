@@ -856,7 +856,7 @@ if __name__ == "__main__":
     """============== SETTINGS =============="""
     download_mode = False  # use to download policy from wandb
     num_episodes = 1
-    num_steps = 50
+    num_steps = 149
     cmd_freq = 15
     collect_data = True
     project_name = "ee_pos_testing"

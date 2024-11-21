@@ -70,7 +70,7 @@ class OfflineTrainedAgent(AgentReset):
                     print("GOAL FINALLY REACHED")
             else:
                 self.reached_counter = 0
-        self.goal_idx += 5
+        self.goal_idx += 10
         return np.array(action)
 
     def get_reward(
