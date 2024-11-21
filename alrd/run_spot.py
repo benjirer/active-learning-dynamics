@@ -504,7 +504,7 @@ def start_experiment(
                 config,
                 cmd_freq=cmd_freq,
                 action_cost=0.005,
-                goal_pos=goal,
+                goal_pos=goal[0],
             )
 
         # env = SpotEEVelEnv(
@@ -854,9 +854,9 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
-    num_steps = 1500
+    num_steps = 50
     cmd_freq = 15
     collect_data = True
     project_name = "ee_pos_testing"

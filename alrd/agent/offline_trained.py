@@ -53,6 +53,7 @@ class OfflineTrainedAgent(AgentReset):
 
         action = self.policy(obs)
 
+        print(f"GOAL: {goal}")
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
         print(f"ACTION: {action}")
 
@@ -69,7 +70,7 @@ class OfflineTrainedAgent(AgentReset):
                     print("GOAL FINALLY REACHED")
             else:
                 self.reached_counter = 0
-        self.goal_idx += 1
+        self.goal_idx += 5
         return np.array(action)
 
     def get_reward(
@@ -79,7 +80,6 @@ class OfflineTrainedAgent(AgentReset):
         goal = self.goal[self.goal_idx]
         obs = np.concatenate((obs, goal), axis=-1)
         next_obs = np.concatenate((next_obs, goal), axis=-1)
-        self.goal_idx += 1
         return self.reward(jnp.array(obs), jnp.array(action), jnp.array(next_obs))
 
     def description(self):
