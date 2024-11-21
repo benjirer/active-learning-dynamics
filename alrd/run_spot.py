@@ -472,7 +472,7 @@ def start_experiment(
             "num_episodes: {}".format(num_episodes),
             "num_steps: {}".format(num_steps),
             "cmd_freq: {}".format(cmd_freq),
-            "goal: {}".format(goal),
+            # "goal: {}".format(goal),
             "project_name: {}".format(project_name),
             "action_scale: {}".format(action_scale),
             "run_id: {}".format(run_id),
@@ -615,10 +615,15 @@ def start_experiment(
 if __name__ == "__main__":
 
     """============== GOALs =============="""
-    goal_1 = np.array([1.2, -0.2, 0.8])
-    goal_2 = np.array([1.4, 0.2, 0.4])
-    goal_3 = np.array([1.6, 0.5, 0.2])
-    goals = [goal_1, goal_2, goal_3]
+    # goal_1 = np.array([1.2, -0.2, 0.8])
+    # goal_2 = np.array([1.4, 0.2, 0.4])
+    # goal_3 = np.array([1.6, 0.5, 0.2])
+    # goals = [goal_1, goal_2, goal_3]
+
+    # import goal trajectory from pickle
+    goal_file_name = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/heart_goal_trajectory.pkl"
+    with open(goal_file_name, "rb") as f:
+        goal_trajectory = pickle.load(f)
 
     """============== EXPERIMENT CONFIGS =============="""
     """===== SIM-MODEL ====="""
@@ -670,16 +675,16 @@ if __name__ == "__main__":
         # "hfhac88t": (2000, 3),
         # "xigimeuv": (5000, 3),
         # #
-        # policy_testing_full_v9_0.3
-        "7539krvw": (800, 1),
-        "9ojnkqii": (2000, 1),
-        "pnqivxba": (5000, 1),
-        "dwb45l5k": (800, 2),
-        "7c7ai1vy": (2000, 2),
-        "p50dxhru": (5000, 2),
-        "tcq7z9kw": (800, 3),
-        "7w0tt85r": (2000, 3),
-        "fac8woya": (5000, 3),
+        # # policy_testing_full_v9_0.3
+        # "7539krvw": (800, 1),
+        # "9ojnkqii": (2000, 1),
+        # "pnqivxba": (5000, 1),
+        # "dwb45l5k": (800, 2),
+        # "7c7ai1vy": (2000, 2),
+        # "p50dxhru": (5000, 2),
+        # "tcq7z9kw": (800, 3),
+        # "7w0tt85r": (2000, 3),
+        # "fac8woya": (5000, 3),
     }
 
     exp_config_1 = {
@@ -761,16 +766,19 @@ if __name__ == "__main__":
         # "7bf2ep2q": (2000, 3),
         # "r35p5r8n": (5000, 3),
         # #
-        # policy_testing_full_v9_0.3
-        "0q0aqecs": (800, 1),
-        "a95frpg8": (2000, 1),
-        "qmvdd08w": (5000, 1),
-        "b1lrv5tz": (800, 2),
-        "4bmmv080": (2000, 2),
-        "tr3lhgrh": (5000, 2),
-        "98lebqap": (800, 3),
-        "rp7t77og": (2000, 3),
-        "8z265p8u": (5000, 3),
+        # # policy_testing_full_v9_0.3
+        # "0q0aqecs": (800, 1),
+        # "a95frpg8": (2000, 1),
+        # "qmvdd08w": (5000, 1),
+        # "b1lrv5tz": (800, 2),
+        # "4bmmv080": (2000, 2),
+        # "tr3lhgrh": (5000, 2),
+        # "98lebqap": (800, 3),
+        # "rp7t77og": (2000, 3),
+        # "8z265p8u": (5000, 3),
+        # ============================ new shit ============================
+        # heart goal policy testing v0
+        "21xg6mx1": (13000, 2),
     }
 
     exp_config_2 = {
@@ -828,16 +836,16 @@ if __name__ == "__main__":
         # "zzruqgll": (2000, 3),
         # "4ocmi4z2": (5000, 3),
         # #
-        # policy_testing_full_v9_0.3
-        "4j9i5pw9": (800, 1),
-        "05blsrcg": (2000, 1),
-        "tx5ohk4g": (5000, 1),
-        "un61x52u": (800, 2),
-        "d266heoe": (2000, 2),
-        "94smmks2": (5000, 2),
-        "t1xofuqb": (800, 3),
-        "on1h09oj": (2000, 3),
-        "kboo9glz": (5000, 3),
+        # # policy_testing_full_v9_0.3
+        # "4j9i5pw9": (800, 1),
+        # "05blsrcg": (2000, 1),
+        # "tx5ohk4g": (5000, 1),
+        # "un61x52u": (800, 2),
+        # "d266heoe": (2000, 2),
+        # "94smmks2": (5000, 2),
+        # "t1xofuqb": (800, 3),
+        # "on1h09oj": (2000, 3),
+        # "kboo9glz": (5000, 3),
     }
 
     exp_config_3 = {
@@ -846,17 +854,17 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
-    num_steps = 40
-    cmd_freq = 10
+    num_steps = 1500
+    cmd_freq = 15
     collect_data = True
-    project_name = "policy_testing_full_v9"
+    project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 2
-    active_run_id = 8
+    active_config_id = 1
+    active_run_id = 0
     active_goal_id = 2
     num_frame_stack = 2
     action_scale = 1.0
@@ -872,7 +880,8 @@ if __name__ == "__main__":
     active_run_config = run_configs[active_config_id]
     run_id = active_exp_config["run_id"][active_run_id]
     model_type = active_exp_config["model_type"]
-    goal = goals[active_goal_id]
+    # goal = goals[active_goal_id]
+    goal = goal_trajectory
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
     data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"

@@ -31,6 +31,7 @@ class OfflineTrainedAgent(AgentReset):
         self.goal = goal
         self.reached_counter = 0
         self.reached = False
+        self.goal_idx = 0
 
         self.reward = SpotEnvReward(
             encode_angle=reward_config["encode_angle"],
@@ -40,7 +41,7 @@ class OfflineTrainedAgent(AgentReset):
 
     def act(self, obs: np.ndarray, action_buffer: np.ndarray) -> np.ndarray:
         # add goal to obs
-        goal = self.goal
+        goal = self.goal[self.goal_idx]
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
 
         # print(f"obs_goal_distance: {obs_goal_distance}")
@@ -68,15 +69,17 @@ class OfflineTrainedAgent(AgentReset):
                     print("GOAL FINALLY REACHED")
             else:
                 self.reached_counter = 0
+        self.goal_idx += 1
         return np.array(action)
 
     def get_reward(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
     ) -> float:
         # add goal to obs
-        goal = self.goal
+        goal = self.goal[self.goal_idx]
         obs = np.concatenate((obs, goal), axis=-1)
         next_obs = np.concatenate((next_obs, goal), axis=-1)
+        self.goal_idx += 1
         return self.reward(jnp.array(obs), jnp.array(action), jnp.array(next_obs))
 
     def description(self):
