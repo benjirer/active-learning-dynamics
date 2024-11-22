@@ -8,6 +8,7 @@ import numpy as np
 import cv2
 import wandb
 import csv
+from typing import Union
 
 # agents
 from alrd.agent.absagent import Agent
@@ -443,7 +444,7 @@ def start_experiment(
     model_type: str = "sim-model",
     data_size: int = 800,
     seed_id: int = 1,
-    goal_id: int = 0,
+    goal_id: Union[int, str] = 0,
     num_frame_stack: int = 0,
 ):
 
@@ -614,77 +615,20 @@ def start_experiment(
 
 if __name__ == "__main__":
 
-    """============== GOALs =============="""
-    # goal_1 = np.array([1.2, -0.2, 0.8])
-    # goal_2 = np.array([1.4, 0.2, 0.4])
-    # goal_3 = np.array([1.6, 0.5, 0.2])
-    # goals = [goal_1, goal_2, goal_3]
-
+    """============== GOAL TRAJECTORY =============="""
     # import goal trajectory from pickle
-    goal_file_name = "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/alrd/heart_goal_trajectory.pkl"
+    shape = "heart"
+    goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
 
     """============== EXPERIMENT CONFIGS =============="""
     """===== SIM-MODEL ====="""
     sim_model_run_configs = {
-        # # v2
-        # "lnc8z8pp": (800, 1),
-        # "qrgm252s": (2500, 1),
-        # "rg9vq53y": (5400, 1),
-        # "e8bdn23s": (800, 2),
-        # "1yurd56p": (2500, 2),
-        # "zd0o0jx8": (5400, 2),
-        # "ybtc7l88": (800, 3),
-        # "kt9vhd17": (2500, 3),
-        # "8sg8lbqq": (5400, 3),
-        # #
-        # # v4_partial
-        # "hck2b2u0": (800, 3),
-        # "chn3iu4r": (2000, 3),
-        # "yjgeqtmy": (5000, 3),
-        # #
-        # # v_action_stack_1
-        # "55zv3ri3": (800, 1),
-        # "31xn9mox": (2000, 1),
-        # "lcsku3pl": (5000, 1),
-        # #
-        # # v_action_stack_2
-        # "6fn7dsov": (800, 1),
-        # "3zrabx81": (2000, 1),
-        # "zhke5a7p": (5000, 1),
-        # #
-        # # v_action_stack_5
-        # "zlbzwr4q": (5000, 1),  # 0.05, 0.3 -- slow
-        # "fqiti1id": (5000, 1),  # 0.05, 0.4 -- slow not accurate
-        # "pr52xbny": (5000, 1),  # 0.02, 0.3 -- shaky
-        # "lrvplba1": (5000, 1),  # 0.02, 0.4 -- okay but slow
-        # "v2ifxv4t": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- very shakey
-        # #
-        # # policy_testing_full_v7
-        # "cbi88nlv": (800, 1),
-        # "6a3fl4sv": (2000, 1),
-        # "619xr8v0": (5000, 1),
-        # "6bz96swf": (800, 2),
-        # "u1lk0ef7": (2000, 2),
-        # "z5nq664s": (5000, 2),
-        # "2iqhbwgg": (800, 3),
-        # "hfhac88t": (2000, 3),
-        # "xigimeuv": (5000, 3),
-        # #
-        # # policy_testing_full_v9_0.3
-        # "7539krvw": (800, 1),
-        # "9ojnkqii": (2000, 1),
-        # "pnqivxba": (5000, 1),
-        # "dwb45l5k": (800, 2),
-        # "7c7ai1vy": (2000, 2),
-        # "p50dxhru": (5000, 2),
-        # "tcq7z9kw": (800, 3),
-        # "7w0tt85r": (2000, 3),
-        # "fac8woya": (5000, 3),
+        # shape goal policy testing v1
+        "6e2362b6": (1000, 2),
+        "y7wdkxaz": (5000, 2),
+        "n6ljjfx7": (13000, 2),
     }
 
     exp_config_1 = {
@@ -694,91 +638,12 @@ if __name__ == "__main__":
 
     """===== BNN-SIM-FSVGD ====="""
     bnn_sim_fsvgd_run_configs = {
-        # # v2
-        # "pjf0qaum": (800, 1),
-        # "flxhy0yy": (2500, 1),
-        # "rkrv365l": (5400, 1),
-        # "tl210l8f": (800, 2),
-        # "wj6jdjh5": (2500, 2),
-        # "p5wgr7rm": (5400, 2),
-        # "wudh8u7u": (800, 3),
-        # "c4o3eb4k": (2500, 3),
-        # "rfl97xto": (5400, 3),
-        # #
-        # # v4_partial
-        # "sq0k6akn": (800, 3),
-        # "k5kepn4q": (2000, 3),
-        # "891g63gq": (5000, 3),
-        # #
-        # # v_action_stack_1
-        # "v64vrzpw": (800, 1),
-        # "bggled25": (2000, 1),
-        # "xcmnhhfq": (5000, 1),
-        # #
-        # v_action_stack_1.2
-        # "zpdk97km": (5000, 1),
-        # "9g7whijl": (5000, 1),
-        # "8n60b1jt": (5000, 1),
-        # #
-        # # v_action_stack_2
-        # "0vaw5ltx": (800, 1),
-        # "zo86kfgj": (2000, 1),
-        # "waklhuyc": (5000, 1),
-        # #
-        # # v_action_stack_3
-        # "hcmip3gc": (5000, 1),
-        # "dj131cg6": (5000, 1),
-        # #
-        # # v_action_stack_5
-        # "p7kd475o": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.3 -- pretty good, not super slow and quite accurate
-        # "lhfwewuf": (5000, 1),  # 0.05, 0.4 -- also good but slightly slower maybe
-        # "u9i1vo0n": (5000, 1),  # 0.02, 0.3 -- not as accurate
-        # "i37so3f7": (5000, 1),  # 0.02, 0.4 -- too slow
-        # "gboojd12": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) -- unstable
-        # #
-        # # v_action_stack_6
-        # "93jklpn7": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.3, (weighst back to 0.05 and 0.3, bound back to 0.1, new margin at 5.0) -- very nice
-        # "nv6uhshi": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.4, (weights back to 0.05 and 0.4, bound back to 0.1, new margin at 5.0, no ee-body-reward) --
-        # #
-        # # policy_testing_full_v7
-        # "qvuwmfpb": (800, 1),
-        # "2mx3baga": (800, 1),  # --changed 2.0 to 1.5 and margin to 10.0
-        # "oevoq5sy": (2000, 1),
-        # "tbrg0x8v": (2000, 1),  # --changed 2.0 to 1.5 and margin to 10.0
-        # "t52fwb3i": (5000, 1),
-        # "r19dq47e": (5000, 1),  # --changed 2.0 to 1.5 and margin to 10.0
-        # "p4dev9us": (800, 2),
-        # "5h8f8f2u": (2000, 2),
-        # "8wqusuky": (5000, 2),
-        # "qoltkgal": (800, 3),
-        # "7bf2ep2q": (2000, 3),
-        # "r35p5r8n": (5000, 3),
-        # #
-        # # policy_testing_full_v9_0.3
-        # "0q0aqecs": (800, 1),
-        # "a95frpg8": (2000, 1),
-        # "qmvdd08w": (5000, 1),
-        # "b1lrv5tz": (800, 2),
-        # "4bmmv080": (2000, 2),
-        # "tr3lhgrh": (5000, 2),
-        # "98lebqap": (800, 3),
-        # "rp7t77og": (2000, 3),
-        # "8z265p8u": (5000, 3),
-        # ============================ new shit ============================
-        # heart goal policy testing v0
-        "21xg6mx1": (13000, 2),
+        # shape goal policy testing v0
+        # "21xg6mx1": (13000, 2),
+        # shape goal policy testing v1
+        "d8qdgakj": (1000, 2),
+        "9oitc1lv": (5000, 2),
+        "1sp7yxxx": (13000, 2),
     }
 
     exp_config_2 = {
@@ -789,63 +654,10 @@ if __name__ == "__main__":
     """===== BNN-FSVGD ====="""
 
     bnn_fsvgd_run_configs = {
-        # # v2
-        # "n2okbiym": (800, 1),
-        # "0awx6i93": (2500, 1),
-        # "jr0ybogk": (5400, 1),
-        # "6mzchm1o": (800, 2),
-        # "gdooo4u2": (2500, 2),
-        # "99rq9ysq": (5400, 2),
-        # "kagasm3e": (800, 3),
-        # "fhe93mwq": (2500, 3),
-        # "160s663n": (5400, 3),
-        # #
-        # # v4_partial
-        # "hjbw63y8": (800, 3),
-        # "0dslu87b": (2000, 3),
-        # "hq7f5yzu": (5000, 3),
-        # #
-        # # v_action_stack_1
-        # "hjbw63y8": (800, 1),
-        # "0dslu87b": (2000, 1),
-        # "hq7f5yzu": (5000, 1),
-        # #
-        # # v_action_stack_2
-        # "ccx8cxmw": (800, 1),
-        # "h6ci16iv": (2000, 1),
-        # "06hno299": (5000, 1),
-        # #
-        # # v_action_stack_5
-        # "biteqxmk": (5000, 1),  # 0.05, 0.3 -- not bad tbh
-        # "ji4pagqe": (5000, 1),  # 0.05, 0.4 -- too slow and innacurate
-        # "btaozmx5": (5000, 1),  # 0.02, 0.3 -- ok
-        # "gwvr88cm": (5000, 1),  # 0.02, 0.4 -- a bit slow
-        # "0fjeh9h1": (
-        #     5000,
-        #     1,
-        # ),  # 0.05, 0.35, new (weights changed from 2.0 to 1.5 and 0.5, bounds changed to 0.05) --
-        # #
-        # # policy_testing_full_v7
-        # "elalw325": (800, 1),
-        # "lsl7a43d": (2000, 1),
-        # "b8hmqch9": (5000, 1),
-        # "vfh488fo": (800, 2),
-        # "me5h5ln9": (2000, 2),
-        # "3tak9fi6": (5000, 2),
-        # "3fphi2oe": (800, 3),
-        # "zzruqgll": (2000, 3),
-        # "4ocmi4z2": (5000, 3),
-        # #
-        # # policy_testing_full_v9_0.3
-        # "4j9i5pw9": (800, 1),
-        # "05blsrcg": (2000, 1),
-        # "tx5ohk4g": (5000, 1),
-        # "un61x52u": (800, 2),
-        # "d266heoe": (2000, 2),
-        # "94smmks2": (5000, 2),
-        # "t1xofuqb": (800, 3),
-        # "on1h09oj": (2000, 3),
-        # "kboo9glz": (5000, 3),
+        # shape goal policy testing v1
+        "c0vu1i05": (1000, 2),
+        "pgza5rk5": (5000, 2),
+        "sr1kau8u": (13000, 2),
     }
 
     exp_config_3 = {
@@ -854,18 +666,19 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
-    num_steps = 149
+    # num_steps = 149
+    num_steps = len(goal_trajectory)
     cmd_freq = 15
     collect_data = True
     project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
-    active_run_id = 0
-    active_goal_id = 2
+    active_config_id = 2
+    active_run_id = 2
+    active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
 
@@ -880,7 +693,6 @@ if __name__ == "__main__":
     active_run_config = run_configs[active_config_id]
     run_id = active_exp_config["run_id"][active_run_id]
     model_type = active_exp_config["model_type"]
-    # goal = goals[active_goal_id]
     goal = goal_trajectory
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]

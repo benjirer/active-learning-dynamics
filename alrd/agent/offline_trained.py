@@ -29,8 +29,6 @@ class OfflineTrainedAgent(AgentReset):
         self.action_dim = action_dim
         self.goal_dim = goal_dim
         self.goal = goal
-        self.reached_counter = 0
-        self.reached = False
         self.goal_idx = 0
 
         self.reward = SpotEnvReward(
@@ -57,20 +55,7 @@ class OfflineTrainedAgent(AgentReset):
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
         print(f"ACTION: {action}")
 
-        force_stop = False
-        if force_stop:
-            if obs_goal_distance < 0.1 or self.reached:
-                if not self.reached:
-                    print("GOAL TEMP REACHED")
-                self.reached_counter += 1
-                if self.reached_counter > 2:
-                    self.reached = True
-                if self.reached:
-                    action = np.zeros(self.action_dim)
-                    print("GOAL FINALLY REACHED")
-            else:
-                self.reached_counter = 0
-        self.goal_idx += 10
+        self.goal_idx += 1
         return np.array(action)
 
     def get_reward(
