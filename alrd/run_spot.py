@@ -617,6 +617,9 @@ if __name__ == "__main__":
 
     """============== GOAL TRAJECTORY =============="""
     # import goal trajectory from pickle
+    # shape = "heart"
+    # shape = "infinity"
+    # shape = "infinity_large"
     shape = "ellipse"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
