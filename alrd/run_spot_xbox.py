@@ -364,10 +364,7 @@ def start_experiment(
             data_buffer = DataBuffer()
 
         """create env"""
-        env = SpotBasicEnv(
-            config,
-            cmd_freq=cmd_freq,
-        )
+        env = SpotBasicEnv(config, cmd_freq=cmd_freq, goal_pos=None)
 
         """create agent"""
         agent = SpotXboxSpacemouse(
@@ -423,14 +420,14 @@ if __name__ == "__main__":
 
     """============== SETTINGS =============="""
     num_episodes = 1
-    num_steps = 5000
+    num_steps = 1000
     cmd_freq = 15
     collect_data = True
-    data_tag = "data_collection_slow_v1"
+    data_tag = "traj_v02"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5
-    ee_speed = 2.0
+    ee_speed = 2.5
 
     """============== RUN =============="""
 
