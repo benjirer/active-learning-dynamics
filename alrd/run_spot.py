@@ -676,7 +676,7 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
+    active_config_id = 0
     active_run_id = 1
     active_goal_id = shape
     num_frame_stack = 2
