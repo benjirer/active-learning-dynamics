@@ -626,9 +626,11 @@ if __name__ == "__main__":
     """===== SIM-MODEL ====="""
     sim_model_run_configs = {
         # shape goal policy testing v1
-        "6e2362b6": (1000, 2),
-        "y7wdkxaz": (5000, 2),
-        "n6ljjfx7": (13000, 2),
+        # "6e2362b6": (1000, 2),
+        # "y7wdkxaz": (5000, 2),
+        # "n6ljjfx7": (13000, 2),
+        # shape goal policy testing v2 (faster)
+        "fq3hmij4": (5000, 1),
     }
 
     exp_config_1 = {
@@ -641,9 +643,11 @@ if __name__ == "__main__":
         # shape goal policy testing v0
         # "21xg6mx1": (13000, 2),
         # shape goal policy testing v1
-        "d8qdgakj": (1000, 2),
-        "9oitc1lv": (5000, 2),
-        "1sp7yxxx": (13000, 2),
+        # "d8qdgakj": (1000, 2),
+        # "9oitc1lv": (5000, 2),
+        # "1sp7yxxx": (13000, 2),
+        # shape goal policy testing v2 (faster)
+        "rgjukl9h": (5000, 1),
     }
 
     exp_config_2 = {
@@ -655,9 +659,11 @@ if __name__ == "__main__":
 
     bnn_fsvgd_run_configs = {
         # shape goal policy testing v1
-        "c0vu1i05": (1000, 2),
-        "pgza5rk5": (5000, 2),
-        "sr1kau8u": (13000, 2),
+        # "c0vu1i05": (1000, 2),
+        # "pgza5rk5": (5000, 2),
+        # "sr1kau8u": (13000, 2),
+        # shape goal policy testing v2 (faster)
+        "o7e1vm9i": (5000, 1),
     }
 
     exp_config_3 = {
@@ -666,18 +672,18 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "ee_pos_testing"
+    project_name = "shape_tracing_v0"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
-    active_run_id = 1
+    active_config_id = 2
+    active_run_id = 0
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
