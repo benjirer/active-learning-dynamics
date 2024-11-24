@@ -1,0 +1,10 @@
+num_episodes: 1
+num_steps: 99
+cmd_freq: 15
+project_name: ee_pos_testing
+action_scale: 1.0
+run_id: 21xg6mx1
+model_type : bnn-sim-fsvgd
+data_size: 13000
+seed_id: 2
+goal_id: ellipse

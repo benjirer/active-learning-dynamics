@@ -1,0 +1,10 @@
+num_episodes: 1
+num_steps: 99
+cmd_freq: 15
+project_name: shape_tracing_v1
+action_scale: 1.0
+run_id: se9q4nvc
+model_type : bnn-fsvgd
+data_size: 2000
+seed_id: 2
+goal_id: heart
