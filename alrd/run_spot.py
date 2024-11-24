@@ -641,9 +641,14 @@ if __name__ == "__main__":
         # "fq3hmij4": (5000, 1),
         #
         # shape goal policy testing v1 (faster)
-        "kbj60y0e": (1000, 2),
-        "8i870q50": (2000, 2),
-        "ranz2azn": (5000, 2),
+        # "kbj60y0e": (1000, 2),
+        # "8i870q50": (2000, 2),
+        # "ranz2azn": (5000, 2),
+        #
+        # shape_tracing_v2 (old data, higher costs)
+        "9rzpba8k": (2000, 1),
+        "gnm5vx5h": (5000, 1),
+        "5324y6mx": (10000, 1),
     }
 
     exp_config_1 = {
@@ -654,7 +659,7 @@ if __name__ == "__main__":
     """===== BNN-SIM-FSVGD ====="""
     bnn_sim_fsvgd_run_configs = {
         # shape goal policy testing vPre
-        "21xg6mx1": (13000, 2),
+        # "21xg6mx1": (13000, 2),
         #
         # shape goal policy testing v0_pre
         # "d8qdgakj": (1000, 2),
@@ -665,9 +670,14 @@ if __name__ == "__main__":
         # "rgjukl9h": (5000, 1),
         #
         # shape goal policy testing v1 (faster)
-        "7uyh9icp": (1000, 2),
-        "oz9hsvo9": (2000, 2),
-        "3qg74im1": (5000, 2),
+        # "7uyh9icp": (1000, 2),
+        # "oz9hsvo9": (2000, 2),
+        # "3qg74im1": (5000, 2),
+        #
+        # shape_tracing_v2 (old data, higher costs)
+        "4p1phlcy": (2000, 1),
+        "k1q6sdx9": (5000, 1),
+        "90n6i93n": (10000, 1),
     }
 
     exp_config_2 = {
@@ -687,9 +697,14 @@ if __name__ == "__main__":
         # "o7e1vm9i": (5000, 1),
         #
         # shape goal policy testing v1 (faster)
-        "6xplabpt": (1000, 2),
-        "se9q4nvc": (2000, 2),
-        "bw6l5a2x": (5000, 2),
+        # "6xplabpt": (1000, 2),
+        # "se9q4nvc": (2000, 2),
+        # "bw6l5a2x": (5000, 2),
+        #
+        # shape_tracing_v2 (old data, higher costs)
+        "23z8w0oe": (2000, 1),
+        "xp3gtys7": (5000, 1),
+        "bpehqjkj": (10000, 1),
     }
 
     exp_config_3 = {
@@ -704,11 +719,11 @@ if __name__ == "__main__":
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "ee_pos_testing"
+    project_name = "shape_tracing_v2"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
+    active_config_id = 0
     active_run_id = 0
     active_goal_id = shape
     num_frame_stack = 2
