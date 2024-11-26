@@ -765,7 +765,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
@@ -777,7 +777,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 2
-    active_run_id = 4
+    active_run_id = 5
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
