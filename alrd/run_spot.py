@@ -669,6 +669,10 @@ if __name__ == "__main__":
         "cdldhhl0": (1000, 2),
         "yg9x81kd": (4000, 2),
         "ucx2ixr8": (13000, 2),
+        #
+        "dw2zpnmi": (1000, 3),
+        "npk2vlno": (4000, 3),
+        "ejt9so0p": (13000, 3),
     }
 
     exp_config_1 = {
@@ -708,6 +712,10 @@ if __name__ == "__main__":
         "u2vx0t1a": (1000, 2),
         "uwi0v5mb": (4000, 2),
         "1ndhwrac": (13000, 2),
+        #
+        "f7w9z5xw": (1000, 3),
+        "bd4bgdzq": (4000, 3),
+        "xm5hn5bi": (13000, 3),
     }
 
     exp_config_2 = {
@@ -745,6 +753,10 @@ if __name__ == "__main__":
         "1i0iuf5x": (1000, 2),
         "b21bvsky": (4000, 2),
         "bf1w7p08": (13000, 2),
+        #
+        "1tekzvfj": (1000, 3),
+        "a196vcmq": (4000, 3),
+        "2v6lwsq8": (13000, 3),
     }
 
     exp_config_3 = {
@@ -753,7 +765,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
@@ -764,8 +776,8 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
-    active_run_id = 2
+    active_config_id = 2
+    active_run_id = 4
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
@@ -785,7 +797,7 @@ if __name__ == "__main__":
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
     data_tag = (
-        f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_v"
+        f"{data_tag}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_{run_id}_v"
     )
 
     start_experiment(
