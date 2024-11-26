@@ -634,7 +634,7 @@ if __name__ == "__main__":
     # shape = "real_traj_1"
     # shape = "real_traj_2"
 
-    shape = "infinity_large"
+    shape = "real_traj_0_test"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
