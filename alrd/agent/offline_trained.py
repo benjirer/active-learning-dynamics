@@ -40,6 +40,8 @@ class OfflineTrainedAgent(AgentReset):
     def act(self, obs: np.ndarray, action_buffer: np.ndarray) -> np.ndarray:
         # add goal to obs
         goal = self.goal[self.goal_idx]
+        # set x compnent to x = 1.3
+        # goal[0] = 1.3
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
 
         # print(f"obs_goal_distance: {obs_goal_distance}")
