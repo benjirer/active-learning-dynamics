@@ -464,11 +464,21 @@ def start_experiment(
     # set up data collection and save experiment settings
     if collect_data:
         session_buffer = SessionBuffer()
-        experiment_id = "test" + time.strftime("%Y%m%d-%H%M%S") + "_" + data_tag
+        experiment_id = "test_" + data_tag
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
         )
+        version = 0
+        # if directory exists, increment version
+        while os.path.exists(session_dir):
+            version += 1
+            session_dir = (
+                "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
+                + experiment_id
+                + "_v"
+                + str(version)
+            )
         experiment_settings = [
             "num_episodes: {}".format(num_episodes),
             "num_steps: {}".format(num_steps),
@@ -646,9 +656,14 @@ if __name__ == "__main__":
         # "ranz2azn": (5000, 2),
         #
         # shape_tracing_v2 (old data, higher costs)
-        "9rzpba8k": (2000, 1),
-        "gnm5vx5h": (5000, 1),
-        "5324y6mx": (10000, 1),
+        # "9rzpba8k": (2000, 1),
+        # "gnm5vx5h": (5000, 1),
+        # "5324y6mx": (10000, 1),
+        #
+        # shape_tracing_v5
+        "ik846ng1": (1000, 2),
+        "87vfy0e3": (4000, 2),
+        "arh30387": (13000, 2),
     }
 
     exp_config_1 = {
@@ -675,9 +690,14 @@ if __name__ == "__main__":
         # "3qg74im1": (5000, 2),
         #
         # shape_tracing_v2 (old data, higher costs)
-        "4p1phlcy": (2000, 1),
-        "k1q6sdx9": (5000, 1),
-        "90n6i93n": (10000, 1),
+        # "4p1phlcy": (2000, 1),
+        # "k1q6sdx9": (5000, 1),
+        # "90n6i93n": (10000, 1),
+        #
+        # shape_tracing_v5
+        "rpp9kguo": (1000, 2),
+        "qio99wgo": (4000, 2),
+        "dmpc43qv": (13000, 2),
     }
 
     exp_config_2 = {
@@ -702,9 +722,14 @@ if __name__ == "__main__":
         # "bw6l5a2x": (5000, 2),
         #
         # shape_tracing_v2 (old data, higher costs)
-        "23z8w0oe": (2000, 1),
-        "xp3gtys7": (5000, 1),
-        "bpehqjkj": (10000, 1),
+        # "23z8w0oe": (2000, 1),
+        # "xp3gtys7": (5000, 1),
+        # "bpehqjkj": (10000, 1),
+        #
+        # shape_tracing_v5
+        "v27i34qa": (1000, 2),
+        "j1xstb5c": (4000, 2),
+        "6bkqbfxt": (13000, 2),
     }
 
     exp_config_3 = {
@@ -713,13 +738,13 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_v2"
+    project_name = "shape_tracing_v5"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
@@ -743,7 +768,9 @@ if __name__ == "__main__":
     goal = goal_trajectory
     data_size = active_run_config[run_id][0]
     seed_id = active_run_config[run_id][1]
-    data_tag = f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}__{action_scale}"
+    data_tag = (
+        f"{data_tag}_{run_id}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_v"
+    )
 
     start_experiment(
         download_mode=download_mode,
