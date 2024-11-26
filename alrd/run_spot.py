@@ -674,7 +674,7 @@ if __name__ == "__main__":
     """===== BNN-SIM-FSVGD ====="""
     bnn_sim_fsvgd_run_configs = {
         # shape goal policy testing vPre
-        # "21xg6mx1": (13000, 2),
+        "21xg6mx1": (13000, 2),
         #
         # shape goal policy testing v0_pre
         # "d8qdgakj": (1000, 2),
@@ -738,7 +738,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
@@ -748,7 +748,7 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 0
+    active_config_id = 1
     active_run_id = 0
     active_goal_id = shape
     num_frame_stack = 2
