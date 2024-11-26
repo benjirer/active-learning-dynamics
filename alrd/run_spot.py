@@ -754,7 +754,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 2
-    active_run_id = 1
+    active_run_id = 0
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
