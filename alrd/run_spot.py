@@ -634,7 +634,7 @@ if __name__ == "__main__":
     # shape = "real_traj_1"
     # shape = "real_traj_2"
 
-    shape = "real_traj_0_test"
+    shape = "ellipse_large"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -661,9 +661,11 @@ if __name__ == "__main__":
         # "5324y6mx": (10000, 1),
         #
         # shape_tracing_v5
-        "ik846ng1": (1000, 2),
-        "87vfy0e3": (4000, 2),
-        "arh30387": (13000, 2),
+        # "ik846ng1": (1000, 2),
+        # "87vfy0e3": (4000, 2),
+        # "arh30387": (13000, 2),
+        #
+        # shape_tracing_v7
     }
 
     exp_config_1 = {
@@ -702,6 +704,7 @@ if __name__ == "__main__":
         # shape_tracing_v7
         "u2vx0t1a": (1000, 2),
         "uwi0v5mb": (4000, 2),
+        "1ndhwrac": (13000, 2),
     }
 
     exp_config_2 = {
@@ -759,7 +762,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 1
-    active_run_id = 1
+    active_run_id = 2
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
