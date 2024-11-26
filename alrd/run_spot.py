@@ -744,7 +744,8 @@ if __name__ == "__main__":
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_v5"
+    # project_name = "shape_tracing_v5"
+    project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
