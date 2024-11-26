@@ -666,6 +666,9 @@ if __name__ == "__main__":
         # "arh30387": (13000, 2),
         #
         # shape_tracing_v7
+        "cdldhhl0": (1000, 2),
+        "yg9x81kd": (4000, 2),
+        "ucx2ixr8": (13000, 2),
     }
 
     exp_config_1 = {
@@ -750,7 +753,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
@@ -761,7 +764,7 @@ if __name__ == "__main__":
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
+    active_config_id = 0
     active_run_id = 2
     active_goal_id = shape
     num_frame_stack = 2
