@@ -420,14 +420,14 @@ if __name__ == "__main__":
 
     """============== SETTINGS =============="""
     num_episodes = 1
-    num_steps = 1000
+    num_steps = 2000
     cmd_freq = 15
     collect_data = True
-    data_tag = "traj_v02"
+    data_tag = "recordings_spot_v6"
     action_scale = 1.0
     base_speed = 1.6
     base_angular = 1.5
-    ee_speed = 2.5
+    ee_speed = 2.0
 
     """============== RUN =============="""
 
