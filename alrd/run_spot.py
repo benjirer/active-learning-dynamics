@@ -743,17 +743,20 @@ if __name__ == "__main__":
         # "xm5hn5bi": (13000, 3),
         #
         # shape_tracing_v9
-        "ir1k7sxx": (1000, 1),
-        "n7vsto4d": (4000, 1),
-        "jrnpnh2e": (8000, 1),
+        # "ir1k7sxx": (1000, 1),
+        # "n7vsto4d": (4000, 1),
+        # "jrnpnh2e": (8000, 1),
+        # #
+        # "rmjkshzy": (1000, 2),
+        # "usd0rgvm": (4000, 2),
+        # "n56lp7fu": (8000, 2),
+        # #
+        # "hlafbsjp": (1000, 3),
+        # "u1e4pwkz": (4000, 3),
+        # "qmvn3cn2": (8000, 3),
         #
-        "rmjkshzy": (1000, 2),
-        "usd0rgvm": (4000, 2),
-        "n56lp7fu": (8000, 2),
-        #
-        "hlafbsjp": (1000, 3),
-        "u1e4pwkz": (4000, 3),
-        "qmvn3cn2": (8000, 3),
+        # shape_tracing_v12
+        "6jji3xj3": (8000, 1),
     }
 
     exp_config_2 = {
@@ -816,19 +819,19 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_v9"
+    project_name = "shape_tracing_v12"
     # project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 1
-    active_run_id = 8
+    active_run_id = 0
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
