@@ -464,7 +464,7 @@ def start_experiment(
     # set up data collection and save experiment settings
     if collect_data:
         session_buffer = SessionBuffer()
-        experiment_id = "test_" + data_tag
+        experiment_id = f"{project_name}/test_{data_tag}"
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
@@ -666,13 +666,26 @@ if __name__ == "__main__":
         # "arh30387": (13000, 2),
         #
         # shape_tracing_v7
-        "cdldhhl0": (1000, 2),
-        "yg9x81kd": (4000, 2),
-        "ucx2ixr8": (13000, 2),
+        # "cdldhhl0": (1000, 2),
+        # "yg9x81kd": (4000, 2),
+        # "ucx2ixr8": (13000, 2),
+        # #
+        # "dw2zpnmi": (1000, 3),
+        # "npk2vlno": (4000, 3),
+        # "ejt9so0p": (13000, 3),
         #
-        "dw2zpnmi": (1000, 3),
-        "npk2vlno": (4000, 3),
-        "ejt9so0p": (13000, 3),
+        # shape_tracing_v9
+        "b1y879ru": (1000, 1),
+        "nozm88or": (4000, 1),
+        "vbvslmcc": (8000, 1),
+        #
+        "gaej86dr": (1000, 2),
+        "xk7rephs": (4000, 2),
+        "ijqk8mfs": (8000, 2),
+        #
+        "4pg8teow": (1000, 3),
+        "rvg6ncag": (4000, 3),
+        "tflc8k9d": (8000, 3),
     }
 
     exp_config_1 = {
@@ -709,13 +722,26 @@ if __name__ == "__main__":
         # "dmpc43qv": (13000, 2),
         #
         # shape_tracing_v7
-        "u2vx0t1a": (1000, 2),
-        "uwi0v5mb": (4000, 2),
-        "1ndhwrac": (13000, 2),
+        # "u2vx0t1a": (1000, 2),
+        # "uwi0v5mb": (4000, 2),
+        # "1ndhwrac": (13000, 2),
+        # #
+        # "f7w9z5xw": (1000, 3),
+        # "bd4bgdzq": (4000, 3),
+        # "xm5hn5bi": (13000, 3),
         #
-        "f7w9z5xw": (1000, 3),
-        "bd4bgdzq": (4000, 3),
-        "xm5hn5bi": (13000, 3),
+        # shape_tracing_v9
+        "ir1k7sxx": (1000, 1),
+        "n7vsto4d": (4000, 1),
+        "jrnpnh2e": (8000, 1),
+        #
+        "rmjkshzy": (1000, 2),
+        "usd0rgvm": (4000, 2),
+        "n56lp7fu": (8000, 2),
+        #
+        "hlafbsjp": (1000, 3),
+        "u1e4pwkz": (4000, 3),
+        "qmvn3cn2": (8000, 3),
     }
 
     exp_config_2 = {
@@ -750,13 +776,26 @@ if __name__ == "__main__":
         # "6bkqbfxt": (13000, 2),
         #
         # shape_tracing_v7
-        "1i0iuf5x": (1000, 2),
-        "b21bvsky": (4000, 2),
-        "bf1w7p08": (13000, 2),
+        # "1i0iuf5x": (1000, 2),
+        # "b21bvsky": (4000, 2),
+        # "bf1w7p08": (13000, 2),
+        # #
+        # "1tekzvfj": (1000, 3),
+        # "a196vcmq": (4000, 3),
+        # "2v6lwsq8": (13000, 3),
         #
-        "1tekzvfj": (1000, 3),
-        "a196vcmq": (4000, 3),
-        "2v6lwsq8": (13000, 3),
+        # shape_tracing_v9
+        "84hxv3eb": (1000, 1),
+        "yqgtomfy": (4000, 1),
+        "q0naoo0u": (8000, 1),
+        #
+        "zkn8ocns": (1000, 2),
+        "mqv3ftob": (4000, 2),
+        "ur92ckf7": (8000, 2),
+        #
+        "qpltcy4p": (1000, 3),
+        "11xyv7vl": (4000, 3),
+        "96djmm04": (8000, 3),
     }
 
     exp_config_3 = {
@@ -765,19 +804,19 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_v7"
+    project_name = "shape_tracing_v9"
     # project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
-    active_run_id = 4
+    active_config_id = 2
+    active_run_id = 8
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
