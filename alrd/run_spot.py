@@ -476,7 +476,7 @@ def start_experiment(
     # set up data collection and save experiment settings
     if collect_data:
         session_buffer = SessionBuffer()
-        experiment_id = f"{project_name}/test_{data_tag}"
+        experiment_id = f"{goal_id}/{project_name}/test_{data_tag}"
         session_dir = (
             "/home/bhoffman/Documents/MT FS24/active-learning-dynamics/collected_data/"
             + experiment_id
