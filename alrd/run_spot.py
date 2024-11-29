@@ -344,7 +344,19 @@ def run(
             action_buffer = np.concatenate([action_buffer[6:], action], axis=0)
 
         # clip for safety
-        # action = np.clip(action, -1.0, 1.0)
+        action = np.clip(action, -1.0, 1.0)
+        # scale acrions to max
+        # base vel: 1.6, ang vel: 1.5, ee_vel: 2.5
+        action = np.array(
+            [
+                action[0] * 1.6,
+                action[1] * 1.6,
+                action[2] * 1.5,
+                action[3] * 2.0,
+                action[4] * 2.0,
+                action[5] * 2.0,
+            ]
+        )
 
         delta_t_agent = agent_time - time.time()
 
@@ -634,7 +646,7 @@ if __name__ == "__main__":
     # shape = "real_traj_1"
     # shape = "real_traj_2"
 
-    shape = "ellipse_large"
+    shape = "slalom_fast"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -816,7 +828,7 @@ if __name__ == "__main__":
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 1
-    active_run_id = 6
+    active_run_id = 8
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
