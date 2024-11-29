@@ -1,0 +1,10 @@
+num_episodes: 1
+num_steps: 209
+cmd_freq: 15
+project_name: shape_tracing_v12
+action_scale: 1.0
+run_id: 6jji3xj3
+model_type : bnn-sim-fsvgd
+data_size: 8000
+seed_id: 1
+goal_id: slalom_fast_more_new
