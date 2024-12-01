@@ -1,0 +1,10 @@
+num_episodes: 1
+num_steps: 176
+cmd_freq: 15
+project_name: shape_tracing_new_data_v19
+action_scale: 1.0
+run_id: qzdn9qme
+model_type : bnn-sim-fsvgd
+data_size: 2000
+seed_id: 137
+goal_id: ellipse_large_sparse

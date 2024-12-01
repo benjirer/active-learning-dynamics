@@ -648,7 +648,8 @@ if __name__ == "__main__":
     # shape = "real_traj_2"
 
     # shape = "slalom_fast_more_new"
-    shape = "ellipse_large_sparse_new"
+    # shape = "ellipse_large_sparse_new"
+    shape = "ellipse_large_sparse"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -851,7 +852,7 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
+    download_mode = False  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
