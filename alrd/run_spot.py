@@ -700,6 +700,12 @@ if __name__ == "__main__":
         # "4pg8teow": (1000, 3),
         # "rvg6ncag": (4000, 3),
         # "tflc8k9d": (8000, 3),
+        #
+        # shape_tracing_new_data_v19
+        "fb4mnu4y": (2000, 137),
+        "yjkjjjrd": (4000, 137),
+        "56686ady": (8000, 137),
+        "itzsgfze": (10000, 137),
     }
 
     exp_config_1 = {
@@ -760,10 +766,16 @@ if __name__ == "__main__":
         # shape_tracing_v12
         # "6jji3xj3": (8000, 1),
         #
-        # shape_tracing_new_data_v15
-        "qvfrf9ds": (4000, 2),
-        "gq2j9xcw": (8000, 2),
-        "uv3iy3sj": (10000, 2),
+        # # shape_tracing_new_data_v15
+        # "qvfrf9ds": (4000, 2),
+        # "gq2j9xcw": (8000, 2),
+        # "uv3iy3sj": (10000, 2),
+        #
+        # shape_tracing_new_data_v19
+        "qzdn9qme": (2000, 137),
+        "sgybpoq7": (4000, 137),
+        "25lv8p8u": (8000, 137),
+        "rue7mplc": (10000, 137),
     }
 
     exp_config_2 = {
@@ -820,11 +832,17 @@ if __name__ == "__main__":
         # "96djmm04": (8000, 3),
         #
         # shape_tracing_new_data_v15
-        "e7utoxvw": (2000, 2),
-        "uv9xjeet": (3000, 2),
-        "38aum9oe": (4000, 2),
-        "028626c0": (8000, 2),
-        "mto6q10t": (10000, 2),
+        # "e7utoxvw": (2000, 2),
+        # "uv9xjeet": (3000, 2),
+        # "38aum9oe": (4000, 2),
+        # "028626c0": (8000, 2),
+        # "mto6q10t": (10000, 2),
+        #
+        # shape_tracing_new_data_v19
+        "ck0qn337": (2000, 137),
+        "xkhjog12": (4000, 137),
+        "0k4e4ze6": (8000, 137),
+        "qxaz6cpq": (10000, 137),
     }
 
     exp_config_3 = {
@@ -833,19 +851,19 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_new_data_v15"
+    project_name = "shape_tracing_new_data_v19"
     # project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 1
-    active_run_id = 1
+    active_config_id = 2
+    active_run_id = 3
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
