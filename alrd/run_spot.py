@@ -703,10 +703,26 @@ if __name__ == "__main__":
         # "tflc8k9d": (8000, 3),
         #
         # shape_tracing_new_data_v19
-        "fb4mnu4y": (2000, 137),
-        "yjkjjjrd": (4000, 137),
-        "56686ady": (8000, 137),
-        "itzsgfze": (10000, 137),
+        # "fb4mnu4y": (2000, 137),
+        # "yjkjjjrd": (4000, 137),
+        # "56686ady": (8000, 137),
+        # "itzsgfze": (10000, 137),
+        #
+        # shape_tracing_new_data_v21
+        "idr3ss4q": (2000, 137),
+        "3yj6vpmq": (4000, 137),
+        "t0z2lsxm": (6000, 137),
+        "31ltns47": (8000, 137),
+        #
+        "xlu85n5e": (2000, 332),
+        "309xhwdy": (4000, 332),
+        "142nuhye": (6000, 332),
+        "olhim547": (8000, 332),
+        #
+        "134c27w9": (2000, 417),
+        "ravy2yhk": (4000, 417),
+        "xeg9x2ep": (6000, 417),
+        "gyzh4tw4": (8000, 417),
     }
 
     exp_config_1 = {
@@ -773,10 +789,26 @@ if __name__ == "__main__":
         # "uv3iy3sj": (10000, 2),
         #
         # shape_tracing_new_data_v19
-        "qzdn9qme": (2000, 137),
-        "sgybpoq7": (4000, 137),
-        "25lv8p8u": (8000, 137),
-        "rue7mplc": (10000, 137),
+        # "qzdn9qme": (2000, 137),
+        # "sgybpoq7": (4000, 137),
+        # "25lv8p8u": (8000, 137),
+        # "rue7mplc": (10000, 137),
+        #
+        # shape_tracing_new_data_v21
+        "k1rhmz06": (2000, 137),
+        "n1timrkt": (4000, 137),
+        "czwe5hrd": (6000, 137),
+        "zt9nx5ju": (8000, 137),
+        #
+        "q7nx7sbc": (2000, 332),
+        "q0jyfhqj": (4000, 332),
+        "xi89rl6n": (6000, 332),
+        "s1p62tqv": (8000, 332),
+        #
+        "s97f87i2": (2000, 417),
+        "a6svc36w": (4000, 417),
+        "svqfw6ks": (6000, 417),
+        "dhg4et5i": (8000, 417),
     }
 
     exp_config_2 = {
@@ -840,10 +872,26 @@ if __name__ == "__main__":
         # "mto6q10t": (10000, 2),
         #
         # shape_tracing_new_data_v19
-        "ck0qn337": (2000, 137),
-        "xkhjog12": (4000, 137),
-        "0k4e4ze6": (8000, 137),
-        "qxaz6cpq": (10000, 137),
+        # "ck0qn337": (2000, 137),
+        # "xkhjog12": (4000, 137),
+        # "0k4e4ze6": (8000, 137),
+        # "qxaz6cpq": (10000, 137),
+        #
+        # shape_tracing_new_data_v21
+        "96w0vuyu": (2000, 137),
+        "pf1dezuk": (4000, 137),
+        "8w4margx": (6000, 137),
+        "aylbzghf": (8000, 137),
+        #
+        "81k0o10n": (2000, 332),
+        "3hre6c38": (4000, 332),
+        "jsozls08": (6000, 332),
+        "9t0abj8i": (8000, 332),
+        #
+        "xdfb6kl5": (2000, 417),
+        "0837uj23": (4000, 417),
+        "c642ykmp": (6000, 417),
+        "ssv81jhk": (8000, 417),
     }
 
     exp_config_3 = {
@@ -852,19 +900,19 @@ if __name__ == "__main__":
     }
 
     """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    download_mode = True  # use to download policy from wandb
     num_episodes = 1
     # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_new_data_v19"
+    project_name = "shape_tracing_new_data_v21"
     # project_name = "ee_pos_testing"
     data_tag = project_name
 
     """============== SET ACTIVE CONFIG =============="""
     active_config_id = 2
-    active_run_id = 3
+    active_run_id = 10
     active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
