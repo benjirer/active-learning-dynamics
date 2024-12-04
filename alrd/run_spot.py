@@ -649,7 +649,8 @@ if __name__ == "__main__":
 
     # shape = "slalom_fast_more_new"
     # shape = "ellipse_large_sparse_new"
-    shape = "ellipse_large_sparse"
+    # shape = "ellipse_large_sparse"
+    shape = "ellipse_v3"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -957,8 +958,8 @@ if __name__ == "__main__":
     }
 
     """============== RUN SETTINGS =============="""
-    download_mode = True  # use to download policy from wandb
-    download_all = True  # use to download all policies from wandb
+    download_mode = False  # use to download policy from wandb
+    download_all = False  # use to download all policies from wandb
     num_episodes = 1
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
@@ -979,8 +980,8 @@ if __name__ == "__main__":
 
     if not download_all:
         """============== SET ACTIVE CONFIG =============="""
-        active_config_id = 0
-        active_run_id = 0
+        active_config_id = 2
+        active_run_id = 14
 
         """============== BUILD SETTINGS =============="""
         active_exp_config = exp_configs[active_config_id]
