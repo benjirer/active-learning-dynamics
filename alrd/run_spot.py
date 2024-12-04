@@ -650,7 +650,8 @@ if __name__ == "__main__":
     # shape = "slalom_fast_more_new"
     # shape = "ellipse_large_sparse_new"
     # shape = "ellipse_large_sparse"
-    shape = "forward_helix_v0"
+    # shape = "forward_helix_v0"
+    shape = "ellipse_v3"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -726,23 +727,23 @@ if __name__ == "__main__":
         # "gyzh4tw4": (8000, 417),
         #
         # shape_tracing_new_data_v24
-        "0o1ebh6e": (1000, 137),
-        "4kuwbn1t": (2000, 137),
-        "xswnr1qp": (4000, 137),
-        "mjs4fru6": (6000, 137),
-        "je9gmkfq": (8000, 137),
+        # "0o1ebh6e": (1000, 137),
+        # "4kuwbn1t": (2000, 137),
+        # "xswnr1qp": (4000, 137),
+        # "mjs4fru6": (6000, 137),
+        # "je9gmkfq": (8000, 137),
         #
-        "tw04xt4c": (1000, 332),
-        "6l5b5rru": (2000, 332),
-        "hfkh54vi": (4000, 332),
-        "kqiw0j8g": (6000, 332),
-        "90ghk3xz": (8000, 332),
+        # "tw04xt4c": (1000, 332),
+        # "6l5b5rru": (2000, 332),
+        # "hfkh54vi": (4000, 332),
+        # "kqiw0j8g": (6000, 332),
+        # "90ghk3xz": (8000, 332),
         #
-        "m9spaip1": (1000, 417),
-        "a2y1iy19": (2000, 417),
-        "dx9ip3lu": (4000, 417),
-        "y6agvlng": (6000, 417),
-        "sm8eb0n2": (8000, 417),
+        # "m9spaip1": (1000, 417),
+        # "a2y1iy19": (2000, 417),
+        # "dx9ip3lu": (4000, 417),
+        # "y6agvlng": (6000, 417),
+        # "sm8eb0n2": (8000, 417),
     }
 
     exp_config_1 = {
@@ -831,23 +832,32 @@ if __name__ == "__main__":
         # "dhg4et5i": (8000, 417),
         #
         # shape_tracing_new_data_v24
-        "e5arfg07": (1000, 137),
-        "wge85uhm": (2000, 137),
-        "2p4g6rfo": (4000, 137),
-        "wq6pds0t": (6000, 137),
-        "megxr1ty": (8000, 137),
+        "puoohs5r": (500, 137),
+        # "e5arfg07": (1000, 137),
+        # "wge85uhm": (2000, 137),
+        "qnub8bk7": (3000, 137),
+        # "2p4g6rfo": (4000, 137),
+        "br7i7hjl": (5000, 137),
+        # "wq6pds0t": (6000, 137),
+        # "megxr1ty": (8000, 137),
         #
-        "fbcqui5b": (1000, 332),
-        "t0d719il": (2000, 332),
-        "t50qg2c0": (4000, 332),
-        "4x53wqm4": (6000, 332),
-        "i7tfn44u": (8000, 332),
+        "qwkuhaqe": (500, 332),
+        # "fbcqui5b": (1000, 332),
+        # "t0d719il": (2000, 332),
+        "usc0g8ko": (3000, 332),
+        # "t50qg2c0": (4000, 332),
+        "4e5k4pn0": (5000, 332),
+        # "4x53wqm4": (6000, 332),
+        # "i7tfn44u": (8000, 332),
         #
-        "7cj0nsly": (1000, 417),
-        "ff4bilkt": (2000, 417),
-        "petu31i2": (4000, 417),
-        "ia12qm1h": (6000, 417),
-        "vryz9jkk": (8000, 417),
+        "9jgctt0o": (500, 417),
+        # "7cj0nsly": (1000, 417),
+        # "ff4bilkt": (2000, 417),
+        "vb9ttcgq": (3000, 417),
+        # "petu31i2": (4000, 417),
+        "j7nn9z6t": (5000, 417),
+        # "ia12qm1h": (6000, 417),
+        # "vryz9jkk": (8000, 417),
     }
 
     exp_config_2 = {
@@ -933,23 +943,26 @@ if __name__ == "__main__":
         # "ssv81jhk": (8000, 417),
         #
         # shape_tracing_new_data_v24
-        "win9t8c7": (1000, 137),
-        "x92klcb7": (2000, 137),
-        "cl5aebnc": (4000, 137),
-        "hr6orxa5": (6000, 137),
-        "b0gl0e3z": (8000, 137),
+        "l4p6ub24": (500, 137),
+        # "win9t8c7": (1000, 137),
+        # "x92klcb7": (2000, 137),
+        "5bp61ihy": (3000, 137),
+        # "cl5aebnc": (4000, 137),
+        "7tmvtkwu": (5000, 137),
+        # "hr6orxa5": (6000, 137),
+        # "b0gl0e3z": (8000, 137),
         #
-        "g8rxgehl": (1000, 332),
-        "ymii34d0": (2000, 332),
-        "t84o6k4d": (4000, 332),
-        "hyk15dis": (6000, 332),
-        "lfv49hc5": (8000, 332),
+        # "g8rxgehl": (1000, 332),
+        # "ymii34d0": (2000, 332),
+        # "t84o6k4d": (4000, 332),
+        # "hyk15dis": (6000, 332),
+        # "lfv49hc5": (8000, 332),
         #
-        "1gnrg7z9": (1000, 417),
-        "mv734vvm": (2000, 417),
-        "jihe5l1h": (4000, 417),
-        "f59ymrsb": (6000, 417),
-        "9h28875c": (8000, 417),
+        # "1gnrg7z9": (1000, 417),
+        # "mv734vvm": (2000, 417),
+        # "jihe5l1h": (4000, 417),
+        # "f59ymrsb": (6000, 417),
+        # "9h28875c": (8000, 417),
     }
 
     exp_config_3 = {
@@ -1023,11 +1036,11 @@ if __name__ == "__main__":
                 data_tag = f"{data_tag}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_{run_id}_v"
 
                 start_experiment(
-                    download_mode=download_mode,
+                    download_mode=True,
                     num_episodes=num_episodes,
                     num_steps=num_steps,
                     cmd_freq=cmd_freq,
-                    collect_data=False if download_mode else collect_data,
+                    collect_data=False,
                     data_tag=data_tag,
                     goal=goal,
                     project_name=project_name,
