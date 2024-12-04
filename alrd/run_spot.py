@@ -709,20 +709,39 @@ if __name__ == "__main__":
         # "itzsgfze": (10000, 137),
         #
         # shape_tracing_new_data_v21
-        "idr3ss4q": (2000, 137),
-        "3yj6vpmq": (4000, 137),
-        "t0z2lsxm": (6000, 137),
-        "31ltns47": (8000, 137),
+        # "idr3ss4q": (2000, 137),
+        # "3yj6vpmq": (4000, 137),
+        # "t0z2lsxm": (6000, 137),
+        # "31ltns47": (8000, 137),
+        # #
+        # "xlu85n5e": (2000, 332),
+        # "309xhwdy": (4000, 332),
+        # "142nuhye": (6000, 332),
+        # "olhim547": (8000, 332),
+        # #
+        # "134c27w9": (2000, 417),
+        # "ravy2yhk": (4000, 417),
+        # "xeg9x2ep": (6000, 417),
+        # "gyzh4tw4": (8000, 417),
         #
-        "xlu85n5e": (2000, 332),
-        "309xhwdy": (4000, 332),
-        "142nuhye": (6000, 332),
-        "olhim547": (8000, 332),
+        # shape_tracing_new_data_v24
+        "0o1ebh6e": (1000, 137),
+        "4kuwbn1t": (2000, 137),
+        "xswnr1qp": (4000, 137),
+        "mjs4fru6": (6000, 137),
+        "je9gmkfq": (8000, 137),
         #
-        "134c27w9": (2000, 417),
-        "ravy2yhk": (4000, 417),
-        "xeg9x2ep": (6000, 417),
-        "gyzh4tw4": (8000, 417),
+        "tw04xt4c": (1000, 332),
+        "6l5b5rru": (2000, 332),
+        "hfkh54vi": (4000, 332),
+        "kqiw0j8g": (6000, 332),
+        "90ghk3xz": (8000, 332),
+        #
+        "m9spaip1": (1000, 417),
+        "a2y1iy19": (2000, 417),
+        "dx9ip3lu": (4000, 417),
+        "y6agvlng": (6000, 417),
+        "sm8eb0n2": (8000, 417),
     }
 
     exp_config_1 = {
@@ -795,20 +814,39 @@ if __name__ == "__main__":
         # "rue7mplc": (10000, 137),
         #
         # shape_tracing_new_data_v21
-        "k1rhmz06": (2000, 137),
-        "n1timrkt": (4000, 137),
-        "czwe5hrd": (6000, 137),
-        "zt9nx5ju": (8000, 137),
+        # "k1rhmz06": (2000, 137),
+        # "n1timrkt": (4000, 137),
+        # "czwe5hrd": (6000, 137),
+        # "zt9nx5ju": (8000, 137),
+        # #
+        # "q7nx7sbc": (2000, 332),
+        # "q0jyfhqj": (4000, 332),
+        # "xi89rl6n": (6000, 332),
+        # "s1p62tqv": (8000, 332),
+        # #
+        # "s97f87i2": (2000, 417),
+        # "a6svc36w": (4000, 417),
+        # "svqfw6ks": (6000, 417),
+        # "dhg4et5i": (8000, 417),
         #
-        "q7nx7sbc": (2000, 332),
-        "q0jyfhqj": (4000, 332),
-        "xi89rl6n": (6000, 332),
-        "s1p62tqv": (8000, 332),
+        # shape_tracing_new_data_v24
+        "e5arfg07": (1000, 137),
+        "wge85uhm": (2000, 137),
+        "2p4g6rfo": (4000, 137),
+        "wq6pds0t": (6000, 137),
+        "megxr1ty": (8000, 137),
         #
-        "s97f87i2": (2000, 417),
-        "a6svc36w": (4000, 417),
-        "svqfw6ks": (6000, 417),
-        "dhg4et5i": (8000, 417),
+        "fbcqui5b": (1000, 332),
+        "t0d719il": (2000, 332),
+        "t50qg2c0": (4000, 332),
+        "4x53wqm4": (6000, 332),
+        "i7tfn44u": (8000, 332),
+        #
+        "7cj0nsly": (1000, 417),
+        "ff4bilkt": (2000, 417),
+        "petu31i2": (4000, 417),
+        "ia12qm1h": (6000, 417),
+        "vryz9jkk": (8000, 417),
     }
 
     exp_config_2 = {
@@ -878,20 +916,39 @@ if __name__ == "__main__":
         # "qxaz6cpq": (10000, 137),
         #
         # shape_tracing_new_data_v21
-        "96w0vuyu": (2000, 137),
-        "pf1dezuk": (4000, 137),
-        "8w4margx": (6000, 137),
-        "aylbzghf": (8000, 137),
+        # "96w0vuyu": (2000, 137),
+        # "pf1dezuk": (4000, 137),
+        # "8w4margx": (6000, 137),
+        # "aylbzghf": (8000, 137),
+        # #
+        # "81k0o10n": (2000, 332),
+        # "3hre6c38": (4000, 332),
+        # "jsozls08": (6000, 332),
+        # "9t0abj8i": (8000, 332),
+        # #
+        # "xdfb6kl5": (2000, 417),
+        # "0837uj23": (4000, 417),
+        # "c642ykmp": (6000, 417),
+        # "ssv81jhk": (8000, 417),
         #
-        "81k0o10n": (2000, 332),
-        "3hre6c38": (4000, 332),
-        "jsozls08": (6000, 332),
-        "9t0abj8i": (8000, 332),
+        # shape_tracing_new_data_v24
+        "win9t8c7": (1000, 137),
+        "x92klcb7": (2000, 137),
+        "cl5aebnc": (4000, 137),
+        "hr6orxa5": (6000, 137),
+        "b0gl0e3z": (8000, 137),
         #
-        "xdfb6kl5": (2000, 417),
-        "0837uj23": (4000, 417),
-        "c642ykmp": (6000, 417),
-        "ssv81jhk": (8000, 417),
+        "g8rxgehl": (1000, 332),
+        "ymii34d0": (2000, 332),
+        "t84o6k4d": (4000, 332),
+        "hyk15dis": (6000, 332),
+        "lfv49hc5": (8000, 332),
+        #
+        "1gnrg7z9": (1000, 417),
+        "mv734vvm": (2000, 417),
+        "jihe5l1h": (4000, 417),
+        "f59ymrsb": (6000, 417),
+        "9h28875c": (8000, 417),
     }
 
     exp_config_3 = {
@@ -899,56 +956,85 @@ if __name__ == "__main__":
         "model_type": "bnn-fsvgd",
     }
 
-    """============== SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
+    """============== RUN SETTINGS =============="""
+    download_mode = True  # use to download policy from wandb
+    download_all = True  # use to download all policies from wandb
     num_episodes = 1
-    # num_steps = 149
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
     collect_data = True
-    project_name = "shape_tracing_new_data_v21"
-    # project_name = "ee_pos_testing"
+    project_name = "shape_tracing_new_data_v24"
     data_tag = project_name
-
-    """============== SET ACTIVE CONFIG =============="""
-    active_config_id = 2
-    active_run_id = 11
-    active_goal_id = shape
     num_frame_stack = 2
     action_scale = 1.0
+    active_goal_id = shape
 
-    """============== BUILD SETTINGS =============="""
+    """============== BUILD CONFIGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
     run_configs = [
         sim_model_run_configs,
         bnn_sim_fsvgd_run_configs,
         bnn_fsvgd_run_configs,
     ]
-    active_exp_config = exp_configs[active_config_id]
-    active_run_config = run_configs[active_config_id]
-    run_id = active_exp_config["run_id"][active_run_id]
-    model_type = active_exp_config["model_type"]
-    goal = goal_trajectory
-    data_size = active_run_config[run_id][0]
-    seed_id = active_run_config[run_id][1]
-    data_tag = (
-        f"{data_tag}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_{run_id}_v"
-    )
 
-    start_experiment(
-        download_mode=download_mode,
-        num_episodes=num_episodes,
-        num_steps=num_steps,
-        cmd_freq=cmd_freq,
-        collect_data=False if download_mode else collect_data,
-        data_tag=data_tag,
-        goal=goal,
-        project_name=project_name,
-        action_scale=action_scale,
-        run_id=run_id,
-        model_type=model_type,
-        data_size=data_size,
-        seed_id=seed_id,
-        goal_id=active_goal_id,
-        num_frame_stack=num_frame_stack,
-    )
+    if not download_all:
+        """============== SET ACTIVE CONFIG =============="""
+        active_config_id = 0
+        active_run_id = 0
+
+        """============== BUILD SETTINGS =============="""
+        active_exp_config = exp_configs[active_config_id]
+        active_run_config = run_configs[active_config_id]
+        run_id = active_exp_config["run_id"][active_run_id]
+        model_type = active_exp_config["model_type"]
+        goal = goal_trajectory
+        data_size = active_run_config[run_id][0]
+        seed_id = active_run_config[run_id][1]
+        data_tag = (
+            f"{data_tag}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_{run_id}_v"
+        )
+
+        start_experiment(
+            download_mode=download_mode,
+            num_episodes=num_episodes,
+            num_steps=num_steps,
+            cmd_freq=cmd_freq,
+            collect_data=False if download_mode else collect_data,
+            data_tag=data_tag,
+            goal=goal,
+            project_name=project_name,
+            action_scale=action_scale,
+            run_id=run_id,
+            model_type=model_type,
+            data_size=data_size,
+            seed_id=seed_id,
+            goal_id=active_goal_id,
+            num_frame_stack=num_frame_stack,
+        )
+    else:
+        """============== DOWNLOAD ALL POLICIES =============="""
+        for i, exp_config in enumerate(exp_configs):
+            for j, run_id in enumerate(exp_config["run_id"]):
+                model_type = exp_config["model_type"]
+                goal = goal_trajectory
+                data_size = run_configs[i][run_id][0]
+                seed_id = run_configs[i][run_id][1]
+                data_tag = f"{data_tag}_{model_type}_{data_size}_{seed_id}_{active_goal_id}_{run_id}_v"
+
+                start_experiment(
+                    download_mode=download_mode,
+                    num_episodes=num_episodes,
+                    num_steps=num_steps,
+                    cmd_freq=cmd_freq,
+                    collect_data=False if download_mode else collect_data,
+                    data_tag=data_tag,
+                    goal=goal,
+                    project_name=project_name,
+                    action_scale=action_scale,
+                    run_id=run_id,
+                    model_type=model_type,
+                    data_size=data_size,
+                    seed_id=seed_id,
+                    goal_id=active_goal_id,
+                    num_frame_stack=num_frame_stack,
+                )
