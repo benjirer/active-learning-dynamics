@@ -650,7 +650,7 @@ if __name__ == "__main__":
     # shape = "slalom_fast_more_new"
     # shape = "ellipse_large_sparse_new"
     # shape = "ellipse_large_sparse"
-    shape = "ellipse_v3"
+    shape = "forward_helix_v0"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -980,8 +980,8 @@ if __name__ == "__main__":
 
     if not download_all:
         """============== SET ACTIVE CONFIG =============="""
-        active_config_id = 2
-        active_run_id = 14
+        active_config_id = 1
+        active_run_id = 4
 
         """============== BUILD SETTINGS =============="""
         active_exp_config = exp_configs[active_config_id]
