@@ -727,21 +727,30 @@ if __name__ == "__main__":
         # "gyzh4tw4": (8000, 417),
         #
         # shape_tracing_new_data_v24
+        "vm9se84z": (500, 137),
         # "0o1ebh6e": (1000, 137),
         # "4kuwbn1t": (2000, 137),
+        "2x7ndgtr": (3000, 137),
         # "xswnr1qp": (4000, 137),
+        "zraw8cod": (5000, 137),
         # "mjs4fru6": (6000, 137),
         # "je9gmkfq": (8000, 137),
         #
+        "5ijgm94g": (500, 332),
         # "tw04xt4c": (1000, 332),
         # "6l5b5rru": (2000, 332),
+        "aomcya8w": (3000, 332),
         # "hfkh54vi": (4000, 332),
+        "1ifvrjvm": (5000, 332),
         # "kqiw0j8g": (6000, 332),
         # "90ghk3xz": (8000, 332),
         #
+        "8i2x6lhe": (500, 417),
         # "m9spaip1": (1000, 417),
         # "a2y1iy19": (2000, 417),
+        "pxvxtvlg": (3000, 417),
         # "dx9ip3lu": (4000, 417),
+        "l7gg3zlu": (5000, 417),
         # "y6agvlng": (6000, 417),
         # "sm8eb0n2": (8000, 417),
     }
@@ -978,7 +987,7 @@ if __name__ == "__main__":
 
     """============== RUN SETTINGS =============="""
     download_mode = False  # use to download policy from wandb
-    download_all = False  # use to download all policies from wandb
+    download_all = True  # use to download all policies from wandb
     num_episodes = 1
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
