@@ -993,8 +993,8 @@ if __name__ == "__main__":
 
     if not download_all:
         """============== SET ACTIVE CONFIG =============="""
-        active_config_id = 1
-        active_run_id = 4
+        active_config_id = 2
+        active_run_id = 2
 
         """============== BUILD SETTINGS =============="""
         active_exp_config = exp_configs[active_config_id]
