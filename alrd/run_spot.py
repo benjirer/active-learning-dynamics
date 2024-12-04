@@ -987,7 +987,7 @@ if __name__ == "__main__":
 
     """============== RUN SETTINGS =============="""
     download_mode = False  # use to download policy from wandb
-    download_all = True  # use to download all policies from wandb
+    download_all = False  # use to download all policies from wandb
     num_episodes = 1
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
@@ -1008,7 +1008,7 @@ if __name__ == "__main__":
 
     if not download_all:
         """============== SET ACTIVE CONFIG =============="""
-        active_config_id = 2
+        active_config_id = 0
         active_run_id = 8
 
         """============== BUILD SETTINGS =============="""
