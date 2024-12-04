@@ -961,9 +961,12 @@ if __name__ == "__main__":
         # "hyk15dis": (6000, 332),
         # "lfv49hc5": (8000, 332),
         #
+        "cozk1pby": (500, 417),
         # "1gnrg7z9": (1000, 417),
         # "mv734vvm": (2000, 417),
+        "zaxigcvp": (3000, 417),
         # "jihe5l1h": (4000, 417),
+        "3q5j27ok": (5000, 417),
         # "f59ymrsb": (6000, 417),
         # "9h28875c": (8000, 417),
     }
@@ -974,8 +977,8 @@ if __name__ == "__main__":
     }
 
     """============== RUN SETTINGS =============="""
-    download_mode = False  # use to download policy from wandb
-    download_all = False  # use to download all policies from wandb
+    download_mode = True  # use to download policy from wandb
+    download_all = True  # use to download all policies from wandb
     num_episodes = 1
     num_steps = len(goal_trajectory) - 1
     cmd_freq = 15
