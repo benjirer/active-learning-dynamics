@@ -15,6 +15,7 @@ class OfflineTrainedAgent(AgentReset):
         goal_dim: int,
         goal: np.ndarray,
         SAC_KWARGS,
+        goal_threshold=None,
     ) -> None:
         self.rl_from_offline_data = RLFromOfflineData(
             sac_kwargs=SAC_KWARGS,
@@ -30,6 +31,7 @@ class OfflineTrainedAgent(AgentReset):
         self.goal_dim = goal_dim
         self.goal = goal
         self.goal_idx = 0
+        self.goal_threshold = goal_threshold
 
         self.reward = SpotEnvReward(
             encode_angle=reward_config["encode_angle"],
@@ -40,8 +42,6 @@ class OfflineTrainedAgent(AgentReset):
     def act(self, obs: np.ndarray, action_buffer: np.ndarray) -> np.ndarray:
         # add goal to obs
         goal = self.goal[self.goal_idx]
-        # set x compnent to x = 1.3
-        # goal[0] = 1.4
         obs_goal_distance = np.linalg.norm(obs[7:10] - goal)
 
         # print(f"obs_goal_distance: {obs_goal_distance}")
@@ -57,7 +57,14 @@ class OfflineTrainedAgent(AgentReset):
         print(f"DISTANCE TO GOAL: {obs_goal_distance}")
         print(f"ACTION: {action}")
 
-        self.goal_idx += 1
+        if self.goal_threshold is not None:
+            if obs_goal_distance < self.goal_threshold:
+                print(f"Goal reached: {self.goal_idx}")
+                if self.goal_idx < len(self.goal) - 1:
+                    self.goal_idx += 1
+        else:
+            self.goal_idx += 1
+
         return np.array(action)
 
     def get_reward(

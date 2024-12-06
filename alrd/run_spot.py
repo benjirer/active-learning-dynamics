@@ -159,6 +159,7 @@ def get_offline_trained_agent(
     project_name: str,
     run_id: str,
     offline_mode,
+    goal_threshold: float = None,
 ) -> Agent:
 
     local_dir = "saved_models/" + project_name + "_" + run_id
@@ -245,6 +246,7 @@ def get_offline_trained_agent(
         goal_dim=goal_dim,
         SAC_KWARGS=SAC_KWARGS,
         goal=goal,
+        goal_threshold=goal_threshold,
     )
     return agent
 
@@ -458,6 +460,7 @@ def start_experiment(
     seed_id: int = 1,
     goal_id: Union[int, str] = 0,
     num_frame_stack: int = 0,
+    goal_threshold: float = None,
 ):
 
     # import real world config
@@ -504,6 +507,11 @@ def start_experiment(
             "data_size: {}".format(data_size),
             "seed_id: {}".format(seed_id),
             "goal_id: {}".format(goal_id),
+            (
+                "goal_threshold: {}".format(goal_threshold)
+                if goal_threshold is not None
+                else ""
+            ),
         ]
         os.makedirs(session_dir, exist_ok=True)
         settings_path = os.path.join(session_dir, "experiment_settings.csv")
@@ -551,6 +559,7 @@ def start_experiment(
             project_name=project_name,
             run_id=run_id,
             offline_mode=False if download_mode else True,
+            goal_threshold=goal_threshold,
         )
 
         # agent = KeyboardAgent(xy_speed=1, a_speed=1)
@@ -638,24 +647,6 @@ def start_experiment(
 
 if __name__ == "__main__":
 
-    """============== GOAL TRAJECTORY =============="""
-    # import goal trajectory from pickle
-    # shape = "heart"
-    # shape = "infinity"
-    # shape = "infinity_large"
-    # shape = "real_traj_0"
-    # shape = "real_traj_1"
-    # shape = "real_traj_2"
-
-    # shape = "slalom_fast_more_new"
-    # shape = "ellipse_large_sparse_new"
-    # shape = "ellipse_large_sparse"
-    # shape = "forward_helix_v0"
-    shape = "ellipse_v3"
-    goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
-    with open(goal_file_name, "rb") as f:
-        goal_trajectory = pickle.load(f)
-
     """============== EXPERIMENT CONFIGS =============="""
     """===== SIM-MODEL ====="""
     sim_model_run_configs = {
@@ -728,28 +719,28 @@ if __name__ == "__main__":
         #
         # shape_tracing_new_data_v24
         "vm9se84z": (500, 137),
-        # "0o1ebh6e": (1000, 137),
-        # "4kuwbn1t": (2000, 137),
+        "0o1ebh6e": (1000, 137),
+        "4kuwbn1t": (2000, 137),
         "2x7ndgtr": (3000, 137),
-        # "xswnr1qp": (4000, 137),
+        "xswnr1qp": (4000, 137),
         "zraw8cod": (5000, 137),
         # "mjs4fru6": (6000, 137),
         # "je9gmkfq": (8000, 137),
         #
         "5ijgm94g": (500, 332),
-        # "tw04xt4c": (1000, 332),
-        # "6l5b5rru": (2000, 332),
+        "tw04xt4c": (1000, 332),
+        "6l5b5rru": (2000, 332),
         "aomcya8w": (3000, 332),
-        # "hfkh54vi": (4000, 332),
+        "hfkh54vi": (4000, 332),
         "1ifvrjvm": (5000, 332),
         # "kqiw0j8g": (6000, 332),
         # "90ghk3xz": (8000, 332),
         #
         "8i2x6lhe": (500, 417),
-        # "m9spaip1": (1000, 417),
-        # "a2y1iy19": (2000, 417),
+        "m9spaip1": (1000, 417),
+        "a2y1iy19": (2000, 417),
         "pxvxtvlg": (3000, 417),
-        # "dx9ip3lu": (4000, 417),
+        "dx9ip3lu": (4000, 417),
         "l7gg3zlu": (5000, 417),
         # "y6agvlng": (6000, 417),
         # "sm8eb0n2": (8000, 417),
@@ -842,28 +833,28 @@ if __name__ == "__main__":
         #
         # shape_tracing_new_data_v24
         "puoohs5r": (500, 137),
-        # "e5arfg07": (1000, 137),
-        # "wge85uhm": (2000, 137),
+        "e5arfg07": (1000, 137),
+        "wge85uhm": (2000, 137),
         "qnub8bk7": (3000, 137),
-        # "2p4g6rfo": (4000, 137),
+        "2p4g6rfo": (4000, 137),
         "br7i7hjl": (5000, 137),
         # "wq6pds0t": (6000, 137),
         # "megxr1ty": (8000, 137),
         #
         "qwkuhaqe": (500, 332),
-        # "fbcqui5b": (1000, 332),
-        # "t0d719il": (2000, 332),
+        "fbcqui5b": (1000, 332),
+        "t0d719il": (2000, 332),
         "usc0g8ko": (3000, 332),
-        # "t50qg2c0": (4000, 332),
+        "t50qg2c0": (4000, 332),
         "4e5k4pn0": (5000, 332),
         # "4x53wqm4": (6000, 332),
         # "i7tfn44u": (8000, 332),
         #
         "9jgctt0o": (500, 417),
-        # "7cj0nsly": (1000, 417),
-        # "ff4bilkt": (2000, 417),
+        "7cj0nsly": (1000, 417),
+        "ff4bilkt": (2000, 417),
         "vb9ttcgq": (3000, 417),
-        # "petu31i2": (4000, 417),
+        "petu31i2": (4000, 417),
         "j7nn9z6t": (5000, 417),
         # "ia12qm1h": (6000, 417),
         # "vryz9jkk": (8000, 417),
@@ -953,28 +944,28 @@ if __name__ == "__main__":
         #
         # shape_tracing_new_data_v24
         "l4p6ub24": (500, 137),
-        # "win9t8c7": (1000, 137),
-        # "x92klcb7": (2000, 137),
+        "win9t8c7": (1000, 137),
+        "x92klcb7": (2000, 137),
         "5bp61ihy": (3000, 137),
-        # "cl5aebnc": (4000, 137),
+        "cl5aebnc": (4000, 137),
         "7tmvtkwu": (5000, 137),
         # "hr6orxa5": (6000, 137),
         # "b0gl0e3z": (8000, 137),
         #
         "70fzj0on": (500, 332),
-        # "g8rxgehl": (1000, 332),
-        # "ymii34d0": (2000, 332),
+        "g8rxgehl": (1000, 332),
+        "ymii34d0": (2000, 332),
         "vgnmwwt5": (3000, 332),
-        # "t84o6k4d": (4000, 332),
+        "t84o6k4d": (4000, 332),
         "lrwhf24q": (5000, 332),
         # "hyk15dis": (6000, 332),
         # "lfv49hc5": (8000, 332),
         #
         "cozk1pby": (500, 417),
-        # "1gnrg7z9": (1000, 417),
-        # "mv734vvm": (2000, 417),
+        "1gnrg7z9": (1000, 417),
+        "mv734vvm": (2000, 417),
         "zaxigcvp": (3000, 417),
-        # "jihe5l1h": (4000, 417),
+        "jihe5l1h": (4000, 417),
         "3q5j27ok": (5000, 417),
         # "f59ymrsb": (6000, 417),
         # "9h28875c": (8000, 417),
@@ -985,11 +976,31 @@ if __name__ == "__main__":
         "model_type": "bnn-fsvgd",
     }
 
+    """============== GOAL TRAJECTORY =============="""
+    # import goal trajectory from pickle
+    # shape = "heart"
+    # shape = "infinity"
+    # shape = "infinity_large"
+    # shape = "real_traj_0"
+    # shape = "real_traj_1"
+    # shape = "real_traj_2"
+
+    # shape = "slalom_fast_more_new"
+    # shape = "ellipse_large_sparse_new"
+    # shape = "ellipse_large_sparse"
+    # shape = "forward_helix_v0"
+    shape = "ellipse_v3"
+    goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
+    with open(goal_file_name, "rb") as f:
+        goal_trajectory = pickle.load(f)
+
     """============== RUN SETTINGS =============="""
     download_mode = False  # use to download policy from wandb
     download_all = False  # use to download all policies from wandb
     num_episodes = 1
-    num_steps = len(goal_trajectory) - 1
+    num_steps = (
+        len(goal_trajectory) - 1 if not shape.startswith("line_touching") else 5000
+    )
     cmd_freq = 15
     collect_data = True
     project_name = "shape_tracing_new_data_v24"
@@ -997,6 +1008,7 @@ if __name__ == "__main__":
     num_frame_stack = 2
     action_scale = 1.0
     active_goal_id = shape
+    goal_threshold = 0.05 if shape.startswith("line_touching") else None
 
     """============== BUILD CONFIGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
@@ -1039,6 +1051,7 @@ if __name__ == "__main__":
             seed_id=seed_id,
             goal_id=active_goal_id,
             num_frame_stack=num_frame_stack,
+            goal_threshold=goal_threshold,
         )
     else:
         """============== DOWNLOAD ALL POLICIES =============="""
@@ -1066,4 +1079,5 @@ if __name__ == "__main__":
                     seed_id=seed_id,
                     goal_id=active_goal_id,
                     num_frame_stack=num_frame_stack,
+                    goal_threshold=goal_threshold,
                 )
