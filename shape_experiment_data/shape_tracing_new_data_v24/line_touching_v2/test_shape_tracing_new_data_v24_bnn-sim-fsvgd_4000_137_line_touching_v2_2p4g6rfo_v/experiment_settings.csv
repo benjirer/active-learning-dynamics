@@ -1,0 +1,11 @@
+num_episodes: 1
+num_steps: 5000
+cmd_freq: 15
+project_name: shape_tracing_new_data_v24
+action_scale: 1.0
+run_id: 2p4g6rfo
+model_type : bnn-sim-fsvgd
+data_size: 4000
+seed_id: 137
+goal_id: line_touching_v2
+goal_threshold: 0.15

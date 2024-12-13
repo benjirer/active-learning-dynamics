@@ -989,7 +989,7 @@ if __name__ == "__main__":
     # shape = "ellipse_large_sparse_new"
     # shape = "ellipse_large_sparse"
     # shape = "forward_helix_v0"
-    shape = "forward_helix_v3"
+    shape = "line_touching_v6"
     goal_file_name = f"/home/bhoffman/Documents/MT FS24/active-learning-dynamics/goal_traj/{shape}_goal_trajectory.pkl"
     with open(goal_file_name, "rb") as f:
         goal_trajectory = pickle.load(f)
@@ -1008,7 +1008,7 @@ if __name__ == "__main__":
     num_frame_stack = 2
     action_scale = 1.0
     active_goal_id = shape
-    goal_threshold = 0.05 if shape.startswith("line_touching") else None
+    goal_threshold = 0.2 if shape.startswith("line_touching") else None
 
     """============== BUILD CONFIGS =============="""
     exp_configs = [exp_config_1, exp_config_2, exp_config_3]
@@ -1020,8 +1020,8 @@ if __name__ == "__main__":
 
     if not download_all:
         """============== SET ACTIVE CONFIG =============="""
-        active_config_id = 2
-        active_run_id = 12
+        active_config_id = 1
+        active_run_id = 5
 
         """============== BUILD SETTINGS =============="""
         active_exp_config = exp_configs[active_config_id]
